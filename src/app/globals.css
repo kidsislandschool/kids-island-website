@@ -1,26 +1,167 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ==========================================================================
+   Kids Island — design tokens
+   Cheerful primary-school feel: white/light paper, navy structure, warm
+   yellow accents, restrained pastels, cloud-shaped section transitions.
+   ========================================================================== */
+
+@theme {
+  --color-paper: #fffdf9;
+  --color-paper-2: #fbf7ef;
+
+  --color-navy: #12325c;
+  --color-navy-900: #0a1c38;
+  --color-navy-700: #1c4478;
+  --color-navy-100: #e4ecf9;
+
+  --color-blue: #2f6fed;
+  --color-blue-100: #e6f0ff;
+  --color-sky: #8fc5ff;
+
+  --color-yellow: #ffc53d;
+  --color-yellow-100: #fff4d6;
+  --color-amber: #ff9f1c;
+
+  --color-blush: #ffe6ef;
+  --color-mint: #e4f7ec;
+  --color-skyblue: #e6f1ff;
+  --color-cream: #fff7e8;
+
+  --color-line: #e7eef8;
+  --color-ink: #10254a;
+  --color-muted: #5b6b85;
+
+  --font-display: var(--font-fredoka), "Segoe UI", sans-serif;
+  --font-sans: var(--font-nunito), "Segoe UI", system-ui, sans-serif;
+
+  --shadow-soft: 0 10px 30px -12px rgba(18, 50, 92, 0.18);
+  --shadow-lift: 0 24px 48px -20px rgba(18, 50, 92, 0.28);
+  --shadow-yellow: 0 14px 30px -12px rgba(255, 159, 28, 0.55);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-yellow);
+  color: var(--color-navy-900);
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-navy-900);
+}
+
+/* Visible, consistent keyboard focus everywhere. */
+:focus-visible {
+  outline: 3px solid var(--color-blue);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* --------------------------------------------------------------- utilities */
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility display-tight {
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+/* Playful dotted backdrop used behind hero / CTA art. */
+@utility dot-grid {
+  background-image: radial-gradient(currentColor 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+
+@utility wave-underline {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='8' viewBox='0 0 80 8'%3E%3Cpath d='M0 5 Q10 0 20 5 T40 5 T60 5 T80 5' fill='none' stroke='%23ffc53d' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: 0 100%;
+  background-size: 44px 7px;
+  padding-bottom: 0.22em;
+}
+
+/* Marquee ticker for the notice strip. */
+@keyframes ki-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@utility animate-marquee {
+  animation: ki-marquee 38s linear infinite;
+}
+
+/* Gentle floating for decorative clouds. */
+@keyframes ki-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+@utility animate-float-slow {
+  animation: ki-float 7s ease-in-out infinite;
+}
+@utility animate-float-slower {
+  animation: ki-float 11s ease-in-out infinite;
+}
+
+/* Pulsing ring on the animated contact map pin. */
+@keyframes ki-pulse-ring {
+  0% { transform: scale(0.6); opacity: 0.85; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+@utility animate-pulse-ring {
+  animation: ki-pulse-ring 2.2s ease-out infinite;
+}
+
+/* Reduced motion: switch off every decorative loop and shorten transitions. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* GSAP pinned sequence visibility:
+   The desktop pin only runs on large screens with motion enabled; otherwise
+   the stacked fallback is used. Keeping this in CSS avoids a flash of two
+   layouts before ScrollTrigger measures the page. */
+.ki-pin {
+  display: none;
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .ki-pin {
+    display: block;
+  }
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .ki-pin-static {
+    display: none;
+  }
+}
+
+/* Admin sidebar scrollbar. */
+@utility thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-sky) transparent;
 }

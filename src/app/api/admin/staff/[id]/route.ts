@@ -1,0 +1,52 @@
+import { getDb } from "@/lib/db";
+import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
+import { requireAdminApi } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
+
+export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  if (!assertSameOrigin(req)) return jsonError("Invalid request origin", 403);
+  const user = await requireAdminApi();
+  if (!user) return jsonError("Unauthorized", 401);
+
+  const { id } = await ctx.params;
+  const staffId = Number(id);
+  if (!Number.isInteger(staffId)) return jsonError("Invalid staff id", 400);
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return jsonError("Invalid request body", 400);
+  }
+
+  const status = (body as { status?: unknown })?.status;
+  if (status !== "approved" && status !== "rejected") {
+    return jsonError("Choose a valid status (approved/rejected)", 422);
+  }
+
+  const db = getDb();
+  const existing = db.prepare("SELECT * FROM staff WHERE id = ?").get(staffId) as
+    | { id: number; status: string; name: string; email: string }
+    | undefined;
+  if (!existing) return jsonError("Staff not found", 404);
+
+  if (existing.status !== "pending") {
+    return jsonError("Only pending staff can be approved or rejected.", 422);
+  }
+
+  db.prepare(
+    `UPDATE staff SET status = ?, approved_by = ?, approved_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`
+  ).run(status, user.id, staffId);
+
+  logAudit({
+    userId: user.id,
+    action: `staff_${status}`,
+    entity: "staff",
+    entityId: staffId,
+    detail: { name: existing.name, email: existing.email, previousStatus: existing.status },
+    ip: clientIp(req),
+  });
+
+  return Response.json({ ok: true, status });
+}
