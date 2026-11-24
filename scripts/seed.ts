@@ -2,27 +2,25 @@ import { loadEnv } from "./load-env";
 
 async function main() {
   loadEnv();
-  const { getDb } = await import("../src/lib/db");
+  const { SupabaseDB } = await import("../src/lib/db");
   const { runSeed, seedIfEmpty } = await import("../src/lib/seed");
   const force = process.argv.includes("--force");
-  const db = getDb();
+  const db = SupabaseDB;
 
   if (!force) {
-    seedIfEmpty(db);
-    const count = (db.prepare("SELECT COUNT(*) AS c FROM content").get() as { c: number }).c;
-    console.log(`Seed check complete. ${count} content blocks present.`);
+    await seedIfEmpty(db);
+    const countResult = await db.prepare("SELECT COUNT(*) AS c FROM content").get() as { c: number };
+    console.log(`Seed check complete. ${countResult.c} content blocks present.`);
     console.log("Use `npm run db:seed -- --force` only on a development database to overwrite seeded content.");
-    db.close();
     return;
   }
 
-  const rows = (db.prepare("SELECT COUNT(*) AS c FROM content").get() as { c: number }).c;
+  const rowsResult = await db.prepare("SELECT COUNT(*) AS c FROM content").get() as { c: number };
   console.warn("WARNING: --force overwrites seeded content statuses and replaces seeded testimonials and FAQs.");
-  console.warn(`The database currently has ${rows} content blocks.`);
-  runSeed(db, { force: true });
-  const after = (db.prepare("SELECT COUNT(*) AS c FROM content").get() as { c: number }).c;
-  console.log(`Seed complete. ${after} content blocks present.`);
-  db.close();
+  console.warn(`The database currently has ${rowsResult.c} content blocks.`);
+  await runSeed(db, { force: true });
+  const afterResult = await db.prepare("SELECT COUNT(*) AS c FROM content").get() as { c: number };
+  console.log(`Seed complete. ${afterResult.c} content blocks present.`);
 }
 
 void main().catch((error) => {

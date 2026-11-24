@@ -18,8 +18,8 @@ export default async function StaffDashboardPage() {
   const session = await getStaffSession();
   if (!session) redirect("/staff-login");
 
-  const myMaterials = getStaffMaterials({ staffId: session.user.id, perPage: 5 });
-  const allMaterials = getPublishedMaterials({ limit: 5 });
+  const myMaterials = await getStaffMaterials({ staffId: session.user.id, perPage: 5 });
+  const allMaterials = await getPublishedMaterials({ limit: 5 });
   const firstName = session.user.name.split(" ")[0] ?? "there";
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";

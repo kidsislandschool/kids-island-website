@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getContent } from "@/lib/content";
+import type { Stat } from "@/components/sections/stats";
 import { buildPageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/sections/page-hero";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
@@ -11,10 +12,11 @@ import { Button } from "@/components/ui/button";
 import { StatsBand, type Stat } from "@/components/sections/stats";
 import { CloudDivider } from "@/components/ui/clouds";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
-export function generateMetadata(): Metadata {
-  return buildPageMetadata("/about", {
+export async function generateMetadata(): Promise<Metadata> {
+  return await buildPageMetadata("/about", {
     title: "About Us",
     description: "Learn about Kids Island Senior Secondary School, Aligarh.",
   });
@@ -58,9 +60,11 @@ function highlight(text: string, phrase: string) {
   );
 }
 
-export default function AboutPage() {
-  const content = getContent<AboutPage>("about.page", FALLBACK);
-  const stats = getContent<Stat[]>("about.stats", []);
+export default async function AboutPage() {
+  const [content, stats] = await Promise.all([
+    getContent<AboutPage>("about.page", FALLBACK),
+    getContent<Stat[]>("about.stats", []),
+  ]);
 
   return (
     <>

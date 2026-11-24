@@ -6,8 +6,8 @@ import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { SceneArt } from "@/components/ui/scene-art";
 
-export function generateMetadata(): Metadata {
-  return buildPageMetadata(
+export async function generateMetadata(): Promise<Metadata> {
+  return await buildPageMetadata(
     "/student-login",
     {
       title: "Student Login",

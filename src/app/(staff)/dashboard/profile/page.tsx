@@ -19,7 +19,7 @@ export default async function ProfilePage() {
   if (!session) redirect("/staff-login");
 
   const db = getDb();
-  const profile = db.prepare("SELECT * FROM staff WHERE id = ?").get(session.user.id) as
+  const profile = await db.prepare("SELECT * FROM staff WHERE id = ?").get(session.user.id) as
     | { id: number; name: string; email: string; phone: string | null; designation: string | null; qualification: string | null; bio: string | null; photo: string | null; created_at: string; updated_at: string }
     | undefined;
 

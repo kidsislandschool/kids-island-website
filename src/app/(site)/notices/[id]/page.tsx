@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -18,9 +19,9 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const notice = getNotice(Number(id));
+  const notice = await getNotice(Number(id));
   if (!notice) return { title: "Notice not found" };
-  return buildPageMetadata(`/notices/${notice.id}`, {
+  return await buildPageMetadata(`/notices/${notice.id}`, {
     title: notice.title,
     description:
       notice.summary ??
@@ -30,9 +31,9 @@ export async function generateMetadata({
 
 export default async function NoticeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const notice = getNotice(Number(id));
+  const notice = await getNotice(Number(id));
   if (!notice) notFound();
-  const more = getLatestNotices(4).filter((n) => n.id !== notice.id).slice(0, 3);
+  const more = (await getLatestNotices(4)).filter((n) => n.id !== notice.id).slice(0, 3);
   const bodyParagraphs = (notice.body ?? "").split(/\n{2,}/).filter(Boolean);
 
   return (

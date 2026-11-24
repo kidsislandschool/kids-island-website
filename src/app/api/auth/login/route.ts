@@ -43,8 +43,10 @@ export async function POST(req: Request) {
     );
   }
 
-  const user = findUserByEmail(normalized);
-  const master = getMasterAdmin();
+  const [user, master] = await Promise.all([
+    findUserByEmail(normalized),
+    getMasterAdmin(),
+  ]);
   const valid = user && verifyPassword(password, user.password_hash);
 
   if (!user || !valid || user.role !== "master_admin") {
@@ -65,7 +67,7 @@ export async function POST(req: Request) {
     { id: user.id, email: user.email, name: user.name, role: user.role },
     { ip, userAgent: req.headers.get("user-agent") }
   );
-  getDb().prepare("UPDATE users SET last_login_at = datetime('now') WHERE id = ?").run(user.id);
+  await getDb().from('users').update({ last_login_at: new Date().toISOString() }).eq('id', user.id);
   logAudit({ userId: user.id, action: "login", entity: "master_admin", entityId: user.id, ip });
 
   const redirect =

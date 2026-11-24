@@ -48,7 +48,7 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ i
   if (!Number.isInteger(materialId)) notFound();
 
   const db = getDb();
-  const material = db.prepare("SELECT * FROM materials WHERE id = ? AND created_by = ?").get(materialId, session.user.id) as
+  const material = await db.prepare("SELECT * FROM materials WHERE id = ? AND created_by = ?").get(materialId, session.user.id) as
     | { id: number; title: string; class_level: string; subject: string; description: string | null; file_url: string | null; tags: string | null; status: string; published_at: string | null; created_at: string; updated_at: string }
     | undefined;
 

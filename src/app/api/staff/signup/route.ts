@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   const { name, email, phone, designation, qualification, bio, password } = parsed.data;
   const normalizedEmail = email.toLowerCase();
 
-  const existing = getStaffByEmail(normalizedEmail);
+  const existing = await getStaffByEmail(normalizedEmail);
   if (existing) {
     return jsonError("An account with this email already exists.", 409);
   }

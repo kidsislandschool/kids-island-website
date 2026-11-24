@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getNotices, getNoticeCategories } from "@/lib/data";
 import { buildPageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/sections/page-hero";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
@@ -9,13 +8,55 @@ import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { cn, formatDate } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
-export function generateMetadata(): Metadata {
-  return buildPageMetadata("/notices", {
+export async function generateMetadata(): Promise<Metadata> {
+  return await buildPageMetadata("/notices", {
     title: "Notices & Announcements",
     description: "Latest notices, events and announcements from Kids Island Senior Secondary School, Aligarh.",
   });
+}
+
+// Fetch categories from cached API endpoint
+async function getNoticeCategories(): Promise<string[]> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "https://kids-island-xi.vercel.app"}/api/filters/notices`, {
+      next: { revalidate: 300 },
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+    console.error("Failed to fetch notice categories:", e);
+  }
+  return [];
+}
+
+// Fetch notices from cached API endpoint
+async function getNoticesData(sp: { q?: string; category?: string; page?: string }): Promise<{
+  rows: any[];
+  page: number;
+  pages: number;
+  total: number;
+}> {
+  const params = new URLSearchParams();
+  if (sp.q) params.set("q", sp.q);
+  if (sp.category) params.set("category", sp.category);
+  params.set("page", sp.page || "1");
+  params.set("perPage", "9");
+  
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "https://kids-island-xi.vercel.app"}/api/notices?${params.toString()}`, {
+      next: { revalidate: 60 },
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+    console.error("Failed to fetch notices:", e);
+  }
+  return { rows: [], page: 1, pages: 0, total: 0 };
 }
 
 export default async function NoticesPage({
@@ -24,8 +65,10 @@ export default async function NoticesPage({
   searchParams: Promise<{ q?: string; category?: string; page?: string }>;
 }) {
   const sp = await searchParams;
-  const result = getNotices({ search: sp.q, category: sp.category, page: Number(sp.page) || 1, perPage: 9 });
-  const categories = getNoticeCategories();
+  const [result, categories] = await Promise.all([
+    getNoticesData(sp),
+    getNoticeCategories(),
+  ]);
 
   return (
     <>

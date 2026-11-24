@@ -1,4 +1,4 @@
-import { getDb } from "./db";
+import { supabaseAdmin, supabase } from './supabase';
 
 export type ContentStatus = "published" | "draft" | "needs_review";
 
@@ -16,14 +16,19 @@ export type ContentRecord = {
  * `opts.publicOnly` (default true) hides draft / needs-review content from
  * the public site until a Master Admin publishes it.
  */
-export function getContent<T>(key: string, fallback: T, opts?: { publicOnly?: boolean }): T {
-  const db = getDb();
-  const row = db.prepare("SELECT * FROM content WHERE key = ?").get(key) as
-    | ContentRecord
-    | undefined;
-  if (!row) return fallback;
+export async function getContent<T>(key: string, fallback: T, opts?: { publicOnly?: boolean }): Promise<T> {
+  const client = supabaseAdmin;
+  const { data: row, error } = await client
+    .from('content')
+    .select('*')
+    .eq('key', key)
+    .single();
+  
+  if (error || !row) return fallback;
+  
   const publicOnly = opts?.publicOnly ?? true;
   if (publicOnly && row.status !== "published") return fallback;
+  
   try {
     return JSON.parse(row.value) as T;
   } catch {
@@ -32,57 +37,130 @@ export function getContent<T>(key: string, fallback: T, opts?: { publicOnly?: bo
 }
 
 /** Read raw record (including status) — used by the admin. */
-export function getContentRecord(key: string): ContentRecord | undefined {
-  return getDb().prepare("SELECT * FROM content WHERE key = ?").get(key) as
-    | ContentRecord
-    | undefined;
+export async function getContentRecord(key: string): Promise<ContentRecord | undefined> {
+  const client = supabaseAdmin;
+  const { data: row, error } = await client
+    .from('content')
+    .select('*')
+    .eq('key', key)
+    .single();
+  
+  if (error || !row) return undefined;
+  return row as ContentRecord;
 }
 
-export function listContent(prefix?: string): ContentRecord[] {
-  const db = getDb();
+export async function listContent(prefix?: string): Promise<ContentRecord[]> {
+  const client = supabaseAdmin;
+  let query = client.from('content').select('*').order('key');
+  
   if (prefix) {
-    return db
-      .prepare("SELECT * FROM content WHERE key LIKE ? ORDER BY key")
-      .all(`${prefix}%`) as ContentRecord[];
+    query = query.like('key', `${prefix}%`);
   }
-  return db.prepare("SELECT * FROM content ORDER BY key").all() as ContentRecord[];
+  
+  const { data, error } = await query;
+  if (error) return [];
+  return (data || []) as ContentRecord[];
 }
 
-export function setContent(
+export async function setContent(
   key: string,
   value: unknown,
   status: ContentStatus,
   userId?: number | null
-) {
-  getDb()
-    .prepare(
-      `INSERT INTO content (key, value, status, updated_at, updated_by)
-       VALUES (?, ?, ?, datetime('now'), ?)
-       ON CONFLICT(key) DO UPDATE SET
-         value = excluded.value,
-         status = excluded.status,
-         updated_at = datetime('now'),
-         updated_by = excluded.updated_by`
-    )
-    .run(key, JSON.stringify(value), status, userId ?? null);
+): Promise<void> {
+  const client = supabaseAdmin;
+  const { error } = await client
+    .from('content')
+    .upsert({
+      key,
+      value: JSON.stringify(value),
+      status,
+      updated_at: new Date().toISOString(),
+      updated_by: userId ?? null,
+    }, { onConflict: 'key' });
+  
+  if (error) throw error;
 }
 
 /** Count content blocks waiting for review (drives the admin badge). */
-export function countNeedsReview(): { content: number; testimonials: number; faqs: number } {
-  const db = getDb();
-  const c = db
-    .prepare("SELECT COUNT(*) AS c FROM content WHERE status = 'needs_review'")
-    .get() as { c: number };
-  const t = db
-    .prepare("SELECT COUNT(*) AS c FROM testimonials WHERE status = 'needs_review'")
-    .get() as { c: number };
-  const f = db
-    .prepare("SELECT COUNT(*) AS c FROM faqs WHERE status = 'needs_review'")
-    .get() as { c: number };
-  return { content: c.c, testimonials: t.c, faqs: f.c };
+export async function countNeedsReview(): Promise<{ content: number; testimonials: number; faqs: number }> {
+  const client = supabaseAdmin;
+  
+  const [{ count: c }, { count: t }, { count: f }] = await Promise.all([
+    client.from('content').select('*', { count: 'exact', head: true }).eq('status', 'needs_review'),
+    client.from('testimonials').select('*', { count: 'exact', head: true }).eq('status', 'needs_review'),
+    client.from('faqs').select('*', { count: 'exact', head: true }).eq('status', 'needs_review'),
+  ]);
+  
+  return { content: c ?? 0, testimonials: t ?? 0, faqs: f ?? 0 };
 }
 
-/* ------------------------------------------------------------ typed helpers */
+export type PageSeo = {
+  title: string;
+  description: string;
+  /** Optional social sharing image (uploaded or absolute URL). */
+  ogImage?: string;
+  /** Optional canonical override. Defaults to the page path. */
+  canonical?: string;
+};
+
+/** Per-page SEO overrides managed in /admin/seo. */
+export async function getSeo(path: string, fallback: PageSeo): Promise<PageSeo> {
+  const all = await getContent<Record<string, PageSeo>>("settings.seo", {});
+  const entry = all[path];
+  return entry?.title ? entry : fallback;
+}
+
+export async function getNav() {
+  return getContent<{
+    links: { label: string; href: string }[];
+    cta: { label: string; href: string };
+  }>("settings.nav", {
+    links: [
+      { label: "Home", href: "/" },
+      { label: "About", href: "/about" },
+      { label: "Admissions", href: "/admissions" },
+      { label: "Academics", href: "/academics" },
+      { label: "Faculty", href: "/faculty" },
+      { label: "Gallery", href: "/gallery" },
+      { label: "Notices", href: "/notices" },
+      { label: "Study Materials", href: "/study-materials" },
+      { label: "Contact", href: "/contact" },
+    ],
+    cta: { label: "Apply for Admission", href: "/admissions#inquiry" },
+  });
+}
+
+export async function getFooter() {
+  return getContent<{
+    blurb: string;
+    quickLinks: { label: string; href: string }[];
+    resources: { label: string; href: string }[];
+    legal: { label: string; href: string }[];
+    copyright: string;
+  }>("settings.footer", {
+    blurb: "Kids Island Senior Secondary School is committed to providing quality education in a nurturing environment. We believe every child deserves the opportunity to learn, grow, and succeed.",
+    quickLinks: [
+      { label: "Home", href: "/" },
+      { label: "About Us", href: "/about" },
+      { label: "Admissions", href: "/admissions" },
+      { label: "Academics", href: "/academics" },
+      { label: "Faculty", href: "/faculty" },
+      { label: "Contact", href: "/contact" },
+    ],
+    resources: [
+      { label: "Gallery", href: "/gallery" },
+      { label: "Notices", href: "/notices" },
+      { label: "Study Materials", href: "/study-materials" },
+      { label: "FAQs", href: "/contact#faqs" },
+    ],
+    legal: [
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Service", href: "/terms" },
+    ],
+    copyright: "Kids Island Senior Secondary School, Aligarh.",
+  });
+}
 
 export type SiteSettings = {
   name: string;
@@ -100,7 +178,7 @@ export type SiteSettings = {
   affiliation: string;
 };
 
-export function getSiteSettings(): SiteSettings {
+export async function getSiteSettings(): Promise<SiteSettings> {
   return getContent<SiteSettings>("settings.site", {
     name: "Kids Island Senior Secondary School",
     shortName: "Kids Island",
@@ -110,59 +188,280 @@ export function getSiteSettings(): SiteSettings {
     email: "contact@kidsaligarh.com",
     whatsapp: "+91 9997973574",
     whatsappNote: "",
-    hoursPhone: "",
-    hoursOffice: "",
+    hoursPhone: "Mon–Sat: 8:00 AM – 4:00 PM",
+    hoursOffice: "Mon–Fri: 9:00 AM – 3:00 PM",
     logoText: "Kids Island",
-    socials: [],
+    socials: [
+      { label: "Facebook", url: "https://facebook.com/kidsislandaligarh" },
+      { label: "Instagram", url: "https://instagram.com/kidsislandaligarh" },
+      { label: "YouTube", url: "https://youtube.com/@kidsislandaligarh" },
+    ],
     affiliation: "",
   });
 }
 
-export function getAffiliation(): string {
+export async function getAffiliation(): Promise<string> {
   return getContent<string>("settings.affiliation", "");
 }
 
-export type PageSeo = {
-  title: string;
-  description: string;
-  /** Optional social sharing image (uploaded or absolute URL). */
-  ogImage?: string;
-  /** Optional canonical override. Defaults to the page path. */
-  canonical?: string;
+export type Testimonial = {
+  id: number;
+  quote: string;
+  author_name: string;
+  author_role: string;
+  image_url?: string;
+  status: ContentStatus;
 };
 
-/** Per-page SEO overrides managed in /admin/seo. */
-export function getSeo(path: string, fallback: PageSeo): PageSeo {
-  const all = getContent<Record<string, PageSeo>>("settings.seo", {});
-  const entry = all[path];
-  return entry?.title ? entry : fallback;
+export async function getPublishedTestimonials(): Promise<Testimonial[]> {
+  const client = supabaseAdmin;
+  const { data, error } = await client
+    .from('testimonials')
+    .select('*')
+    .eq('status', 'published')
+    .order('id', { ascending: false });
+  
+  if (error) {
+    console.error('getPublishedTestimonials error:', error);
+    return [];
+  }
+  if (!Array.isArray(data)) {
+    console.error('getPublishedTestimonials: data is not an array:', data);
+    return [];
+  }
+  return data as Testimonial[];
 }
 
-export function getNav() {
-  return getContent<{
-    links: { label: string; href: string }[];
-    cta: { label: string; href: string };
-  }>("settings.nav", {
-    links: [
-      { label: "Home", href: "/" },
-      { label: "About", href: "/about" },
-    ],
-    cta: { label: "Apply for Admission", href: "/admissions#inquiry" },
-  });
+export type FAQ = {
+  id: number;
+  question: string;
+  answer: string;
+  category: string;
+  status: ContentStatus;
+};
+
+export async function getPublishedFaqs(): Promise<FAQ[]> {
+  const client = supabaseAdmin;
+  const { data, error } = await client
+    .from('faqs')
+    .select('*')
+    .eq('status', 'published')
+    .order('id', { ascending: true });
+  
+  if (error) {
+    console.error('getPublishedFaqs error:', error);
+    return [];
+  }
+  if (!Array.isArray(data)) {
+    console.error('getPublishedFaqs: data is not an array:', data);
+    return [];
+  }
+  return data as FAQ[];
 }
 
-export function getFooter() {
-  return getContent<{
-    blurb: string;
-    quickLinks: { label: string; href: string }[];
-    resources: { label: string; href: string }[];
-    legal: { label: string; href: string }[];
-    copyright: string;
-  }>("settings.footer", {
-    blurb: "",
-    quickLinks: [],
-    resources: [],
-    legal: [],
-    copyright: "Kids Island Senior Secondary School, Aligarh.",
-  });
+export type Album = {
+  id: number;
+  title: string;
+  description: string;
+  cover_url: string;
+  status: ContentStatus;
+};
+
+export async function getPublishedAlbums(): Promise<Album[]> {
+  const client = supabaseAdmin;
+  const { data, error } = await client
+    .from('albums')
+    .select('*')
+    .eq('status', 'published')
+    .order('id', { ascending: false });
+  
+  if (error) {
+    console.error('getPublishedAlbums error:', error);
+    return [];
+  }
+  if (!Array.isArray(data)) {
+    console.error('getPublishedAlbums: data is not an array:', data);
+    return [];
+  }
+  return data as Album[];
+}
+
+export type AlbumImage = {
+  id: number;
+  album_id: number;
+  image_url: string;
+  caption: string;
+  sort_order: number;
+};
+
+export async function getAlbumImages(albumId: number): Promise<AlbumImage[]> {
+  const client = supabaseAdmin;
+  const { data, error } = await client
+    .from('album_images')
+    .select('*')
+    .eq('album_id', albumId)
+    .order('sort_order', { ascending: true });
+  
+  if (error) {
+    console.error('getAlbumImages error:', error);
+    return [];
+  }
+  if (!Array.isArray(data)) {
+    console.error('getAlbumImages: data is not an array:', data);
+    return [];
+  }
+  return data as AlbumImage[];
+}
+
+export type FacultyMember = {
+  id: number;
+  name: string;
+  role: string;
+  bio: string;
+  image_url?: string;
+  department: string;
+  status: ContentStatus;
+};
+
+export async function getPublishedFaculty(): Promise<FacultyMember[]> {
+  const client = supabaseAdmin;
+  const { data, error } = await client
+    .from('faculty')
+    .select('*')
+    .eq('status', 'published')
+    .order('id', { ascending: true });
+  
+  if (error) {
+    console.error('getPublishedFaculty error:', error);
+    return [];
+  }
+  if (!Array.isArray(data)) {
+    console.error('getPublishedFaculty: data is not an array:', data);
+    return [];
+  }
+  return data as FacultyMember[];
+}
+
+export type Notice = {
+  id: number;
+  title: string;
+  summary: string;
+  body: string;
+  category: string;
+  event_date?: string;
+  status: ContentStatus;
+};
+
+export async function getLatestNotices(limit: number): Promise<Notice[]> {
+  const client = supabaseAdmin;
+  const { data, error } = await client
+    .from('notices')
+    .select('*')
+    .eq('status', 'published')
+    .order('event_date', { ascending: false, nullsFirst: false })
+    .order('id', { ascending: false })
+    .limit(limit);
+  
+  if (error) {
+    console.error('getLatestNotices error:', error);
+    return [];
+  }
+  if (!Array.isArray(data)) {
+    console.error('getLatestNotices: data is not an array:', data);
+    return [];
+  }
+  return data as Notice[];
+}
+
+export async function getNotice(id: number): Promise<Notice | undefined> {
+  const client = supabaseAdmin;
+  const { data, error } = await client
+    .from('notices')
+    .select('*')
+    .eq('id', id)
+    .eq('status', 'published')
+    .single();
+  
+  if (error || !data) return undefined;
+  return data as Notice;
+}
+
+export type Material = {
+  id: number;
+  title: string;
+  description: string;
+  file_url: string;
+  class_level: string;
+  subject: string;
+  status: ContentStatus;
+};
+
+export async function getMaterials(filters?: { q?: string; classLevel?: string; subject?: string }): Promise<Material[]> {
+  const client = supabaseAdmin;
+  let query = client.from('materials').select('*').eq('status', 'published');
+  
+  if (filters?.q) {
+    query = query.ilike('title', `%${filters.q}%`);
+  }
+  if (filters?.classLevel) {
+    query = query.eq('class_level', filters.classLevel);
+  }
+  if (filters?.subject) {
+    query = query.eq('subject', filters.subject);
+  }
+  
+  query = query.order('id', { ascending: false });
+  
+  const { data, error } = await query;
+  if (error) {
+    console.error('getMaterials error:', error);
+    return [];
+  }
+  if (!Array.isArray(data)) {
+    console.error('getMaterials: data is not an array:', data);
+    return [];
+  }
+  return data as Material[];
+}
+
+export type Inquiry = {
+  id: number;
+  student_name: string;
+  parent_name: string;
+  phone: string;
+  email: string;
+  class_applying: string;
+  message: string;
+  status: "new" | "contacted" | "enrolled" | "closed";
+  created_at: string;
+};
+
+export async function createInquiry(data: Omit<Inquiry, 'id' | 'status' | 'created_at'>): Promise<Inquiry> {
+  const client = supabaseAdmin;
+  const { data: inquiry, error } = await client
+    .from('inquiries')
+    .insert({ ...data, status: 'new', created_at: new Date().toISOString() })
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return inquiry as Inquiry;
+}
+
+export async function getInquiries(): Promise<Inquiry[]> {
+  const client = supabaseAdmin;
+  const { data, error } = await client
+    .from('inquiries')
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  if (error) {
+    console.error('getInquiries error:', error);
+    return [];
+  }
+  if (!Array.isArray(data)) {
+    console.error('getInquiries: data is not an array:', data);
+    return [];
+  }
+  return data as Inquiry[];
 }

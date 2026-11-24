@@ -20,7 +20,7 @@ export default async function StaffMaterialsPage({ searchParams }: { searchParam
   const params = await searchParams;
   const status = params.status && ["published", "draft", "needs_review"].includes(params.status) ? params.status : undefined;
   const page = Math.max(Number(params.page) || 1, 1);
-  const result = getStaffMaterials({ staffId: session.user.id, status, page, perPage: 15 });
+  const result = await getStaffMaterials({ staffId: session.user.id, status, page, perPage: 15 });
 
   return (
     <StaffShell user={{ name: session.user.name, email: session.user.email }}>

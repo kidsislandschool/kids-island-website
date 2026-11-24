@@ -12,10 +12,11 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
-export function generateMetadata(): Metadata {
-  return buildPageMetadata("/contact", {
+export async function generateMetadata(): Promise<Metadata> {
+  return await buildPageMetadata("/contact", {
     title: "Contact Us",
     description: "Get in touch with Kids Island Senior Secondary School, Aligarh.",
   });
@@ -36,22 +37,31 @@ type ContactPage = {
 
 type Direction = { title: string; text: string };
 
-export default function ContactPage() {
-  const site = getSiteSettings();
-  const content = getContent<ContactPage>("contact.page", {
-    heading: "Get in touch with us",
-    intro: "We're here to answer your questions and help you learn more about our school.",
-    address: site.location,
-    phone: site.phone,
-    email: site.email,
-    whatsapp: site.whatsapp,
-    hoursPhone: site.hoursPhone,
-    hoursOffice: site.hoursOffice,
-    visitHeading: "Visit our campus",
-    visitText: "Centrally located in Aligarh and accessible from major areas of the city.",
-  });
-  const directions = getContent<Direction[]>("contact.directions", []);
-  const faqs = getPublishedFaqs();
+export default async function ContactPage() {
+  const [site, content, directions, faqs] = await Promise.all([
+    getSiteSettings(),
+    getContent<ContactPage>("contact.page", {
+      heading: "Get in touch with us",
+      intro: "We're here to answer your questions and help you learn more about our school.",
+      address: "",
+      phone: "",
+      email: "",
+      whatsapp: "",
+      hoursPhone: "",
+      hoursOffice: "",
+      visitHeading: "Visit our campus",
+      visitText: "Centrally located in Aligarh and accessible from major areas of the city.",
+    }),
+    getContent<Direction[]>("contact.directions", []),
+    getPublishedFaqs(),
+  ]);
+  // Update content with site data
+  content.address = site.location;
+  content.phone = site.phone;
+  content.email = site.email;
+  content.whatsapp = site.whatsapp;
+  content.hoursPhone = site.hoursPhone;
+  content.hoursOffice = site.hoursOffice;
   const waNumber = (content.whatsapp || site.whatsapp).replace(/\D/g, "");
 
   const cards = [

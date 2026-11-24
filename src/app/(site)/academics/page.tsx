@@ -9,10 +9,11 @@ import { Icon } from "@/components/ui/icon";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
-export function generateMetadata(): Metadata {
-  return buildPageMetadata("/academics", {
+export async function generateMetadata(): Promise<Metadata> {
+  return await buildPageMetadata("/academics", {
     title: "Academics",
     description: "Academic programmes at Kids Island Senior Secondary School, Aligarh.",
   });
@@ -41,8 +42,8 @@ const ACCENTS: Record<string, { bg: string; icon: string; chip: string; scene: s
   amber: { bg: "bg-yellow-100", icon: "bg-white text-[#8a5a00]", chip: "bg-white/70 text-[#8a5a00]", scene: "play" },
 };
 
-export default function AcademicsPage() {
-  const content = getContent<AcademicsPage>("academics.page", FALLBACK);
+export default async function AcademicsPage() {
+  const content = await getContent<AcademicsPage>("academics.page", FALLBACK);
 
   return (
     <>

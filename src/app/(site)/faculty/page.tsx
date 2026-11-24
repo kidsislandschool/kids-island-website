@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SceneArt } from "@/components/ui/scene-art";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
-export function generateMetadata(): Metadata {
-  return buildPageMetadata("/faculty", {
+export async function generateMetadata(): Promise<Metadata> {
+  return await buildPageMetadata("/faculty", {
     title: "Our Faculty",
     description: "Meet the educators at Kids Island Senior Secondary School, Aligarh.",
   });
@@ -21,13 +22,15 @@ export function generateMetadata(): Metadata {
 
 type FacultyPage = { heading: string; intro: string; emptyState: string };
 
-export default function FacultyPage() {
-  const content = getContent<FacultyPage>("faculty.page", {
-    heading: "Meet our faculty",
-    intro: "Experienced educators committed to nurturing excellence, fostering curiosity, and inspiring the next generation of leaders.",
-    emptyState: "Faculty profiles are being prepared. They will appear here once published by the school.",
-  });
-  const faculty = getPublishedFaculty();
+export default async function FacultyPage() {
+  const [content, faculty] = await Promise.all([
+    getContent<FacultyPage>("faculty.page", {
+      heading: "Meet our faculty",
+      intro: "Experienced educators committed to nurturing excellence, fostering curiosity, and inspiring the next generation of leaders.",
+      emptyState: "Faculty profiles are being prepared. They will appear here once published by the school.",
+    }),
+    getPublishedFaculty(),
+  ]);
 
   return (
     <>

@@ -10,10 +10,11 @@ import { Icon, type IconName } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
-export function generateMetadata(): Metadata {
-  return buildPageMetadata("/admissions", {
+export async function generateMetadata(): Promise<Metadata> {
+  return await buildPageMetadata("/admissions", {
     title: "Admissions",
     description: "Admission process, documents and enquiry form for Kids Island Senior Secondary School.",
   });
@@ -50,9 +51,9 @@ const FALLBACK: AdmissionsPage = {
 
 const STEP_ICONS: IconName[] = ["file", "building", "edit", "check-circle"];
 
-export default function AdmissionsPage() {
-  const content = getContent<AdmissionsPage>("admissions.page", FALLBACK);
-  const eligibility = getContent<Eligibility>("admissions.eligibility", []);
+export default async function AdmissionsPage() {
+  const content = await getContent<AdmissionsPage>("admissions.page", FALLBACK);
+  const eligibility = await getContent<Eligibility>("admissions.eligibility", []);
 
   return (
     <>

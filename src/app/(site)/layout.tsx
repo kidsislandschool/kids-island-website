@@ -2,10 +2,10 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { getFooter, getNav, getSiteSettings } from "@/lib/content";
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
-  const site = getSiteSettings();
-  const nav = getNav();
-  const footer = getFooter();
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const site = await getSiteSettings();
+  const nav = await getNav();
+  const footer = await getFooter();
 
   return (
     <>

@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const staff = getStaffByEmail(normalized);
+  const staff = await getStaffByEmail(normalized);
   const valid = staff && verifyPassword(password, staff.password_hash);
 
   if (!staff || !valid) {
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     { id: staff.id, email: staff.email, name: staff.name, role: "staff" },
     { ip, userAgent: req.headers.get("user-agent") }
   );
-  getDb().prepare("UPDATE staff SET last_login_at = datetime('now') WHERE id = ?").run(staff.id);
+  await getDb().from('staff').update({ last_login_at: new Date().toISOString() }).eq('id', staff.id);
   logAudit({ action: "staff_login", entity: "staff", entityId: staff.id, ip });
 
   return Response.json({ ok: true, redirect: "/staff/dashboard" });

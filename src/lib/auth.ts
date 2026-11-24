@@ -1,9 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import crypto from "node:crypto";
-import type { Database } from "better-sqlite3";
-import { getDb } from "./db";
-import { hashPassword, verifyPassword } from "./password";
+import { supabaseAdmin, supabase } from "./supabase";
+import { verifyPassword, hashPassword } from "./password";
 
 export { hashPassword, verifyPassword } from "./password";
 
@@ -25,8 +24,6 @@ export type Session = {
   expiresAt: string;
 };
 
-/* ------------------------------------------------------------------ hashing */
-
 const sha256 = (v: string) => crypto.createHash("sha256").update(v).digest("hex");
 
 /* ------------------------------------------------------------------ sessions */
@@ -35,13 +32,21 @@ export async function createSession(
   user: SessionUser,
   meta: { ip?: string | null; userAgent?: string | null } = {}
 ): Promise<string> {
-  const db = getDb();
   const token = crypto.randomBytes(32).toString("base64url");
   const expires = new Date(Date.now() + SESSION_DAYS * 864e5).toISOString();
-  db.prepare(
-    `INSERT INTO sessions (token_hash, user_id, expires_at, ip, user_agent)
-     VALUES (?, ?, ?, ?, ?)`
-  ).run(sha256(token), user.id, expires, meta.ip ?? null, meta.userAgent ?? null);
+  
+  const { error } = await supabaseAdmin
+    .from('sessions')
+    .insert({
+      token_hash: sha256(token),
+      user_id: user.id,
+      expires_at: expires,
+      ip: meta.ip ?? null,
+      user_agent: meta.userAgent ?? null,
+    });
+  
+  if (error) throw error;
+  
   const jar = await cookies();
   jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
@@ -60,48 +65,62 @@ export async function getSession(): Promise<Session | null> {
   return getSessionByToken(token);
 }
 
-export function getSessionByToken(token: string): Session | null {
-  const db = getDb();
-  const row = db
-    .prepare(
-      `SELECT s.token_hash, s.expires_at, u.id, u.email, u.name, u.role
-       FROM sessions s JOIN users u ON u.id = s.user_id
-       WHERE s.token_hash = ? AND s.revoked_at IS NULL`
-    )
-    .get(sha256(token)) as
-    | { token_hash: string; expires_at: string; id: number; email: string; name: string; role: string }
-    | undefined;
-  if (!row) return null;
+export async function getSessionByToken(token: string): Promise<Session | null> {
+  const { data: row, error } = await supabaseAdmin
+    .from('sessions')
+    .select(`
+      token_hash,
+      expires_at,
+      user_id,
+      users!inner (id, email, name, role)
+    `)
+    .eq('token_hash', sha256(token))
+    .is('revoked_at', null)
+    .single();
+  
+  if (error || !row) return null;
+  
   if (new Date(row.expires_at).getTime() < Date.now()) {
-    db.prepare("UPDATE sessions SET revoked_at = datetime('now') WHERE token_hash = ?").run(
-      row.token_hash
-    );
+    await supabaseAdmin
+      .from('sessions')
+      .update({ revoked_at: new Date().toISOString() })
+      .eq('token_hash', row.token_hash);
     return null;
   }
+  
   return {
     token,
     expiresAt: row.expires_at,
-    user: { id: row.id, email: row.email, name: row.name, role: row.role },
+    user: { 
+      id: row.users.id, 
+      email: row.users.email, 
+      name: row.users.name, 
+      role: row.users.role 
+    },
   };
 }
 
 /** Invalidate every session for a user except the current one. */
-export function revokeOtherSessions(userId: number, currentToken: string): number {
-  return getDb()
-    .prepare(
-      `UPDATE sessions SET revoked_at = datetime('now')
-       WHERE user_id = ? AND token_hash != ? AND revoked_at IS NULL`
-    )
-    .run(userId, sha256(currentToken)).changes;
+export async function revokeOtherSessions(userId: number, currentToken: string): Promise<number> {
+  const { data, error } = await supabaseAdmin
+    .from('sessions')
+    .update({ revoked_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .neq('token_hash', sha256(currentToken))
+    .is('revoked_at', null);
+  
+  if (error) throw error;
+  return data?.length || 0;
 }
 
 export async function destroySession(): Promise<void> {
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE)?.value;
   if (token) {
-    getDb()
-      .prepare("UPDATE sessions SET revoked_at = datetime('now') WHERE token_hash = ?")
-      .run(sha256(token));
+    await supabaseAdmin
+      .from('sessions')
+      .update({ revoked_at: new Date().toISOString() })
+      .eq('token_hash', sha256(token));
   }
   jar.delete(SESSION_COOKIE);
 }
@@ -140,17 +159,29 @@ export function rateLimit(key: string, limit = 10, windowMs = 60_000): boolean {
   return entry.count <= limit;
 }
 
-export function checkLoginLockout(identifier: string): { locked: boolean; retryAfterSec: number } {
-  const db = getDb();
-  const row = db
-    .prepare(
-      `SELECT COUNT(*) AS c, MAX(created_at) AS last
-       FROM audit_log
-       WHERE action = 'login_failed' AND entity = ? AND created_at > datetime('now', ?)`
-    )
-    .get(identifier, `-${LOCKOUT_MINUTES} minutes`) as { c: number; last: string | null };
-  if (row.c >= MAX_FAILED_ATTEMPTS) {
-    const lastTs = row.last ? Date.parse(row.last + "Z") : Date.now();
+export async function checkLoginLockout(identifier: string): Promise<{ locked: boolean; retryAfterSec: number }> {
+  const { data, error, count } = await supabaseAdmin
+    .from('audit_log')
+    .select('*', { count: 'exact', head: true })
+    .eq('action', 'login_failed')
+    .eq('entity', identifier)
+    .gt('created_at', new Date(Date.now() - LOCKOUT_MINUTES * 60_000).toISOString());
+  
+  if (error) throw error;
+  
+  const total = count ?? 0;
+  if (total >= MAX_FAILED_ATTEMPTS) {
+    // Get the most recent failed attempt
+    const { data: recent } = await supabaseAdmin
+      .from('audit_log')
+      .select('created_at')
+      .eq('action', 'login_failed')
+      .eq('entity', identifier)
+      .gt('created_at', new Date(Date.now() - LOCKOUT_MINUTES * 60_000).toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1);
+    
+    const lastTs = recent?.length > 0 ? Date.parse(recent[0].created_at + "Z") : Date.now();
     const retryAfterSec = Math.max(
       0,
       Math.ceil((lastTs + LOCKOUT_MINUTES * 60_000 - Date.now()) / 1000)
@@ -162,46 +193,63 @@ export function checkLoginLockout(identifier: string): { locked: boolean; retryA
 
 /* -------------------------------------------------------------------- users */
 
-export function getMasterAdmin(db: Database = getDb()) {
-  return db
-    .prepare("SELECT id, email, name, role, password_hash FROM users WHERE role = 'master_admin'")
-    .get() as
-    | { id: number; email: string; name: string; role: string; password_hash: string }
-    | undefined;
+export async function getMasterAdmin() {
+  const { data, error } = await supabaseAdmin
+    .from('users')
+    .select('id, email, name, role, password_hash')
+    .eq('role', 'master_admin')
+    .single();
+  
+  if (error || !data) return undefined;
+  return data as { id: number; email: string; name: string; role: string; password_hash: string };
 }
 
-export function findUserByEmail(email: string, db: Database = getDb()) {
-  return db.prepare("SELECT * FROM users WHERE email = ?").get(email.trim().toLowerCase()) as
-    | {
-        id: number;
-        email: string;
-        name: string;
-        role: string;
-        password_hash: string;
-      }
-    | undefined;
+export async function findUserByEmail(email: string) {
+  const { data, error } = await supabaseAdmin
+    .from('users')
+    .select('*')
+    .eq('email', email.trim().toLowerCase())
+    .single();
+  
+  if (error || !data) return undefined;
+  return data as {
+    id: number;
+    email: string;
+    name: string;
+    role: string;
+    password_hash: string;
+  };
 }
 
-export function setPassword(userId: number, password: string, db: Database = getDb()) {
-  db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?").run(
-    hashPassword(password),
-    userId
-  );
+export async function setPassword(userId: number, password: string): Promise<void> {
+  const { error } = await supabaseAdmin
+    .from('users')
+    .update({ password_hash: hashPassword(password), updated_at: new Date().toISOString() })
+    .eq('id', userId);
+  
+  if (error) throw error;
 }
 
 /** One-time bootstrap used by `npm run bootstrap`. */
-export function createMasterAdmin(
-  input: { email: string; name: string; password: string },
-  db: Database = getDb()
-) {
-  const existing = getMasterAdmin(db);
+export async function createMasterAdmin(
+  input: { email: string; name: string; password: string }
+): Promise<number> {
+  const existing = await getMasterAdmin();
   if (existing) throw new Error("A Master Admin already exists. Use `npm run reset-admin` instead.");
-  const info = db
-    .prepare(
-      `INSERT INTO users (email, name, role, password_hash) VALUES (?, ?, 'master_admin', ?)`
-    )
-    .run(input.email.trim().toLowerCase(), input.name, hashPassword(input.password));
-  return Number(info.lastInsertRowid);
+  
+  const { data, error } = await supabaseAdmin
+    .from('users')
+    .insert({
+      email: input.email.trim().toLowerCase(),
+      name: input.name,
+      role: 'master_admin',
+      password_hash: hashPassword(input.password),
+    })
+    .select('id')
+    .single();
+  
+  if (error) throw error;
+  return data.id;
 }
 
 /* --------------------------------------------------------------- STAFF AUTH */
@@ -222,18 +270,27 @@ export type StaffSession = {
   expiresAt: string;
 };
 
+const STAFF_sha256 = (v: string) => crypto.createHash("sha256").update(v).digest("hex");
+
 export async function createStaffSession(
   user: StaffSessionUser,
-  opts: { ip?: string | null; userAgent?: string | null } = {}
+  meta: { ip?: string | null; userAgent?: string | null } = {}
 ): Promise<string> {
-  const db = getDb();
   const token = crypto.randomBytes(32).toString("base64url");
-  const expiresAt = new Date(Date.now() + STAFF_SESSION_DAYS * 86400 * 1000).toISOString();
-  db.prepare(
-    `INSERT INTO staff_sessions (token_hash, user_id, expires_at, ip, user_agent)
-     VALUES (?, ?, ?, ?, ?)`
-  ).run(sha256(token), user.id, expiresAt, opts.ip ?? null, opts.userAgent ?? null);
-
+  const expires = new Date(Date.now() + STAFF_SESSION_DAYS * 864e5).toISOString();
+  
+  const { error } = await supabaseAdmin
+    .from('staff_sessions')
+    .insert({
+      token_hash: STAFF_sha256(token),
+      staff_id: user.id,
+      expires_at: expires,
+      ip: meta.ip ?? null,
+      user_agent: meta.userAgent ?? null,
+    });
+  
+  if (error) throw error;
+  
   const jar = await cookies();
   jar.set(STAFF_SESSION_COOKIE, token, {
     httpOnly: true,
@@ -252,59 +309,89 @@ export async function getStaffSession(): Promise<StaffSession | null> {
   return getStaffSessionByToken(token);
 }
 
-export function getStaffSessionByToken(token: string): StaffSession | null {
-  const db = getDb();
-  const row = db
-    .prepare(
-      `SELECT s.token_hash, s.expires_at, u.id, u.email, u.name
-       FROM staff_sessions s JOIN staff u ON u.id = s.user_id
-       WHERE s.token_hash = ? AND s.revoked_at IS NULL`
-    )
-    .get(sha256(token)) as
-    | { token_hash: string; expires_at: string; id: number; email: string; name: string }
-    | undefined;
-  if (!row) return null;
+export async function getStaffSessionByToken(token: string): Promise<StaffSession | null> {
+  const { data: row, error } = await supabaseAdmin
+    .from('staff_sessions')
+    .select(`
+      token_hash,
+      expires_at,
+      staff_id,
+      staff!inner (id, email, name, status)
+    `)
+    .eq('token_hash', STAFF_sha256(token))
+    .is('revoked_at', null)
+    .single();
+  
+  if (error || !row) return null;
+  
   if (new Date(row.expires_at).getTime() < Date.now()) {
-    db.prepare("UPDATE staff_sessions SET revoked_at = datetime('now') WHERE token_hash = ?").run(
-      row.token_hash
-    );
+    await supabaseAdmin
+      .from('staff_sessions')
+      .update({ revoked_at: new Date().toISOString() })
+      .eq('token_hash', row.token_hash);
     return null;
   }
+  
   return {
     token,
     expiresAt: row.expires_at,
-    user: { id: row.id, email: row.email, name: row.name, role: "staff" },
+    user: { 
+      id: row.staff.id, 
+      email: row.staff.email, 
+      name: row.staff.name, 
+      role: "staff" 
+    },
   };
+}
+
+export async function revokeOtherStaffSessions(staffId: number, currentToken: string): Promise<number> {
+  const { data, error } = await supabaseAdmin
+    .from('staff_sessions')
+    .update({ revoked_at: new Date().toISOString() })
+    .eq('staff_id', staffId)
+    .neq('token_hash', STAFF_sha256(currentToken))
+    .is('revoked_at', null);
+  
+  if (error) throw error;
+  return data?.length || 0;
 }
 
 export async function destroyStaffSession(): Promise<void> {
   const jar = await cookies();
   const token = jar.get(STAFF_SESSION_COOKIE)?.value;
   if (token) {
-    getDb()
-      .prepare("UPDATE staff_sessions SET revoked_at = datetime('now') WHERE token_hash = ?")
-      .run(sha256(token));
+    await supabaseAdmin
+      .from('staff_sessions')
+      .update({ revoked_at: new Date().toISOString() })
+      .eq('token_hash', STAFF_sha256(token));
   }
   jar.delete(STAFF_SESSION_COOKIE);
 }
 
-export async function requireStaff(): Promise<StaffSessionUser> {
+/** Server-side guard for staff layouts/pages. Redirects to the login screen. */
+export async function requireStaff(nextPath?: string): Promise<StaffSessionUser> {
   const session = await getStaffSession();
   if (!session) {
-    redirect("/staff-login");
+    const suffix = nextPath && nextPath !== "/staff/dashboard" ? `?next=${encodeURIComponent(nextPath)}` : "";
+    redirect(`/staff-login${suffix}`);
   }
   if (session.user.role !== "staff") redirect("/staff-login");
   return session.user;
 }
 
+/** Guard for API route handlers — returns null instead of redirecting. */
 export async function requireStaffApi(): Promise<StaffSessionUser | null> {
   const session = await getStaffSession();
   if (!session || session.user.role !== "staff") return null;
   return session.user;
 }
 
-/** Staff rate limiting (separate from admin) */
+/* --------------------------------------------------------------- staff brute force */
+
+type StaffAttempt = { count: number; first: number };
 const staffAttempts = new Map<string, { count: number; first: number }>();
+const STAFF_MAX_FAILED_ATTEMPTS = 8;
+const STAFF_LOCKOUT_MINUTES = 10;
 
 export function staffRateLimit(key: string, limit = 10, windowMs = 60_000): boolean {
   const now = Date.now();
@@ -317,18 +404,32 @@ export function staffRateLimit(key: string, limit = 10, windowMs = 60_000): bool
   return entry.count <= limit;
 }
 
-export function checkStaffLoginLockout(identifier: string): { locked: boolean; retryAfterSec: number } {
-  const db = getDb();
-  const row = db
-    .prepare(
-      `SELECT COUNT(*) AS c, MAX(created_at) AS last
-       FROM audit_log
-       WHERE action = 'staff_login_failed' AND entity = ? AND created_at > datetime('now', ?)`
-    )
-    .get(identifier, `-10 minutes`) as { c: number; last: string | null };
-  if (row.c >= 8) {
-    const lastTs = row.last ? Date.parse(row.last + "Z") : Date.now();
-    const retryAfterSec = Math.max(0, Math.ceil((lastTs + 10 * 60_000 - Date.now()) / 1000));
+export async function checkStaffLoginLockout(identifier: string): Promise<{ locked: boolean; retryAfterSec: number }> {
+  const { count, error } = await supabaseAdmin
+    .from('staff_audit_log')
+    .select('*', { count: 'exact', head: true })
+    .eq('action', 'staff_login_failed')
+    .eq('entity', identifier)
+    .gt('created_at', new Date(Date.now() - STAFF_LOCKOUT_MINUTES * 60_000).toISOString());
+  
+  if (error) throw error;
+  
+  const total = count ?? 0;
+  if (total >= STAFF_MAX_FAILED_ATTEMPTS) {
+    const { data: recent } = await supabaseAdmin
+      .from('staff_audit_log')
+      .select('created_at')
+      .eq('action', 'staff_login_failed')
+      .eq('entity', identifier)
+      .gt('created_at', new Date(Date.now() - STAFF_LOCKOUT_MINUTES * 60_000).toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1);
+    
+    const lastTs = recent?.length > 0 ? Date.parse(recent[0].created_at + "Z") : Date.now();
+    const retryAfterSec = Math.max(
+      0,
+      Math.ceil((lastTs + STAFF_LOCKOUT_MINUTES * 60_000 - Date.now()) / 1000)
+    );
     return { locked: true, retryAfterSec };
   }
   return { locked: false, retryAfterSec: 0 };

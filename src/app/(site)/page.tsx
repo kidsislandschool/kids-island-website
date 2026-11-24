@@ -14,10 +14,11 @@ import { TestimonialsSection } from "@/components/sections/testimonials";
 import { NoticesPreview } from "@/components/sections/notices-preview";
 import type { SequenceItem } from "@/components/motion/pinned-sequence";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60 seconds - allows caching while keeping content fresh
+export const revalidate = 60;
 
-export function generateMetadata(): Metadata {
-  return buildPageMetadata("/", {
+export async function generateMetadata(): Promise<Metadata> {
+  return await buildPageMetadata("/", {
     title: "Kids Island Senior Secondary School, Aligarh",
     description:
       "A joyful, caring school in Aligarh for nursery to class 12 — quality education, experienced faculty, modern facilities and a campus where every child belongs.",
@@ -56,23 +57,40 @@ const FALLBACK_PRINCIPAL: PrincipalContent = {
   photo: null,
 };
 
-export default function HomePage() {
-  const hero = getContent<HeroContent>("home.hero", FALLBACK_HERO);
-  const affiliation = getAffiliation();
-  const highlights = getContent<Highlight[]>("home.highlights", []);
-  const programs = getContent<Program[]>("home.programs", []);
-  const facilities = getContent<Facility[]>("home.facilities", []);
-  const cta = getContent<CtaContent>("home.cta", FALLBACK_CTA);
-  const principal = getContent<PrincipalContent>("home.principal", FALLBACK_PRINCIPAL);
-  const why = getContent<SequenceItem[]>("home.why", []);
-  const stats = getContent<Stat[]>("home.stats", []);
-  const testimonials = getPublishedTestimonials().map((t) => ({
+export default async function HomePage() {
+  // Parallelize all data fetching for better performance
+  const [
+    hero,
+    affiliation,
+    highlights,
+    programs,
+    facilities,
+    cta,
+    principal,
+    why,
+    stats,
+    testimonialsData,
+    notices,
+  ] = await Promise.all([
+    getContent<HeroContent>("home.hero", FALLBACK_HERO),
+    getAffiliation(),
+    getContent<Highlight[]>("home.highlights", []),
+    getContent<Program[]>("home.programs", []),
+    getContent<Facility[]>("home.facilities", []),
+    getContent<CtaContent>("home.cta", FALLBACK_CTA),
+    getContent<PrincipalContent>("home.principal", FALLBACK_PRINCIPAL),
+    getContent<SequenceItem[]>("home.why", []),
+    getContent<Stat[]>("home.stats", []),
+    getPublishedTestimonials(),
+    getLatestNotices(3),
+  ]);
+
+  const testimonials = testimonialsData.map((t) => ({
     id: t.id,
     quote: t.quote,
     author_name: t.author_name,
     author_role: t.author_role,
   }));
-  const notices = getLatestNotices(3);
 
   return (
     <>

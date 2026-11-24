@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { getContent } from "@/lib/content";
 import { buildPageMetadata } from "@/lib/seo";
-import { getMaterials } from "@/lib/data";
 import { PageHero } from "@/components/sections/page-hero";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { MaterialFilters } from "@/components/forms/material-filters";
@@ -13,13 +12,58 @@ import { Button } from "@/components/ui/button";
 import { SceneArt } from "@/components/ui/scene-art";
 import { formatDate } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
-export function generateMetadata(): Metadata {
-  return buildPageMetadata("/study-materials", {
+export async function generateMetadata(): Promise<Metadata> {
+  return await buildPageMetadata("/study-materials", {
     title: "Study Materials",
     description: "Curated notes, assignments and learning resources from Kids Island Senior Secondary School.",
   });
+}
+
+// Fetch material filters from cached API endpoint
+async function getMaterialFilters(): Promise<{ classLevels: string[]; subjects: string[] }> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "https://kids-island-xi.vercel.app"}/api/filters/materials`, {
+      next: { revalidate: 300 },
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+    console.error("Failed to fetch material filters:", e);
+  }
+  return { classLevels: [], subjects: [] };
+}
+
+// Fetch materials from cached API endpoint
+async function getMaterialsData(sp: { q?: string; classLevel?: string; subject?: string; page?: string }): Promise<{
+  rows: any[];
+  page: number;
+  pages: number;
+  total: number;
+  classLevels: string[];
+  subjects: string[];
+}> {
+  const params = new URLSearchParams();
+  if (sp.q) params.set("q", sp.q);
+  if (sp.classLevel) params.set("classLevel", sp.classLevel);
+  if (sp.subject) params.set("subject", sp.subject);
+  params.set("page", sp.page || "1");
+  params.set("perPage", "9");
+  
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "https://kids-island-xi.vercel.app"}/api/study-materials?${params.toString()}`, {
+      next: { revalidate: 60 },
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+    console.error("Failed to fetch materials:", e);
+  }
+  return { rows: [], page: 1, pages: 0, total: 0, classLevels: [], subjects: [] };
 }
 
 type MaterialsPage = { title: string; intro: string; emptyState: string };
@@ -30,18 +74,19 @@ export default async function StudyMaterialsPage({
   searchParams: Promise<{ q?: string; classLevel?: string; subject?: string; page?: string }>;
 }) {
   const sp = await searchParams;
-  const content = getContent<MaterialsPage>("materials.page", {
-    title: "Resource Center",
-    intro: "Access curated study notes, assignments, and educational resources designed to support your learning journey.",
-    emptyState: "No study materials have been published yet.",
-  });
-  const result = getMaterials({
-    search: sp.q,
-    classLevel: sp.classLevel,
-    subject: sp.subject,
-    page: Number(sp.page) || 1,
-    perPage: 9,
-  });
+  const [content, result, filters] = await Promise.all([
+    getContent<MaterialsPage>("materials.page", {
+      title: "Resource Center",
+      intro: "Access curated study notes, assignments, and educational resources designed to support your learning journey.",
+      emptyState: "No study materials have been published yet.",
+    }),
+    getMaterialsData(sp),
+    getMaterialFilters(),
+  ]);
+  
+  // Override result filters with cached ones
+  result.classLevels = filters.classLevels;
+  result.subjects = filters.subjects;
 
   return (
     <>

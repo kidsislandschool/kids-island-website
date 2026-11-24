@@ -9,10 +9,11 @@ import { SceneArt } from "@/components/ui/scene-art";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
-export function generateMetadata(): Metadata {
-  return buildPageMetadata("/gallery", {
+export async function generateMetadata(): Promise<Metadata> {
+  return await buildPageMetadata("/gallery", {
     title: "Campus Gallery",
     description: "Photos from academic and extracurricular life at Kids Island Senior Secondary School.",
   });
@@ -20,13 +21,16 @@ export function generateMetadata(): Metadata {
 
 type GalleryPage = { title: string; intro: string; emptyState: string };
 
-export default function GalleryPage() {
-  const content = getContent<GalleryPage>("gallery.page", {
-    title: "Campus Gallery",
-    intro: "A glimpse into the vibrant academic and extracurricular life at Kids Island.",
-    emptyState: "Gallery coming soon. Photos from campus life will appear here once published.",
-  });
-  const albums = getPublishedAlbums().filter((album) => album.photos.length > 0);
+export default async function GalleryPage() {
+  const [content, albumsData] = await Promise.all([
+    getContent<GalleryPage>("gallery.page", {
+      title: "Campus Gallery",
+      intro: "A glimpse into the vibrant academic and extracurricular life at Kids Island.",
+      emptyState: "Gallery coming soon. Photos from campus life will appear here once published.",
+    }),
+    getPublishedAlbums(),
+  ]);
+  const albums = albumsData.filter((album) => album.photos.length > 0);
   const totalPhotos = albums.reduce((sum, album) => sum + album.photos.length, 0);
 
   return (

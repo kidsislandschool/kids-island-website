@@ -32,14 +32,12 @@ function writeCredentials(email: string, password: string | null) {
 
 async function main() {
   loadEnv();
-  const { getDb } = await import("../src/lib/db");
   const { hashPassword } = await import("../src/lib/password");
   const { logAudit } = await import("../src/lib/audit");
+  const { SupabaseDB } = await import("../src/lib/db");
+  const db = SupabaseDB;
 
-  const db = getDb();
-  const user = db
-    .prepare("SELECT id, email FROM users WHERE role = 'master_admin'")
-    .get() as { id: number; email: string } | undefined;
+  const user = await db.prepare("SELECT id, email FROM users WHERE role = 'master_admin'").get() as { id: number; email: string } | undefined;
   if (!user) {
     console.error("No Master Admin exists yet. Run `npm run bootstrap` first.");
     process.exitCode = 1;
@@ -54,15 +52,16 @@ async function main() {
     return;
   }
 
-  db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?").run(
+  await db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?").run(
     hashPassword(password),
     user.id
   );
-  const revoked = db
+  const revokedResult = await db
     .prepare(
       "UPDATE sessions SET revoked_at = datetime('now') WHERE user_id = ? AND revoked_at IS NULL"
     )
-    .run(user.id).changes;
+    .run(user.id);
+  const revoked = revokedResult.changes;
 
   logAudit({
     userId: user.id,
@@ -74,7 +73,6 @@ async function main() {
   });
 
   const credentialsFile = writeCredentials(user.email, providedPassword ? null : password);
-  db.close();
 
   console.log("Master Admin password reset.");
   console.log(`  Email: ${user.email}`);

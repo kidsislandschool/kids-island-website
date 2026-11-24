@@ -9,13 +9,13 @@ import { getSeo, getSiteSettings, type PageSeo } from "./content";
  *   it is used as an absolute title instead of "{title} | Kids Island".
  * - Uses the optional canonical and social image managed under /admin/seo.
  */
-export function buildPageMetadata(
+export async function buildPageMetadata(
   path: string,
   fallback: PageSeo,
   opts: { noIndex?: boolean } = {}
-): Metadata {
-  const seo = getSeo(path, fallback);
-  const site = getSiteSettings();
+): Promise<Metadata> {
+  const seo = await getSeo(path, fallback);
+  const site = await getSiteSettings();
   const title = seo.title.trim();
   const description = seo.description.trim();
   const canonical = seo.canonical?.trim() || path;

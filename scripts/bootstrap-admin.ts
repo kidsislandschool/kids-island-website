@@ -31,14 +31,12 @@ function writeCredentials(email: string, password: string | null) {
 
 async function main() {
   loadEnv();
-  const { getDb } = await import("../src/lib/db");
   const { hashPassword } = await import("../src/lib/password");
   const { logAudit } = await import("../src/lib/audit");
+  const { SupabaseDB } = await import("../src/lib/db");
+  const db = SupabaseDB;
 
-  const db = getDb();
-  const existing = db
-    .prepare("SELECT id, email FROM users WHERE role = 'master_admin'")
-    .get() as { id: number; email: string } | undefined;
+  const existing = await db.prepare("SELECT id, email FROM users WHERE role = 'master_admin'").get() as { id: number; email: string } | undefined;
   if (existing) {
     console.error("A Master Admin already exists:");
     console.error(`  ${existing.email}`);
@@ -63,7 +61,7 @@ async function main() {
     return;
   }
 
-  const info = db
+  const info = await db
     .prepare("INSERT INTO users (email, name, role, password_hash) VALUES (?, ?, 'master_admin', ?)")
     .run(email, name, hashPassword(password));
 
@@ -78,7 +76,6 @@ async function main() {
   });
 
   const credentialsFile = writeCredentials(email, providedPassword ? null : password);
-  db.close();
 
   console.log("Master Admin created.");
   console.log(`  Email: ${email}`);

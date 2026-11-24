@@ -1,4 +1,4 @@
-import { getDb } from "./db";
+import { supabaseAdmin } from "./supabase";
 import { COLLECTIONS, allowedColumns, type CollectionDef } from "./collections";
 
 export type AdminRow = Record<string, unknown> & { id: number };
@@ -8,123 +8,197 @@ export function getCollectionDef(key: string): CollectionDef | undefined {
   return COLLECTIONS[key];
 }
 
-export function getCollectionRows(
+export async function getCollectionRows(
   key: string,
   opts: { search?: string; status?: string; page?: number; perPage?: number } = {}
 ) {
   const def = getCollectionDef(key);
   if (!def) throw new Error("Unknown collection");
-  const db = getDb();
-  const where: string[] = [];
-  const params: unknown[] = [];
-
+  
+  let query = supabaseAdmin.from(def.table).select('*', { count: 'exact' });
+  
   if (opts.status && opts.status !== "all") {
     if (opts.status === "needs_review" || opts.status === "published" || opts.status === "draft") {
-      where.push("status = ?");
-      params.push(opts.status);
+      query = query.eq('status', opts.status);
     }
   }
-
+  
   const searchFields = def.fields.filter((f) => f.searchable).map((f) => f.name);
   if (opts.search && searchFields.length) {
-    where.push(`(${searchFields.map((f) => `${f} LIKE ?`).join(" OR ")})`);
-    const q = `%${opts.search}%`;
-    for (let i = 0; i < searchFields.length; i++) params.push(q);
+    const orFilters = searchFields.map((f) => `${f}.ilike.%${opts.search}%`).join(',');
+    query = query.or(orFilters);
   }
-
-  const perPage = Math.min(opts.perPage ?? 50, 200);
-  const page = Math.max(opts.page ?? 1, 1);
-  const sqlWhere = where.length ? `WHERE ${where.join(" AND ")}` : "";
-  const rows = db
-    .prepare(`SELECT * FROM ${def.table} ${sqlWhere} ORDER BY ${def.orderBy} LIMIT ? OFFSET ?`)
-    .all(...params, perPage, (page - 1) * perPage) as AdminRow[];
-  const total = (
-    db.prepare(`SELECT COUNT(*) AS c FROM ${def.table} ${sqlWhere}`).get(...params) as { c: number }
-  ).c;
-
-  return { rows, total, page, perPage, pages: Math.max(1, Math.ceil(total / perPage)) };
-}
-
-export function getCollectionRow(key: string, id: number): AdminRow | undefined {
-  const def = getCollectionDef(key);
-  if (!def) return undefined;
-  return getDb().prepare(`SELECT * FROM ${def.table} WHERE id = ?`).get(id) as AdminRow | undefined;
-}
-
-export function createCollectionRow(key: string, data: Record<string, unknown>): AdminRow {
-  const def = getCollectionDef(key);
-  if (!def) throw new Error("Unknown collection");
-  const cols = Object.keys(data).filter((c) => allowedColumns(def).has(c));
-  const placeholders = cols.map(() => "?").join(", ");
-  const info = getDb()
-    .prepare(`INSERT INTO ${def.table} (${cols.join(", ")}) VALUES (${placeholders})`)
-    .run(...cols.map((c) => data[c]));
-  return getCollectionRow(key, Number(info.lastInsertRowid)) as AdminRow;
-}
-
-export function updateCollectionRow(key: string, id: number, data: Record<string, unknown>): AdminRow | undefined {
-  const def = getCollectionDef(key);
-  if (!def) throw new Error("Unknown collection");
-  const cols = Object.keys(data).filter((c) => allowedColumns(def).has(c));
-  if (!cols.length) return getCollectionRow(key, id);
-  const assignments = cols.map((c) => `${c} = ?`).join(", ");
-  getDb()
-    .prepare(`UPDATE ${def.table} SET ${assignments}, updated_at = datetime('now') WHERE id = ?`)
-    .run(...cols.map((c) => data[c]), id);
-  return getCollectionRow(key, id);
-}
-
-export function deleteCollectionRow(key: string, id: number): boolean {
-  const def = getCollectionDef(key);
-  if (!def) throw new Error("Unknown collection");
-  return getDb().prepare(`DELETE FROM ${def.table} WHERE id = ?`).run(id).changes > 0;
-}
-
-/** Status totals for a collection (published / draft / needs review). */
-export function getCollectionStatusCounts(key: string): {
-  published: number;
-  draft: number;
-  needs_review: number;
-  total: number;
-} {
-  const def = getCollectionDef(key);
-  if (!def) throw new Error("Unknown collection");
-  const rows = getDb()
-    .prepare(`SELECT status, COUNT(*) AS c FROM ${def.table} GROUP BY status`)
-    .all() as { status: string; c: number }[];
-  const count = (status: string) => rows.find((row) => row.status === status)?.c ?? 0;
+  
+  query = query.order('created_at', { ascending: false, nullsFirst: false });
+  
+  const page = opts.page ?? 1;
+  const perPage = opts.perPage ?? 20;
+  query = query.range((page - 1) * perPage, page * perPage - 1);
+  
+  const { data, error, count } = await query;
+  
+  if (error) throw error;
+  
   return {
-    published: count("published"),
-    draft: count("draft"),
-    needs_review: count("needs_review"),
-    total: rows.reduce((sum, row) => sum + row.c, 0),
+    rows: (data || []) as AdminRow[],
+    total: count ?? 0,
+    page,
+    perPage,
+    totalPages: Math.ceil((count ?? 0) / perPage),
   };
 }
 
-/** Album choices for the gallery photo editor. */
-export function albumChoices() {
-  return getDb()
-    .prepare("SELECT id, title FROM gallery_albums ORDER BY order_index ASC, id ASC")
-    .all() as { id: number; title: string }[];
+export async function getCollectionRow(key: string, id: number): Promise<AdminRow | undefined> {
+  const def = getCollectionDef(key);
+  if (!def) throw new Error("Unknown collection");
+  
+  const { data, error } = await supabaseAdmin
+    .from(def.table)
+    .select('*')
+    .eq('id', id)
+    .single();
+  
+  if (error || !data) return undefined;
+  return data as AdminRow;
+}
+
+export async function createCollectionRow(
+  key: string,
+  input: Record<string, unknown>
+): Promise<AdminRow> {
+  const def = getCollectionDef(key);
+  if (!def) throw new Error("Unknown collection");
+  
+  const allowed = allowedColumns(def, input);
+  const { data, error } = await supabaseAdmin
+    .from(def.table)
+    .insert(allowed)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data as AdminRow;
+}
+
+export async function updateCollectionRow(
+  key: string,
+  id: number,
+  input: Record<string, unknown>
+): Promise<AdminRow> {
+  const def = getCollectionDef(key);
+  if (!def) throw new Error("Unknown collection");
+  
+  const allowed = allowedColumns(def, input);
+  const { data, error } = await supabaseAdmin
+    .from(def.table)
+    .update({ ...allowed, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data as AdminRow;
+}
+
+export async function deleteCollectionRow(key: string, id: number): Promise<void> {
+  const def = getCollectionDef(key);
+  if (!def) throw new Error("Unknown collection");
+  
+  const { error } = await supabaseAdmin
+    .from(def.table)
+    .delete()
+    .eq('id', id);
+  
+  if (error) throw error;
+}
+
+export async function bulkUpdateStatus(
+  key: string,
+  ids: number[],
+  status: "published" | "draft" | "needs_review"
+): Promise<number> {
+  const def = getCollectionDef(key);
+  if (!def) throw new Error("Unknown collection");
+  
+  const { error, count } = await supabaseAdmin
+    .from(def.table)
+    .update({ status, updated_at: new Date().toISOString() })
+    .in('id', ids);
+  
+  if (error) throw error;
+  return count ?? 0;
 }
 
 /* ------------------------------------------------------------------ counts */
 
-export function adminCounts() {
-  const db = getDb();
-  const one = (sql: string) => (db.prepare(sql).get() as { c: number }).c;
+export async function adminCounts() {
+  const [
+    { count: inquiriesNew },
+    { count: inquiriesTotal },
+    { count: inquiriesAdmission },
+    { count: contentReview },
+    { count: contentDraft },
+    { count: testimonialsReview },
+    { count: faqsReview },
+    { count: noticesPublished },
+    { count: facultyPublished },
+    { count: materialsPublished },
+    { count: albums },
+    { count: photos },
+  ] = await Promise.all([
+    supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }).eq('status', 'new'),
+    supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }).eq('type', 'admission'),
+    supabaseAdmin.from('content').select('*', { count: 'exact', head: true }).eq('status', 'needs_review'),
+    supabaseAdmin.from('content').select('*', { count: 'exact', head: true }).eq('status', 'draft'),
+    supabaseAdmin.from('testimonials').select('*', { count: 'exact', head: true }).eq('status', 'needs_review'),
+    supabaseAdmin.from('faqs').select('*', { count: 'exact', head: true }).eq('status', 'needs_review'),
+    supabaseAdmin.from('notices').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+    supabaseAdmin.from('faculty').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+    supabaseAdmin.from('materials').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+    supabaseAdmin.from('albums').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('album_images').select('*', { count: 'exact', head: true }),
+  ]);
+  
   return {
-    inquiriesNew: one("SELECT COUNT(*) AS c FROM inquiries WHERE status = 'new'"),
-    inquiriesTotal: one("SELECT COUNT(*) AS c FROM inquiries"),
-    inquiriesAdmission: one("SELECT COUNT(*) AS c FROM inquiries WHERE type = 'admission'"),
-    contentReview: one("SELECT COUNT(*) AS c FROM content WHERE status = 'needs_review'"),
-    contentDraft: one("SELECT COUNT(*) AS c FROM content WHERE status = 'draft'"),
-    testimonialsReview: one("SELECT COUNT(*) AS c FROM testimonials WHERE status = 'needs_review'"),
-    faqsReview: one("SELECT COUNT(*) AS c FROM faqs WHERE status = 'needs_review'"),
-    noticesPublished: one("SELECT COUNT(*) AS c FROM notices WHERE status = 'published'"),
-    facultyPublished: one("SELECT COUNT(*) AS c FROM faculty WHERE status = 'published'"),
-    materialsPublished: one("SELECT COUNT(*) AS c FROM materials WHERE status = 'published'"),
-    albums: one("SELECT COUNT(*) AS c FROM gallery_albums"),
-    photos: one("SELECT COUNT(*) AS c FROM gallery_photos"),
+    inquiriesNew: inquiriesNew ?? 0,
+    inquiriesTotal: inquiriesTotal ?? 0,
+    inquiriesAdmission: inquiriesAdmission ?? 0,
+    contentReview: contentReview ?? 0,
+    contentDraft: contentDraft ?? 0,
+    testimonialsReview: testimonialsReview ?? 0,
+    faqsReview: faqsReview ?? 0,
+    noticesPublished: noticesPublished ?? 0,
+    facultyPublished: facultyPublished ?? 0,
+    materialsPublished: materialsPublished ?? 0,
+    albums: albums ?? 0,
+    photos: photos ?? 0,
   };
+}
+
+/** Get status counts for a collection (published, draft, needs_review). */
+export async function getCollectionStatusCounts(key: string): Promise<{ published: number; draft: number; needs_review: number; total: number }> {
+  const def = getCollectionDef(key);
+  if (!def) throw new Error("Unknown collection");
+  
+  const [{ count: published }, { count: draft }, { count: needs_review }] = await Promise.all([
+    supabaseAdmin.from(def.table).select('*', { count: 'exact', head: true }).eq('status', 'published'),
+    supabaseAdmin.from(def.table).select('*', { count: 'exact', head: true }).eq('status', 'draft'),
+    supabaseAdmin.from(def.table).select('*', { count: 'exact', head: true }).eq('status', 'needs_review'),
+  ]);
+  
+  const total = (published ?? 0) + (draft ?? 0) + (needs_review ?? 0);
+  return { published: published ?? 0, draft: draft ?? 0, needs_review: needs_review ?? 0, total };
+}
+
+/** Get album choices for dropdowns (id, title). */
+export async function albumChoices(): Promise<{ id: number; title: string }[]> {
+  const { data, error } = await supabaseAdmin
+    .from('albums')
+    .select('id, title')
+    .eq('status', 'published')
+    .order('title', { ascending: true });
+  
+  if (error) return [];
+  return (data || []) as { id: number; title: string }[];
 }

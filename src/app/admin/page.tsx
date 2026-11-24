@@ -29,13 +29,19 @@ export default async function AdminDashboardPage() {
   const session = await getSession();
   const user = session?.user;
   const firstName = user?.name.split(" ")[0] ?? "there";
-  const counts = adminCounts();
-  const recentInquiries = getInquiries({ perPage: 5 }).rows;
-  const audit = listAudit({ limit: 6 }).rows;
-  const allContent = listContent();
-  const reviewBlocks = allContent.filter((block) => block.status === "needs_review").slice(0, 6);
-  const affiliation = getContentRecord("settings.affiliation");
-  const eligibility = getContentRecord("admissions.eligibility");
+  const [counts, recentInquiriesResult, auditResult, allContent] = await Promise.all([
+    adminCounts(),
+    getInquiries({ perPage: 5 }),
+    listAudit({ limit: 6 }),
+    listContent(),
+  ]);
+  const recentInquiries = Array.isArray(recentInquiriesResult?.rows) ? recentInquiriesResult.rows : [];
+  const audit = Array.isArray(auditResult?.rows) ? auditResult.rows : [];
+  const reviewBlocks = Array.isArray(allContent) ? allContent.filter((block) => block.status === "needs_review").slice(0, 6) : [];
+  const [affiliation, eligibility] = await Promise.all([
+    getContentRecord("settings.affiliation"),
+    getContentRecord("admissions.eligibility"),
+  ]);
   const affiliationNeedsReview = affiliation?.status !== "published";
   const eligibilityNeedsReview = eligibility?.status !== "published";
   const hasConflict = affiliationNeedsReview || eligibilityNeedsReview;

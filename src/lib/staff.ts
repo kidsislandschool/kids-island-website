@@ -17,7 +17,7 @@ export type StaffRow = {
   approved_at: string | null;
 };
 
-export function createStaff(data: {
+export async function createStaff(data: {
   email: string;
   name: string;
   phone?: string;
@@ -25,9 +25,9 @@ export function createStaff(data: {
   qualification?: string;
   bio?: string;
   password_hash: string;
-}) {
+}): Promise<{ id: number }> {
   const db = getDb();
-  const info = db
+  const info = await db
     .prepare(
       `INSERT INTO staff (email, name, phone, designation, qualification, bio, password_hash, status)
        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')`
@@ -44,17 +44,17 @@ export function createStaff(data: {
   return { id: Number(info.lastInsertRowid) };
 }
 
-export function getStaffByEmail(email: string): StaffRow | undefined {
+export async function getStaffByEmail(email: string): Promise<StaffRow | undefined> {
   return getDb()
     .prepare("SELECT * FROM staff WHERE email = ?")
     .get(email.toLowerCase()) as StaffRow | undefined;
 }
 
-export function getStaffById(id: number): StaffRow | undefined {
+export async function getStaffById(id: number): Promise<StaffRow | undefined> {
   return getDb().prepare("SELECT * FROM staff WHERE id = ?").get(id) as StaffRow | undefined;
 }
 
-export function listStaff(opts: { status?: string; search?: string } = {}) {
+export async function listStaff(opts: { status?: string; search?: string } = {}): Promise<StaffRow[]> {
   const db = getDb();
   let sql = "SELECT * FROM staff";
   const params: any[] = [];
@@ -73,14 +73,16 @@ export function listStaff(opts: { status?: string; search?: string } = {}) {
   return db.prepare(sql).all(...params) as StaffRow[];
 }
 
-export function updateStaffStatus(id: number, status: "approved" | "rejected", adminId: number) {
+export async function updateStaffStatus(id: number, status: "approved" | "rejected", adminId: number): Promise<void> {
   const db = getDb();
-  db.prepare(
-    `UPDATE staff SET status = ?, approved_by = ?, approved_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`
-  ).run(status, adminId, id);
+  await db
+    .prepare(
+      `UPDATE staff SET status = ?, approved_by = ?, approved_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`
+    )
+    .run(status, adminId, id);
 }
 
-export function updateStaffProfile(id: number, data: Partial<StaffRow>) {
+export async function updateStaffProfile(id: number, data: Partial<StaffRow>): Promise<void> {
   const db = getDb();
   const fields: string[] = [];
   const params: any[] = [];
@@ -92,10 +94,10 @@ export function updateStaffProfile(id: number, data: Partial<StaffRow>) {
   if (!fields.length) return;
   fields.push("updated_at = datetime('now')");
   params.push(id);
-  db.prepare(`UPDATE staff SET ${fields.join(", ")} WHERE id = ?`).run(...params);
+  await db.prepare(`UPDATE staff SET ${fields.join(", ")} WHERE id = ?`).run(...params);
 }
 
-export function countStaffByStatus() {
+export async function countStaffByStatus(): Promise<{ status: string; c: number }[]> {
   const db = getDb();
   return db
     .prepare("SELECT status, COUNT(*) AS c FROM staff GROUP BY status")
