@@ -110,9 +110,9 @@ export const MANAGED_PAGES: ManagedPage[] = [
     group: "Main pages",
   },
   {
-    path: "/student-login",
-    label: "Student Login",
-    summary: "Placeholder page — student authentication is not part of this phase.",
+    path: "/admin-login",
+    label: "Admin Login",
+    summary: "Master Admin sign-in. The account is managed under Account.",
     contentKeys: [],
     seo: true,
     group: "Portals",

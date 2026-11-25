@@ -608,7 +608,7 @@ export const CONTENT_SCHEMAS: Record<string, ContentSchema> = {
         ["/gallery", "Gallery"],
         ["/notices", "Notices"],
         ["/contact", "Contact"],
-        ["/student-login", "Student Login"],
+        ["/admin-login", "Admin Login"],
         ["/staff-login", "Staff Login"],
       ] as const
     ).map(([path, label]) => ({

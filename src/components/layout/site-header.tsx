@@ -75,8 +75,9 @@ export function SiteHeader({
             </a>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <Link href="/student-login" className="rounded-full px-2.5 py-1 transition-colors hover:bg-white/10 hover:text-white">
-              Student Login
+            <Link href="/admin-login" className="flex items-center gap-1 rounded-full px-2.5 py-1 transition-colors hover:bg-white/10 hover:text-white">
+              <Icon name="lock" className="h-3 w-3" />
+              Admin Login
             </Link>
             <span className="h-3 w-px bg-white/15" />
             <Link href="/staff-login" className="flex items-center gap-1 rounded-full px-2.5 py-1 transition-colors hover:bg-white/10 hover:text-white">
@@ -208,8 +209,11 @@ export function SiteHeader({
                   <a href={`mailto:${site.email}`} className="flex items-center gap-1.5">
                     <Icon name="mail" className="h-3.5 w-3.5 text-blue" /> {site.email}
                   </a>
-                  <Link href="/student-login" className="flex items-center gap-1.5">
-                    <Icon name="user" className="h-3.5 w-3.5 text-blue" /> Student login
+                  <Link href="/admin-login" className="flex items-center gap-1.5">
+                    <Icon name="lock" className="h-3.5 w-3.5 text-blue" /> Admin Login
+                  </Link>
+                  <Link href="/staff-login" className="flex items-center gap-1.5">
+                    <Icon name="lock" className="h-3.5 w-3.5 text-blue" /> Staff Login
                   </Link>
                 </div>
               </div>

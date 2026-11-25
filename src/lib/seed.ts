@@ -141,9 +141,9 @@ const CONTENT: ContentSeed[] = [
         description:
           "Get in touch with Kids Island Senior Secondary School — phone, email, campus visit and enquiry form.",
       },
-      "/student-login": {
-        title: "Student Login",
-        description: "The student portal for Kids Island Senior Secondary School is coming soon.",
+      "/admin-login": {
+        title: "Admin Login",
+        description: "Master Admin sign-in for Kids Island Senior Secondary School.",
       },
       "/staff-login": {
         title: "Staff Login",
