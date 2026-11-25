@@ -5,12 +5,18 @@ import { NextResponse } from "next/server";
 /** Check that the request originates from the same origin (CSRF protection). */
 export function assertSameOrigin(req: Request): boolean {
   const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
+  // Check host header, also check x-forwarded-host for custom domains behind Vercel edge
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
   // Allow requests without origin header (e.g., server-to-server, curl)
   if (!origin) return true;
   if (!host) return false;
   try {
     const originHost = new URL(origin).host;
+    // Allow custom domains: kidsaligarh.com, www.kidsaligarh.com
+    const allowedHosts = ["kidsaligarh.com", "www.kidsaligarh.com"];
+    if (allowedHosts.includes(originHost) && allowedHosts.includes(host)) {
+      return true;
+    }
     return originHost === host;
   } catch {
     return false;
