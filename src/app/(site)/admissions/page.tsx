@@ -94,7 +94,7 @@ export default async function AdmissionsPage() {
               <RevealItem key={step.step} className="relative">
                 <article className="group relative h-full rounded-[1.75rem] border border-line bg-white p-6 shadow-[0_16px_40px_-32px_rgba(18,50,92,0.4)] transition-transform duration-300 hover:-translate-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-100 text-blue transition-colors duration-300 group-hover:bg-blue group-hover:text-white">
+                    <span className="grid h-12 w-12 place-items-center rounded-2xl bg-green-200 text-blue transition-colors duration-300 group-hover:bg-blue group-hover:text-white">
                       <Icon name={STEP_ICONS[i] ?? "check"} className="h-5 w-5" />
                     </span>
                     <span className="rounded-full bg-paper-2 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-muted">
@@ -196,7 +196,7 @@ export default async function AdmissionsPage() {
                 <Reveal direction="right" delay={0.1}>
                   <div className="rounded-[1.75rem] border border-line bg-white p-6 sm:p-7">
                     <div className="flex items-center gap-3">
-                      <span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue">
+                      <span className="grid h-10 w-10 place-items-center rounded-xl bg-green-200 text-blue">
                         <Icon name="user-group" className="h-5 w-5" />
                       </span>
                       <h2 className="text-lg text-navy-900">Eligibility</h2>

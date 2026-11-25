@@ -37,7 +37,7 @@ const FALLBACK: AcademicsPage = {
 
 const ACCENTS: Record<string, { bg: string; icon: string; chip: string; scene: string }> = {
   pink: { bg: "bg-blush", icon: "bg-white text-[#b23a6b]", chip: "bg-white/70 text-[#b23a6b]", scene: "classroom" },
-  blue: { bg: "bg-skyblue", icon: "bg-white text-blue", chip: "bg-white/70 text-blue", scene: "science" },
+  blue: { bg: "bg-green-200", icon: "bg-white text-blue", chip: "bg-white/70 text-blue", scene: "science" },
   green: { bg: "bg-mint", icon: "bg-white text-[#167a4a]", chip: "bg-white/70 text-[#167a4a]", scene: "library" },
   amber: { bg: "bg-yellow-100", icon: "bg-white text-[#8a5a00]", chip: "bg-white/70 text-[#8a5a00]", scene: "play" },
 };

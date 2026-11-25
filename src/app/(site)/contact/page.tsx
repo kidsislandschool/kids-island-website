@@ -69,7 +69,7 @@ export default async function ContactPage() {
       label: "Visit us",
       value: content.address,
       icon: "pin" as const,
-      tone: "bg-blue-100 text-blue",
+      tone: "bg-green-200 text-blue",
       href: undefined,
     },
     {

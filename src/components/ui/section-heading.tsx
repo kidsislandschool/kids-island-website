@@ -19,7 +19,7 @@ export function SectionHeading({
 }) {
   const tones = {
     yellow: "bg-yellow-100 text-navy",
-    blue: "bg-blue-100 text-blue",
+    blue: "bg-green-200 text-blue",
     mint: "bg-mint text-[#167a4a]",
     pink: "bg-blush text-[#b23a6b]",
     cream: "bg-cream text-navy",

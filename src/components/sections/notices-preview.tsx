@@ -53,7 +53,7 @@ export function NoticesPreview({ notices }: { notices: PublicNotice[] }) {
                   className="group flex h-full flex-col rounded-[1.5rem] border border-line bg-white p-6 shadow-[0_16px_40px_-32px_rgba(18,50,92,0.4)] transition-all duration-300 hover:-translate-y-1 hover:border-blue/30 hover:shadow-soft"
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-blue">
+                    <span className="rounded-full bg-green-200 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-blue">
                       {notice.category}
                     </span>
                     <span className="text-[11px] font-bold text-muted">

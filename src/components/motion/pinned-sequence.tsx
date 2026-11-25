@@ -148,7 +148,7 @@ export function PinnedSequence({
           <div aria-hidden className="absolute inset-0">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,#1c4478_0%,#12325c_45%,#0a1c38_100%)]" />
             <div className="dot-grid absolute inset-0 text-white/[0.045]" />
-            <div className="absolute -left-24 top-10 h-80 w-80 rounded-full bg-blue/20 blur-[100px]" />
+            <div className="absolute -left-24 top-10 h-80 w-80 rounded-full bg-green-200/20 blur-[100px]" />
             <div className="absolute -right-16 bottom-0 h-96 w-96 rounded-full bg-yellow/15 blur-[120px]" />
             <svg viewBox="0 0 1440 120" className="absolute bottom-0 h-24 w-full opacity-[0.06]" preserveAspectRatio="none">
               <path fill="#fff" d="M0,66 C58,66 58,28 116,28 C174,28 174,64 232,64 C290,64 290,16 348,16 C406,16 406,74 464,74 C522,74 522,38 580,38 C638,38 638,86 696,86 C754,86 754,26 812,26 C870,26 870,62 928,62 C986,62 986,14 1044,14 C1102,14 1102,52 1160,52 C1218,52 1218,34 1276,34 C1334,34 1334,68 1440,68 L1440,120 L0,120 Z" />

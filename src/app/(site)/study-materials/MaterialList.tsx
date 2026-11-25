@@ -96,11 +96,11 @@ export function MaterialList({
                   className="group flex h-full flex-col rounded-[1.5rem] border border-line bg-white p-5 shadow-[0_16px_40px_-32px_rgba(18,50,92,0.4)] transition-all duration-300 hover:-translate-y-1 hover:border-blue/30 hover:shadow-soft"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex h-12 w-12 flex-col items-center justify-center rounded-xl bg-blue-100 text-blue">
+                    <div className="flex h-12 w-12 flex-col items-center justify-center rounded-xl bg-green-200 text-blue">
                       <Icon name="file-text" className="h-6 w-6" />
                     </div>
                     <div className="flex flex-wrap justify-end gap-1.5">
-                      <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-extrabold text-blue">
+                      <span className="rounded-full bg-green-200 px-2.5 py-1 text-[10px] font-extrabold text-blue">
                         {material.class_level}
                       </span>
                       <span className="rounded-full bg-cream px-2.5 py-1 text-[10px] font-extrabold text-[#8a5a00]">

@@ -75,7 +75,7 @@ const STATUS_TONES: Record<string, string> = {
   published: "bg-[#EAF9F1] text-[#167A4A] border-[#CBE7D7]",
   draft: "bg-paper-2 text-[#5B6B85] border-line",
   needs_review: "bg-[#FFF6E3] text-[#9A5B00] border-[#F2DDB0]",
-  new: "bg-blue-100 text-blue",
+  new: "bg-green-200 text-blue",
   read: "bg-paper-2 text-[#5B6B85]",
   replied: "bg-[#EAF9F1] text-[#167A4A]",
   closed: "bg-[#FDF0F3] text-[#A32D4B]",
@@ -126,7 +126,7 @@ export function AdminStat({
   tone?: "blue" | "yellow" | "mint" | "pink" | "navy";
 }) {
   const tones = {
-    blue: "bg-blue-100 text-blue",
+    blue: "bg-green-200 text-blue",
     yellow: "bg-yellow-100 text-[#8a5a00]",
     mint: "bg-mint text-[#167a4a]",
     pink: "bg-blush text-[#b23a6b]",

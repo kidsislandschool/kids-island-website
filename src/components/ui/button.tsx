@@ -10,13 +10,13 @@ const VARIANTS: Record<Variant, string> = {
   navy:
     "bg-navy text-white shadow-soft hover:bg-navy-700",
   outline:
-    "border-2 border-navy/15 bg-white text-navy hover:border-blue/40 hover:bg-blue-100/60",
+    "border-2 border-navy/15 bg-white text-navy hover:border-green/40 hover:bg-green-200/60",
   white:
     "bg-white text-navy shadow-soft hover:bg-cream",
   ghost:
     "text-navy hover:bg-navy/5",
   sky:
-    "bg-skyblue text-navy hover:bg-[#d1f2dd]",
+    "bg-green-200 text-navy hover:bg-[#a7f3d0]",
 };
 
 const SIZES: Record<Size, string> = {

@@ -14,7 +14,7 @@ export function FacilitiesSection({ facilities }: { facilities: Facility[] }) {
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="dot-grid absolute inset-0 text-navy/[0.035]" />
         <div className="absolute -left-20 top-1/3 h-72 w-72 rounded-full bg-yellow/15 blur-[80px]" />
-        <div className="absolute -right-16 top-10 h-72 w-72 rounded-full bg-skyblue blur-[80px]" />
+        <div className="absolute -right-16 top-10 h-72 w-72 rounded-full bg-green-200 blur-[80px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">

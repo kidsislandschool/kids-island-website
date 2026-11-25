@@ -143,7 +143,7 @@ export function Hero({ content, affiliation }: { content: HeroContent; affiliati
       {/* decorative backdrop */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="dot-grid absolute inset-0 text-navy/[0.05]" />
-        <div className="absolute -left-40 top-24 h-[28rem] w-[28rem] rounded-full bg-skyblue/70 blur-[90px]" />
+        <div className="absolute -left-40 top-24 h-[28rem] w-[28rem] rounded-full bg-green-200/70 blur-[90px]" />
         <div className="absolute -right-32 top-10 h-[26rem] w-[26rem] rounded-full bg-yellow/20 blur-[100px]" />
         <Cloud
           data-hero-parallax="0.5"

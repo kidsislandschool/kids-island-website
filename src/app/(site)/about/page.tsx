@@ -121,7 +121,7 @@ export default async function AboutPage() {
             </div>
             <Reveal delay={0.15} className="mt-8 flex flex-wrap gap-4">
               <div className="flex items-center gap-3 rounded-2xl border border-line bg-white px-4 py-3">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-green-200 text-blue">
                   <Icon name="building" className="h-5 w-5" />
                 </span>
                 <div className="leading-tight">
@@ -157,7 +157,7 @@ export default async function AboutPage() {
           </Reveal>
           <div className="mt-12 grid gap-4 lg:grid-cols-2">
             <Reveal direction="left">
-              <article className="relative h-full overflow-hidden rounded-[1.75rem] bg-skyblue p-7 sm:p-9">
+              <article className="relative h-full overflow-hidden rounded-[1.75rem] bg-green-200 p-7 sm:p-9">
                 <div aria-hidden className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/50" />
                 <span className="relative grid h-12 w-12 place-items-center rounded-2xl bg-white text-blue">
                   <Icon name="sparkle" className="h-5 w-5" />

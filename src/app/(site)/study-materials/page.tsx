@@ -118,7 +118,7 @@ export default async function StudyMaterialsPage({
         title={<>A library that <span className="wave-underline">travels home</span></>}
         intro={content.intro}
       >
-        <span className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3.5 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.16em] text-blue">
+        <span className="inline-flex items-center gap-2 rounded-full bg-green-200 px-3.5 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.16em] text-blue">
           <Icon name="book" className="h-5 w-5" /> Resources
         </span>
       </PageHero>

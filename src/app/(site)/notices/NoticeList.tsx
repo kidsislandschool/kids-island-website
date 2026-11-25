@@ -221,7 +221,7 @@ export function NoticeList({
                         <span className="mt-0.5 text-[9px] font-extrabold uppercase tracking-[0.1em] text-amber">{month}</span>
                       </div>
                       <div className="flex flex-wrap justify-end gap-1.5">
-                        <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-extrabold text-blue">
+                        <span className="rounded-full bg-green-200 px-2.5 py-1 text-[10px] font-extrabold text-blue">
                           {notice.category}
                         </span>
                         {notice.pinned ? (
