@@ -44,19 +44,28 @@ export function Logo({
   compact = false,
   className,
   useImage = true,
+  markOnly = false,
 }: {
   light?: boolean;
   compact?: boolean;
   className?: string;
   useImage?: boolean;
+  /** Show only the logo mark (icon), without text */
+  markOnly?: boolean;
 }) {
+  const mark = useImage ? (
+    <LogoImage className={compact ? "h-9 w-9" : "h-11 w-11"} />
+  ) : (
+    <LogoMark className={compact ? "h-9 w-9" : "h-11 w-11"} />
+  );
+
+  if (markOnly) {
+    return <span className={cn("flex items-center", className)}>{mark}</span>;
+  }
+
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
-      {useImage ? (
-        <LogoImage className={compact ? "h-9 w-9" : "h-11 w-11"} />
-      ) : (
-        <LogoMark className={compact ? "h-9 w-9" : "h-11 w-11"} />
-      )}
+      {mark}
       <span className="leading-none">
         <span
           className={cn(

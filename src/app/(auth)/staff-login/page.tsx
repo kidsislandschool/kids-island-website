@@ -36,7 +36,7 @@ export default async function StaffLoginPage({
         <Sparkle className="absolute bottom-1/3 right-1/4 text-blue/30 w-[36px] h-[36px]" />
         
         <div className="relative z-10 w-full max-w-md text-center">
-          <Logo className="mx-auto mb-8" light />
+          <Logo className="mx-auto mb-12" light markOnly />
           <h1 className="font-display text-4xl md:text-5xl font-semibold text-white leading-tight mb-4">
             Teacher Portal
           </h1>
