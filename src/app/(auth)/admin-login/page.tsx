@@ -51,7 +51,7 @@ export default async function AdminLoginPage({
         <div className="w-full max-w-md">
           <div className="text-center mb-10">
             <Link href="/" className="inline-flex items-center gap-2 text-navy-900 hover:text-navy-700 mb-6">
-              <Logo className="h-9 w-9" compact />
+              <Logo className="h-9 w-9" compact hideSubtitle />
               <span className="font-display text-xl font-semibold">Kids Island</span>
             </Link>
             <h2 className="font-display text-2xl font-semibold text-navy-900 mb-2">Admin Login</h2>

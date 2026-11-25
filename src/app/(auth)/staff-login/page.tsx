@@ -36,8 +36,8 @@ export default async function StaffLoginPage({
         <Sparkle className="absolute bottom-1/3 right-1/4 text-blue/30 w-[36px] h-[36px]" />
         
         <div className="relative z-10 w-full max-w-md text-center">
-          <Logo className="mx-auto mb-12" light markOnly />
-          <h1 className="relative z-20 font-display text-4xl md:text-5xl font-semibold text-white leading-tight mb-4" style={{ color: '#FFFFFF' }}>
+          <Logo className="mx-auto mb-8" light />
+          <h1 className="font-display text-4xl md:text-5xl font-semibold text-white leading-tight mb-4">
             Teacher Portal
           </h1>
           <p className="text-lg text-white/80 leading-relaxed mb-8 max-w-lg mx-auto">
@@ -55,8 +55,9 @@ export default async function StaffLoginPage({
       <div className="flex-1 flex min-h-svh items-center justify-center bg-paper p-4 md:p-8 lg:p-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-10">
-            <Link href="/" className="inline-flex flex-col items-center gap-1.5 text-navy-900 hover:text-navy-700 mb-6">
-              <Logo className="h-9 w-9" compact />
+            <Link href="/" className="inline-flex items-center gap-2 text-navy-900 hover:text-navy-700 mb-6">
+              <Logo className="h-9 w-9" compact hideSubtitle />
+              <span className="font-display text-xl font-semibold">Kids Island</span>
             </Link>
             <h2 className="font-display text-2xl font-semibold text-navy-900 mb-2">Welcome Back</h2>
             <p className="text-muted">Sign in to access your teacher dashboard</p>

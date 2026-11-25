@@ -45,6 +45,7 @@ export function Logo({
   className,
   useImage = true,
   markOnly = false,
+  hideSubtitle = false,
 }: {
   light?: boolean;
   compact?: boolean;
@@ -52,6 +53,8 @@ export function Logo({
   useImage?: boolean;
   /** Show only the logo mark (icon), without text */
   markOnly?: boolean;
+  /** Hide "Senior Secondary School" subtitle (defaults to true when compact) */
+  hideSubtitle?: boolean;
 }) {
   const mark = useImage ? (
     <LogoImage className={compact ? "h-9 w-9" : "h-11 w-11"} />
@@ -62,6 +65,8 @@ export function Logo({
   if (markOnly) {
     return <span className={cn("flex items-center", className)}>{mark}</span>;
   }
+
+  const showSubtitle = !hideSubtitle && !compact;
 
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
@@ -76,14 +81,16 @@ export function Logo({
         >
           Kids Island
         </span>
-        <span
-          className={cn(
-            "mt-1 block text-[9.5px] font-extrabold uppercase tracking-[0.16em]",
-            light ? "text-white/55" : "text-muted"
-          )}
-        >
-          Senior Secondary School
-        </span>
+        {showSubtitle && (
+          <span
+            className={cn(
+              "mt-1 block text-[9.5px] font-extrabold uppercase tracking-[0.16em]",
+              light ? "text-white/55" : "text-muted"
+            )}
+          >
+            Senior Secondary School
+          </span>
+        )}
       </span>
     </span>
   );
