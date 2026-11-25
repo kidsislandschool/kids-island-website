@@ -9,7 +9,7 @@ export type Program = { title: string; stage: string; text: string; variant: str
 
 const TONES: Record<string, { card: string; chip: string; icon: string }> = {
   pink: { card: "bg-blush", chip: "bg-white/75 text-[#b23a6b]", icon: "bg-white/70 text-[#b23a6b]" },
-  blue: { card: "bg-skyblue", chip: "bg-white/75 text-blue", icon: "bg-white/70 text-blue" },
+  blue: { card: "bg-green-200", chip: "bg-white/75 text-blue", icon: "bg-white/70 text-blue" },
   green: { card: "bg-mint", chip: "bg-white/75 text-[#167a4a]", icon: "bg-white/70 text-[#167a4a]" },
   amber: { card: "bg-yellow-100", chip: "bg-white/75 text-[#8a5a00]", icon: "bg-white/70 text-[#8a5a00]" },
 };

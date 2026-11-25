@@ -20,6 +20,8 @@
   --color-blue-100: #dcfce7;
   --color-sky: #86efac;
   --color-mint: #e4f7ec;
+  /* Medium green for card backgrounds — better contrast than skyblue/blue-100 */
+  --color-green-200: #bbf7d0;
   --color-yellow: #ffc53d;
   --color-yellow-100: #fff4d6;
   --color-amber: #ff9f1c;

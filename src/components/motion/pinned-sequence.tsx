@@ -19,7 +19,7 @@ const CARD_TONES = [
   { bg: "bg-cream", accent: "text-amber", chip: "bg-yellow-100 text-navy", scene: "classroom" },
   { bg: "bg-blush", accent: "text-[#b23a6b]", chip: "bg-white/70 text-[#b23a6b]", scene: "science" },
   { bg: "bg-mint", accent: "text-[#167a4a]", chip: "bg-white/70 text-[#167a4a]", scene: "library" },
-  { bg: "bg-skyblue", accent: "text-blue", chip: "bg-white/70 text-blue", scene: "play" },
+  { bg: "bg-green-200", accent: "text-blue", chip: "bg-white/70 text-blue", scene: "play" },
 ];
 
 /**

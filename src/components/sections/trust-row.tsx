@@ -12,7 +12,7 @@ const ICONS: Record<string, IconName> = {
 };
 
 const TONES = [
-  "bg-blue-100 text-blue",
+  "bg-green-200 text-blue",
   "bg-blush text-[#b23a6b]",
   "bg-mint text-[#167a4a]",
   "bg-yellow-100 text-[#8a5a00]",

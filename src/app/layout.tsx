@@ -26,8 +26,9 @@ export const viewport: Viewport = {
 
 export function generateMetadata(): Metadata {
   const site = getSiteSettings();
+  const base = siteOrigin();
   return {
-    metadataBase: new URL(siteOrigin()),
+    metadataBase: new URL(base),
     title: {
       default: `${site.name}, Aligarh`,
       template: `%s | ${site.shortName}`,
@@ -40,6 +41,11 @@ export function generateMetadata(): Metadata {
       locale: "en_IN",
     },
     robots: { index: true, follow: true },
+    icons: {
+      icon: "/favicon.png",
+      shortcut: "/favicon.png",
+      apple: "/favicon.png",
+    },
   };
 }
 

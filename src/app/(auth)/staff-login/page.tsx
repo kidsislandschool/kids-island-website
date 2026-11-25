@@ -29,8 +29,8 @@ export default async function StaffLoginPage({
       {/* Brand panel - shows on desktop, hidden on mobile */}
       <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-10 bg-navy relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
-        <div className="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy to-blue" />
-        <Cloud className="absolute top-10 left-10 text-blue/20 w-[140px] h-[140px]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy to-navy-700" />
+        <Cloud className="absolute top-10 left-10 text-sky/20 w-[140px] h-[140px]" />
         <Cloud className="absolute bottom-20 right-20 text-sky/15 w-[200px] h-[200px]" />
         <Sparkle className="absolute top-1/3 left-1/4 text-yellow/30 w-[48px] h-[48px]" />
         <Sparkle className="absolute bottom-1/3 right-1/4 text-blue/30 w-[36px] h-[36px]" />
@@ -55,11 +55,11 @@ export default async function StaffLoginPage({
       <div className="flex-1 flex min-h-svh items-center justify-center bg-paper p-4 md:p-8 lg:p-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-10">
-            <Link href="/" className="inline-flex items-center gap-2 text-navy hover:text-blue mb-6">
-              <Logo className="h-10 w-10" />
-              <span className="font-display text-2xl font-semibold">Kids Island</span>
+            <Link href="/" className="inline-flex items-center gap-2 text-navy-900 hover:text-navy-700 mb-6">
+              <Logo className="h-9 w-9" compact />
+              <span className="font-display text-xl font-semibold">Kids Island</span>
             </Link>
-            <h2 className="font-display text-3xl font-semibold text-navy-900 mb-2">Welcome Back</h2>
+            <h2 className="font-display text-2xl font-semibold text-navy-900 mb-2">Welcome Back</h2>
             <p className="text-muted">Sign in to access your teacher dashboard</p>
           </div>
 
@@ -74,14 +74,14 @@ export default async function StaffLoginPage({
 
           <p className="mt-8 text-center text-sm text-muted">
             Don&apos;t have access yet?{" "}
-            <Link href="/staff-signup" className="text-blue hover:underline font-semibold">
+            <Link href="/staff-signup" className="text-navy-700 hover:text-navy-900 underline font-semibold">
               Request access
             </Link>
           </p>
 
           <Link
             href="/"
-            className="mt-4 block text-center text-sm text-muted hover:text-navy flex items-center justify-center gap-1"
+            className="mt-4 block text-center text-sm text-muted hover:text-navy-700 flex items-center justify-center gap-1"
           >
             <Icon name="arrow-left" className="h-4 w-4" /> Back to school website
           </Link>

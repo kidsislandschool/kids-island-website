@@ -26,18 +26,37 @@ export function LogoMark({ className }: { className?: string }) {
   );
 }
 
+/** Custom logo image - uses /logo.png if available, falls back to SVG mark */
+export function LogoImage({ className, alt = "Kids Island", compact = false }: { className?: string; alt?: string; compact?: boolean }) {
+  return (
+    <img
+      src="/logo.png"
+      alt={alt}
+      className={cn("block object-contain", className)}
+      width={compact ? 36 : 44}
+      height={compact ? 36 : 44}
+    />
+  );
+}
+
 export function Logo({
   light = false,
   compact = false,
   className,
+  useImage = true,
 }: {
   light?: boolean;
   compact?: boolean;
   className?: string;
+  useImage?: boolean;
 }) {
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
-      <LogoMark className={compact ? "h-9 w-9" : "h-11 w-11"} />
+      {useImage ? (
+        <LogoImage className={compact ? "h-9 w-9" : "h-11 w-11"} />
+      ) : (
+        <LogoMark className={compact ? "h-9 w-9" : "h-11 w-11"} />
+      )}
       <span className="leading-none">
         <span
           className={cn(

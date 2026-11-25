@@ -29,7 +29,7 @@ export default async function AdminLoginPage({
       {/* Brand panel - shows on desktop, hidden on mobile */}
       <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-10 bg-navy relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
-        <div className="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy to-blue" />
+        <div className="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy to-navy-700" />
         <div className="relative z-10 w-full max-w-md text-center">
           <Logo className="mx-auto mb-8" light />
           <h1 className="font-display text-4xl md:text-5xl font-semibold text-white leading-tight mb-4">
@@ -50,25 +50,25 @@ export default async function AdminLoginPage({
       <div className="flex-1 flex min-h-svh items-center justify-center bg-paper p-4 md:p-8 lg:p-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-10">
-            <Link href="/" className="inline-flex items-center gap-2 text-navy hover:text-blue mb-6">
-              <Logo className="h-10 w-10" />
-              <span className="font-display text-2xl font-semibold">Kids Island</span>
+            <Link href="/" className="inline-flex items-center gap-2 text-navy-900 hover:text-navy-700 mb-6">
+              <Logo className="h-9 w-9" compact />
+              <span className="font-display text-xl font-semibold">Kids Island</span>
             </Link>
-            <h2 className="font-display text-3xl font-semibold text-navy-900 mb-2">Admin Login</h2>
+            <h2 className="font-display text-2xl font-semibold text-navy-900 mb-2">Admin Login</h2>
             <p className="text-muted">Sign in to access the admin dashboard</p>
           </div>
 
           <LoginForm next={next} />
 
           <p className="mt-8 text-center text-sm text-muted">
-            <Link href="/staff-login" className="text-blue hover:underline font-semibold">
+            <Link href="/staff-login" className="text-navy-700 hover:text-navy-900 underline font-semibold">
               Teacher/Staff login instead
             </Link>
           </p>
 
           <Link
             href="/"
-            className="mt-4 block text-center text-sm text-muted hover:text-navy flex items-center justify-center gap-1"
+            className="mt-4 block text-center text-sm text-muted hover:text-navy-700 flex items-center justify-center gap-1"
           >
             <Icon name="arrow-left" className="h-4 w-4" /> Back to school website
           </Link>
