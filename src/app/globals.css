@@ -25,9 +25,9 @@
   /* Dark green for footer/sections — replaces navy-900 */
   --color-green-900: #0d2e1e;
 
-  /* Blue accent for hover states — high contrast on dark green */
-  --color-blue-accent: #3b82f6;
-  --color-blue-accent-hover: #2563eb;
+  /* Green accent for hover states — matches footer theme */
+  --color-green-accent: #159a63;
+  --color-green-accent-hover: #16a34a;
 
   --color-yellow: #ffc53d;
   --color-yellow-100: #fff4d6;

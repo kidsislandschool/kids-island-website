@@ -42,7 +42,7 @@ export function SiteFooter({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-blue-accent/40 hover:bg-blue-accent hover:text-white"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
                   >
                     <Icon
                       name={
@@ -61,14 +61,14 @@ export function SiteFooter({
                 <a
                   href={`mailto:${site.email}`}
                   aria-label="Email the school"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-blue-accent/40 hover:bg-blue-accent hover:text-white"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
                 >
                   <Icon name="mail" className="h-4 w-4" />
                 </a>
                 <a
                   href={`tel:${site.phone.replace(/\s/g, "")}`}
                   aria-label="Call the school"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-blue-accent/40 hover:bg-blue-accent hover:text-white"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
                 >
                   <Icon name="phone" className="h-4 w-4" />
                 </a>
@@ -80,8 +80,8 @@ export function SiteFooter({
               <ul className="mt-5 space-y-2.5">
                 {footer.quickLinks.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors text-white hover:text-blue-accent">
-                      <span className="h-1 w-1 rounded-full bg-blue-accent transition-transform group-hover:scale-150" />
+                    <Link href={link.href} className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors text-white hover:text-green-accent">
+                      <span className="h-1 w-1 rounded-full bg-green-accent transition-transform group-hover:scale-150" />
                       {link.label}
                     </Link>
                   </li>
@@ -94,8 +94,8 @@ export function SiteFooter({
               <ul className="mt-5 space-y-2.5">
                 {footer.resources.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors text-white hover:text-blue-accent">
-                      <span className="h-1 w-1 rounded-full bg-blue-accent transition-transform group-hover:scale-150" />
+                    <Link href={link.href} className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors text-white hover:text-green-accent">
+                      <span className="h-1 w-1 rounded-full bg-green-accent transition-transform group-hover:scale-150" />
                       {link.label}
                     </Link>
                   </li>
@@ -117,8 +117,8 @@ export function SiteFooter({
                   </a>
                 </li>
                 <li className="flex gap-2.5">
-                  <Icon name="mail" className="mt-0.5 h-4 w-4 shrink-0 text-blue-accent" />
-                  <a href={`mailto:${site.email}`} className="break-all transition-colors text-white hover:text-blue-accent">
+                  <Icon name="mail" className="mt-0.5 h-4 w-4 shrink-0 text-green-accent" />
+                  <a href={`mailto:${site.email}`} className="break-all transition-colors text-white hover:text-green-accent">
                     {site.email}
                   </a>
                 </li>
@@ -134,11 +134,11 @@ export function SiteFooter({
             <p>© {new Date().getFullYear()} {footer.copyright}</p>
             <div className="flex items-center gap-5">
               {footer.legal.map((link) => (
-                <Link key={link.href} href={link.href} className="transition-colors text-white hover:text-blue-accent">
+                <Link key={link.href} href={link.href} className="transition-colors text-white hover:text-green-accent">
                   {link.label}
                 </Link>
               ))}
-              <Link href="/staff-login" className="flex items-center gap-1.5 transition-colors text-white hover:text-blue-accent">
+              <Link href="/staff-login" className="flex items-center gap-1.5 transition-colors text-white hover:text-green-accent">
                 <Icon name="lock" className="h-3 w-3" /> Staff
               </Link>
             </div>
