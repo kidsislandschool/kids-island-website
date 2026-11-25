@@ -17,6 +17,8 @@ export function assertSameOrigin(req: Request): boolean {
     if (allowedHosts.includes(originHost) && allowedHosts.includes(host)) {
       return true;
     }
+    // Debug logging
+    console.log("assertSameOrigin debug:", { origin, originHost, host, allowedHosts });
     return originHost === host;
   } catch {
     return false;
