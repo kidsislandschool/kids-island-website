@@ -105,7 +105,7 @@ export function SiteFooter({
 
             <div>
               <h3 className="font-display text-[15px] font-semibold uppercase tracking-[0.14em] text-white">Reach us</h3>
-              <ul className="mt-5 space-y-3.5 text-[13.5px] font-semibold">
+              <ul className="mt-5 space-y-3.5 text-[13.5px] font-semibold text-white">
                 <li className="flex gap-2.5">
                   <Icon name="pin" className="mt-0.5 h-4 w-4 shrink-0 text-yellow" />
                   <span>{site.location}</span>
@@ -124,7 +124,7 @@ export function SiteFooter({
                 </li>
                 <li className="flex gap-2.5">
                   <Icon name="clock" className="mt-0.5 h-4 w-4 shrink-0 text-yellow" />
-                  <span className="text-white/55">{site.hoursOffice}</span>
+                  <span>{site.hoursOffice}</span>
                 </li>
               </ul>
             </div>
