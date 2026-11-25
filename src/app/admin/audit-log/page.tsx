@@ -213,7 +213,7 @@ function actionTone(action: string) {
   if (action === "logout") return "border-line bg-paper-2 text-muted";
   if (action.includes("delete")) return "border-[#F3C6D1] bg-[#FFF1F4] text-[#A32D4B]";
   if (action.includes("publish")) return "border-[#CBE7D7] bg-[#EAF9F1] text-[#167A4A]";
-  if (action.includes("upload")) return "border-[#D4E4FB] bg-blue-100 text-blue";
+  if (action.includes("upload")) return "border-[#c9f0d6] bg-blue-100 text-blue";
   if (action.includes("content") || action.includes("settings") || action.includes("password")) {
     return "border-[#F2DDB0] bg-[#FFF6E3] text-[#9A5B00]";
   }

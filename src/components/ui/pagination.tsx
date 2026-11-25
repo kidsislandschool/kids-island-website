@@ -7,11 +7,13 @@ export function Pagination({
   pages,
   basePath,
   searchParams,
+  onPageChange,
 }: {
   page: number;
   pages: number;
   basePath: string;
   searchParams?: Record<string, string | undefined>;
+  onPageChange?: (page: number) => void;
 }) {
   if (pages <= 1) return null;
   const href = (p: number) => {
@@ -38,16 +40,29 @@ export function Pagination({
     push(pages);
   }
 
+  const pageClass = (isActive: boolean) =>
+    cn(
+      "grid h-10 min-w-10 place-items-center rounded-xl border px-3 text-[13px] font-extrabold transition",
+      isActive
+        ? "border-navy bg-navy text-white"
+        : "border-line bg-white text-navy hover:bg-cream"
+    );
+
+  const navClass =
+    "grid h-10 w-10 place-items-center rounded-xl border border-line bg-white text-navy transition hover:bg-cream";
+
   return (
     <nav aria-label="Pagination" className="mt-10 flex items-center justify-center gap-1.5">
       {page > 1 ? (
-        <Link
-          href={href(page - 1)}
-          aria-label="Previous page"
-          className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-white text-navy transition hover:bg-cream"
-        >
-          <Icon name="chevron-left" className="h-4 w-4" />
-        </Link>
+        onPageChange ? (
+          <button type="button" aria-label="Previous page" onClick={() => onPageChange(page - 1)} className={navClass}>
+            <Icon name="chevron-left" className="h-4 w-4" />
+          </button>
+        ) : (
+          <Link href={href(page - 1)} aria-label="Previous page" className={navClass}>
+            <Icon name="chevron-left" className="h-4 w-4" />
+          </Link>
+        )
       ) : (
         <span className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-white text-navy/25">
           <Icon name="chevron-left" className="h-4 w-4" />
@@ -58,30 +73,37 @@ export function Pagination({
           <span key={`gap-${i}`} className="px-1 text-sm font-bold text-muted">
             …
           </span>
+        ) : onPageChange ? (
+          <button
+            key={item}
+            type="button"
+            aria-current={item === page ? "page" : undefined}
+            onClick={() => onPageChange(item)}
+            className={pageClass(item === page)}
+          >
+            {item}
+          </button>
         ) : (
           <Link
             key={item}
             href={href(item)}
             aria-current={item === page ? "page" : undefined}
-            className={cn(
-              "grid h-10 min-w-10 place-items-center rounded-xl border px-3 text-[13px] font-extrabold transition",
-              item === page
-                ? "border-navy bg-navy text-white"
-                : "border-line bg-white text-navy hover:bg-cream"
-            )}
+            className={pageClass(item === page)}
           >
             {item}
           </Link>
         )
       )}
       {page < pages ? (
-        <Link
-          href={href(page + 1)}
-          aria-label="Next page"
-          className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-white text-navy transition hover:bg-cream"
-        >
-          <Icon name="chevron-right" className="h-4 w-4" />
-        </Link>
+        onPageChange ? (
+          <button type="button" aria-label="Next page" onClick={() => onPageChange(page + 1)} className={navClass}>
+            <Icon name="chevron-right" className="h-4 w-4" />
+          </button>
+        ) : (
+          <Link href={href(page + 1)} aria-label="Next page" className={navClass}>
+            <Icon name="chevron-right" className="h-4 w-4" />
+          </Link>
+        )
       ) : (
         <span className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-white text-navy/25">
           <Icon name="chevron-right" className="h-4 w-4" />

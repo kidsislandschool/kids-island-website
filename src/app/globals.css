@@ -15,17 +15,17 @@
   --color-navy-700: #1c4478;
   --color-navy-100: #e4ecf9;
 
-  --color-blue: #2f6fed;
-  --color-blue-100: #e6f0ff;
-  --color-sky: #8fc5ff;
-
+  /* Secondary color = GREEN (was blue). Change these 4 lines to re-tint the site. */
+  --color-blue: #16a34a;
+  --color-blue-100: #dcfce7;
+  --color-sky: #86efac;
+  --color-mint: #e4f7ec;
   --color-yellow: #ffc53d;
   --color-yellow-100: #fff4d6;
   --color-amber: #ff9f1c;
 
   --color-blush: #ffe6ef;
-  --color-mint: #e4f7ec;
-  --color-skyblue: #e6f1ff;
+  --color-skyblue: #e3f8ea;
   --color-cream: #fff7e8;
 
   --color-line: #e7eef8;

@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
 import { getLatestNotices } from "@/lib/data";
+import { siteOrigin } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.kidsaligarh.com";
+const BASE = siteOrigin();
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

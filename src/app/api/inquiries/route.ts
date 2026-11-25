@@ -2,6 +2,7 @@ import { z } from "zod";
 import { getDb } from "@/lib/db";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { rateLimit } from "@/lib/auth";
+import { sendInquiryNotification, sendContactFormNotification } from "@/lib/email";
 
 const optionalEmail = z
   .string()
@@ -104,6 +105,27 @@ export async function POST(req: Request) {
     detail: { name: data.name },
     ip,
   });
+
+  // Send email notification (don't await - fire and forget)
+  if (data.type === "admission") {
+    sendInquiryNotification({
+      id,
+      type: "admission",
+      name: data.name,
+      parentName: data.parentName || undefined,
+      email: data.email || undefined,
+      phone: data.phone || undefined,
+      classApplying: data.classApply || undefined,
+      message: data.message || "",
+    }).catch(err => console.error("Failed to send inquiry notification:", err));
+  } else {
+    sendContactFormNotification({
+      name: data.name,
+      email: data.email || "",
+      phone: data.phone || undefined,
+      message: data.message || "",
+    }).catch(err => console.error("Failed to send contact notification:", err));
+  }
 
   return Response.json(
     { ok: true, id, reference: `KI-${String(id).padStart(5, "0")}` },

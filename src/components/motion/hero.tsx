@@ -287,7 +287,7 @@ export function Hero({ content, affiliation }: { content: HeroContent; affiliati
             <div
               data-hero-float
               aria-hidden
-              className="absolute -right-3 top-1/3 z-20 grid h-14 w-14 place-items-center rounded-2xl bg-blue text-white shadow-[0_18px_36px_-16px_rgba(47,111,237,0.8)] sm:-right-6"
+              className="absolute -right-3 top-1/3 z-20 grid h-14 w-14 place-items-center rounded-2xl bg-blue text-white shadow-[0_18px_36px_-16px_rgba(22,163,74,0.8)] sm:-right-6"
             >
               <Icon name="book" className="h-6 w-6" />
             </div>

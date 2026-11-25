@@ -4,7 +4,7 @@ type Tone = "yellow" | "blue" | "mint" | "pink" | "cream" | "white" | "navy";
 
 const TONES: Record<Tone, string> = {
   yellow: "bg-yellow-100 text-navy border-yellow/40",
-  blue: "bg-blue-100 text-blue hover:bg-[#dbe9ff]",
+  blue: "bg-blue-100 text-blue hover:bg-[#d3f5dd]",
   mint: "bg-mint text-[#167a4a]",
   pink: "bg-blush text-[#b23a6b]",
   cream: "bg-cream text-navy",

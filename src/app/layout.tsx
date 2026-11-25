@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
 import { getSiteSettings } from "@/lib/content";
+import { siteOrigin } from "@/lib/site-url";
 
 const fredoka = Fredoka({
   variable: "--font-fredoka",
@@ -26,7 +27,7 @@ export const viewport: Viewport = {
 export function generateMetadata(): Metadata {
   const site = getSiteSettings();
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.kidsaligarh.com"),
+    metadataBase: new URL(siteOrigin()),
     title: {
       default: `${site.name}, Aligarh`,
       template: `%s | ${site.shortName}`,

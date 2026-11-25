@@ -593,7 +593,7 @@ function CollectionField({
             type="checkbox"
             checked={Boolean(value)}
             onChange={(e) => onChange(e.target.checked ? 1 : 0)}
-            className="h-4 w-4 rounded border-line accent-[#2F6FED]"
+            className="h-4 w-4 rounded border-line accent-[#16A34A]"
           />
           <span className="text-[11.5px] font-bold text-navy/70">{value ? "Yes" : "No"}</span>
         </label>

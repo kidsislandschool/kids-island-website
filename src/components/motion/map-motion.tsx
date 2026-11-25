@@ -118,7 +118,7 @@ export function MapMotion({ className }: { className?: string }) {
             className="map-route"
             d="M196 288c30-22 48-34 66-52 20-20 26-34 46-36"
             fill="none"
-            stroke="#2F6FED"
+            stroke="#16A34A"
             strokeWidth="4"
             strokeLinecap="round"
             strokeDasharray="7 8"
@@ -126,7 +126,7 @@ export function MapMotion({ className }: { className?: string }) {
 
           {/* landmarks */}
           <g className="map-label">
-            <circle cx="196" cy="292" r="7" fill="#2F6FED" stroke="#fff" strokeWidth="3" />
+            <circle cx="196" cy="292" r="7" fill="#16A34A" stroke="#fff" strokeWidth="3" />
             <g transform="translate(118 316)">
               <rect x="0" y="-12" width="168" height="28" rx="14" fill="#fff" />
               <text x="10" y="7" fontSize="10.5" fontWeight="800" fill="#12325C">Aligarh Railway Station</text>
@@ -173,7 +173,7 @@ export function MapMotion({ className }: { className?: string }) {
           {/* compass */}
           <g className="map-compass" transform="translate(590 372)">
             <circle r="24" fill="#fff" stroke="#E7EEF8" />
-            <path d="M0-12 7 8 0 4-7 8Z" fill="#2F6FED" />
+            <path d="M0-12 7 8 0 4-7 8Z" fill="#16A34A" />
             <text y="18" textAnchor="middle" fontSize="8" fontWeight="800" fill="#5B6B85">N</text>
           </g>
         </svg>

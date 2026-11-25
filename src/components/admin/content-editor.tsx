@@ -489,7 +489,7 @@ function FieldEditor({
             type="checkbox"
             checked={Boolean(value)}
             onChange={(e) => onChange(e.target.checked)}
-            className="h-4 w-4 rounded border-line text-blue accent-[#2F6FED]"
+            className="h-4 w-4 rounded border-line text-blue accent-[#16A34A]"
           />
           <span className="text-[11.5px] font-bold text-navy/70">
             {value ? "Enabled" : "Disabled"}

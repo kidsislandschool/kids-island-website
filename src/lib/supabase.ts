@@ -51,8 +51,17 @@ function makeMockClient() {
   return mockClient;
 }
 
+function isValidHttpUrl(value: string): boolean {
+  try {
+    const u = new URL(value);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function getSupabase() {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabaseUrl || !supabaseAnonKey || !isValidHttpUrl(supabaseUrl)) {
     return makeMockClient();
   }
   if (!supabaseInstance) {
@@ -64,7 +73,7 @@ function getSupabase() {
 }
 
 function getSupabaseAdmin() {
-  if (!supabaseUrl || !supabaseServiceKey) {
+  if (!supabaseUrl || !supabaseServiceKey || !isValidHttpUrl(supabaseUrl)) {
     return makeMockClient();
   }
   if (!supabaseAdminInstance) {

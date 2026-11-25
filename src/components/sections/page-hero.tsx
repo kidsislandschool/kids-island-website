@@ -24,7 +24,7 @@ export function PageHero({
 }) {
   const tones = {
     cream: "bg-[linear-gradient(180deg,#FFF6E4_0%,#FFFDF9_100%)]",
-    blue: "bg-[linear-gradient(180deg,#EAF3FF_0%,#FFFDF9_100%)]",
+    blue: "bg-[linear-gradient(180deg,#E8F8EE_0%,#FFFDF9_100%)]",
     mint: "bg-[linear-gradient(180deg,#E9F9F0_0%,#FFFDF9_100%)]",
     blush: "bg-[linear-gradient(180deg,#FFF0F5_0%,#FFFDF9_100%)]",
   } as const;

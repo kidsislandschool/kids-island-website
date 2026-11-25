@@ -16,7 +16,7 @@ const VARIANTS: Record<Variant, string> = {
   ghost:
     "text-navy hover:bg-navy/5",
   sky:
-    "bg-skyblue text-navy hover:bg-[#d6e7ff]",
+    "bg-skyblue text-navy hover:bg-[#d1f2dd]",
 };
 
 const SIZES: Record<Size, string> = {

@@ -8,29 +8,61 @@ import { inputClass } from "@/components/forms/fields";
 export function MaterialFilters({
   classLevels,
   subjects,
+  onFilterChange,
 }: {
   classLevels: string[];
   subjects: string[];
+  /** When provided, filters update client-side instantly (no page navigation). */
+  onFilterChange?: (next: { q?: string; classLevel?: string; subject?: string }) => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
+  const clientMode = Boolean(onFilterChange);
   const [query, setQuery] = useState(params.get("q") ?? "");
+  const [localClass, setLocalClass] = useState(params.get("classLevel") ?? "");
+  const [localSubject, setLocalSubject] = useState(params.get("subject") ?? "");
+
+  const classLevel = clientMode ? localClass : (params.get("classLevel") ?? "");
+  const subject = clientMode ? localSubject : (params.get("subject") ?? "");
 
   function push(next: URLSearchParams) {
     next.delete("page");
+    if (onFilterChange) {
+      onFilterChange({
+        q: next.get("q") ?? undefined,
+        classLevel: next.get("classLevel") ?? undefined,
+        subject: next.get("subject") ?? undefined,
+      });
+      return;
+    }
     const qs = next.toString();
     router.push(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
   }
 
   function setParam(key: string, value: string) {
+    if (clientMode) {
+      if (key === "classLevel") setLocalClass(value);
+      if (key === "subject") setLocalSubject(value);
+      if (key === "q") setQuery(value);
+      push(
+        new URLSearchParams({
+          q: key === "q" ? value : query,
+          classLevel: key === "classLevel" ? value : localClass,
+          subject: key === "subject" ? value : localSubject,
+        })
+      );
+      return;
+    }
     const next = new URLSearchParams(params.toString());
     if (value) next.set(key, value);
     else next.delete(key);
     push(next);
   }
 
-  const hasFilters = Boolean(params.get("q") || params.get("classLevel") || params.get("subject"));
+  const hasFilters = Boolean(
+    clientMode ? query || localClass || localSubject : params.get("q") || params.get("classLevel") || params.get("subject")
+  );
 
   return (
     <div className="rounded-[1.5rem] border border-line bg-white p-4 shadow-soft sm:p-5">
@@ -56,7 +88,7 @@ export function MaterialFilters({
         <label>
           <span className="sr-only">Filter by class</span>
           <select
-            value={params.get("classLevel") ?? ""}
+            value={classLevel}
             onChange={(e) => setParam("classLevel", e.target.value)}
             className={`${inputClass} cursor-pointer`}
           >
@@ -72,7 +104,7 @@ export function MaterialFilters({
         <label>
           <span className="sr-only">Filter by subject</span>
           <select
-            value={params.get("subject") ?? ""}
+            value={subject}
             onChange={(e) => setParam("subject", e.target.value)}
             className={`${inputClass} cursor-pointer`}
           >
@@ -99,6 +131,8 @@ export function MaterialFilters({
           type="button"
           onClick={() => {
             setQuery("");
+            setLocalClass("");
+            setLocalSubject("");
             push(new URLSearchParams());
           }}
           className="mt-3 inline-flex items-center gap-1.5 text-[11.5px] font-extrabold text-muted transition hover:text-navy"

@@ -92,7 +92,7 @@ export default async function FacultyPage() {
                           className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]"
                         />
                       ) : (
-                        <div className="grid h-full w-full place-items-center bg-[linear-gradient(160deg,#FFF3D6,#E6F1FF)]">
+                        <div className="grid h-full w-full place-items-center bg-[linear-gradient(160deg,#FFF3D6,#E3F8EA)]">
                           <span className="font-display text-6xl font-semibold text-navy/25">
                             {member.name
                               .split(" ")
