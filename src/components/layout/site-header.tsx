@@ -111,7 +111,7 @@ export function SiteHeader({
                       aria-current={active ? "page" : undefined}
                       className={cn(
                         "group relative block rounded-xl px-2.5 py-2 text-[13px] font-extrabold tracking-tight transition-colors",
-                        active ? "text-blue" : "text-navy/70 hover:text-navy"
+                        active ? "text-navy" : "text-navy/70 hover:text-navy"
                       )}
                     >
                       {link.label}
@@ -181,7 +181,7 @@ export function SiteHeader({
                         className={cn(
                           "flex items-center justify-between rounded-2xl px-4 py-3 text-[15px] font-extrabold transition-colors",
                           isActive(link.href)
-                            ? "bg-blue-100 text-blue"
+                            ? "bg-navy text-white"
                             : "text-navy/80 hover:bg-navy/5"
                         )}
                       >
@@ -204,16 +204,16 @@ export function SiteHeader({
 
                 <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] font-bold text-muted">
                   <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5">
-                    <Icon name="phone" className="h-3.5 w-3.5 text-blue" /> {site.phone}
+                    <Icon name="phone" className="h-3.5 w-3.5 text-yellow" /> {site.phone}
                   </a>
                   <a href={`mailto:${site.email}`} className="flex items-center gap-1.5">
-                    <Icon name="mail" className="h-3.5 w-3.5 text-blue" /> {site.email}
+                    <Icon name="mail" className="h-3.5 w-3.5 text-yellow" /> {site.email}
                   </a>
                   <Link href="/admin-login" className="flex items-center gap-1.5">
-                    <Icon name="lock" className="h-3.5 w-3.5 text-blue" /> Admin Login
+                    <Icon name="lock" className="h-3.5 w-3.5 text-white" /> Admin Login
                   </Link>
                   <Link href="/staff-login" className="flex items-center gap-1.5">
-                    <Icon name="lock" className="h-3.5 w-3.5 text-blue" /> Staff Login
+                    <Icon name="lock" className="h-3.5 w-3.5 text-white" /> Staff Login
                   </Link>
                 </div>
               </div>
