@@ -256,19 +256,19 @@ const SCENES: Record<
         <path d="M0 440c140-60 260 20 400-20s260-20 400 30v150H0Z" fill="#B9EDCD" />
         <g>
           <rect x="230" y="250" width="340" height="220" rx="16" fill="#fff" stroke="#12325C" strokeWidth="7" />
-          <path d="M210 255 400 165l190 90H210Z" fill="#16A34A" />
+          <path d="M210 255 400 165l190 90H210Z" fill="#159A63" />
           <rect x="370" y="190" width="60" height="30" rx="6" fill="#FFC53D" />
           <rect x="300" y="320" width="60" height="70" rx="8" fill="#FFE3A3" stroke="#12325C" strokeWidth="5" />
           <rect x="440" y="320" width="60" height="70" rx="8" fill="#FFE3A3" stroke="#12325C" strokeWidth="5" />
-          <rect x="380" y="400" width="40" height="70" rx="6" fill="#16A34A" />
+          <rect x="380" y="400" width="40" height="70" rx="6" fill="#159A63" />
           <circle cx="400" cy="290" r="26" fill="#FFC53D" stroke="#12325C" strokeWidth="5" />
           <path d="M400 276v14l9 6" stroke="#12325C" strokeWidth="4" strokeLinecap="round" fill="none" />
         </g>
         <g>
           <rect x="140" y="400" width="18" height="90" rx="8" fill="#8A5A3C" />
-          <circle cx="149" cy="382" r="52" fill="#4FBF7B" />
+          <circle cx="149" cy="382" r="52" fill="#B7E8CF" />
           <rect x="650" y="410" width="18" height="80" rx="8" fill="#8A5A3C" />
-          <circle cx="659" cy="392" r="46" fill="#4FBF7B" />
+          <circle cx="659" cy="392" r="46" fill="#B7E8CF" />
         </g>
         <path d="M580 180l8 22 22 8-22 8-8 22-8-22-22-8 22-8 8-22Z" fill="#FFC53D" />
         <path d="M110 160c0-18 14-32 32-32 13 0 24 8 29 19 4-2 8-2 12-2 15 0 27 12 27 27 0 3-.5 5-1 7H110Z" fill="#fff" />
