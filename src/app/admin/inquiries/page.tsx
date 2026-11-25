@@ -190,7 +190,7 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
                       <span
                         className={cn(
                           "inline-flex rounded-full px-2 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.06em]",
-                          inquiry.type === "admission" ? "bg-blue-100 text-blue" : "bg-cream text-[#8a5a00]"
+                          inquiry.type === "admission" ? "bg-green-200 text-blue" : "bg-cream text-[#8a5a00]"
                         )}
                       >
                         {inquiry.type}
@@ -213,7 +213,7 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
                         <Link
                           href={`/admin/inquiries/${inquiry.id}`}
                           aria-label={`View enquiry from ${inquiry.name}`}
-                          className="grid h-8 w-8 place-items-center rounded-md text-muted transition hover:bg-blue-100 hover:text-blue"
+                          className="grid h-8 w-8 place-items-center rounded-md text-muted transition hover:bg-green-200 hover:text-blue"
                         >
                           <Icon name="eye" className="h-3.5 w-3.5" />
                         </Link>

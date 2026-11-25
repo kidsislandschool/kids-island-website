@@ -25,7 +25,7 @@ export default function AdminMaterialsPage() {
         </Link>
       }
       notice={
-        <div className="flex items-start gap-2.5 rounded-xl border border-line bg-blue-100/40 px-4 py-3">
+        <div className="flex items-start gap-2.5 rounded-xl border border-line bg-green-200/40 px-4 py-3">
           <Icon name="info" className="mt-0.5 h-4 w-4 shrink-0 text-blue" />
           <p className="text-[11.5px] font-semibold leading-relaxed text-navy/75">
             Uploads accept images and PDFs up to 12 MB. PDFs are checked before they are stored; images are

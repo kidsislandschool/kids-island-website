@@ -68,7 +68,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
               <span
                 className={cn(
                   "inline-flex rounded-full px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.08em]",
-                  inquiry.type === "admission" ? "bg-blue-100 text-blue" : "bg-cream text-[#8a5a00]"
+                  inquiry.type === "admission" ? "bg-green-200 text-blue" : "bg-cream text-[#8a5a00]"
                 )}
               >
                 {inquiry.type}

@@ -188,7 +188,7 @@ export default async function AdminDashboardPage() {
                         <span
                           className={cn(
                             "inline-flex rounded-full px-2 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.08em]",
-                            inquiry.type === "admission" ? "bg-blue-100 text-blue" : "bg-cream text-[#8a5a00]"
+                            inquiry.type === "admission" ? "bg-green-200 text-blue" : "bg-cream text-[#8a5a00]"
                           )}
                         >
                           {inquiry.type}
@@ -282,7 +282,7 @@ export default async function AdminDashboardPage() {
               href={action.href}
               className="group flex flex-col rounded-2xl border border-line bg-white p-4 shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)] transition hover:-translate-y-0.5 hover:border-blue/25 hover:shadow-soft"
             >
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-100 text-blue transition group-hover:bg-navy group-hover:text-yellow">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-green-200 text-blue transition group-hover:bg-navy group-hover:text-yellow">
                 <Icon name={action.icon} className="h-4 w-4" />
               </span>
               <span className="mt-3 text-[11.5px] font-extrabold leading-snug text-navy-900">{action.label}</span>

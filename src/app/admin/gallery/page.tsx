@@ -98,7 +98,7 @@ export default async function AdminGalleryPage({
       )}
 
       {tab === "photos" && (
-        <div className="flex items-start gap-2.5 rounded-xl border border-line bg-blue-100/40 px-4 py-3">
+        <div className="flex items-start gap-2.5 rounded-xl border border-line bg-green-200/40 px-4 py-3">
           <Icon name="info" className="mt-0.5 h-4 w-4 shrink-0 text-blue" />
           <p className="text-[11.5px] font-semibold leading-relaxed text-navy/75">
             Alt text is required for every photo and should describe what is happening, not repeat the caption.

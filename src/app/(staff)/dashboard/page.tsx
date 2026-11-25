@@ -92,7 +92,7 @@ export default async function StaffDashboardPage() {
               <ul className="space-y-3">
                 {allMaterials.map((material) => (
                   <li key={material.id} className="flex items-start gap-3 p-3 rounded-xl border border-line bg-paper-2/50">
-                    <div className="grid h-10 w-10 place-items-center rounded-lg bg-blue-100 text-blue shrink-0">
+                    <div className="grid h-10 w-10 place-items-center rounded-lg bg-green-200 text-blue shrink-0">
                       <Icon name="book" className="h-5 w-5" />
                     </div>
                     <div className="min-w-0 flex-1">

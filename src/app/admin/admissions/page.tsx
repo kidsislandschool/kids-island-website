@@ -170,7 +170,7 @@ export default async function AdminAdmissionsPage() {
                       href={`/admin/content/${encodeURIComponent(key)}`}
                       className="flex items-start gap-3 px-5 py-3.5 transition hover:bg-paper-2/50"
                     >
-                      <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-100 text-blue">
+                      <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-green-200 text-blue">
                         <Icon name={icon} className="h-4 w-4" />
                       </span>
                       <span className="min-w-0 flex-1">

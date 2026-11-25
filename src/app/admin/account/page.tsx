@@ -48,7 +48,7 @@ export default async function AdminAccountPage() {
         <div className="flex flex-col gap-4">
           <AdminCard className="overflow-hidden">
             <div className="flex items-center gap-3 border-b border-line px-5 py-4">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-green-200 text-blue">
                 <Icon name="user" className="h-4 w-4" />
               </span>
               <div>
