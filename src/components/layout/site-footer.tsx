@@ -18,7 +18,7 @@ export function SiteFooter({
   return (
     <div className="bg-paper">
       <CloudDivider fill="#159A63" />
-      <footer className="relative overflow-hidden bg-navy-900 text-white/70">
+      <footer className="relative overflow-hidden bg-green-900 text-white/70">
         <div aria-hidden className="pointer-events-none absolute inset-0">
           <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue/25 blur-[90px]" />
           <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-yellow/10 blur-[90px]" />
