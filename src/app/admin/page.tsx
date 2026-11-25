@@ -3,8 +3,6 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { adminCounts } from "@/lib/admin-data";
 import { getInquiries } from "@/lib/data";
-import { getContentRecord, listContent } from "@/lib/content";
-import { CONTENT_SCHEMAS } from "@/lib/content-schema";
 
 import { AdminCard, AdminPageHeader, AdminStat, EmptyState, StatusBadge } from "@/components/admin/ui";
 import { Icon, type IconName } from "@/components/ui/icon";
@@ -17,7 +15,6 @@ export const metadata: Metadata = {
 };
 
 const QUICK_ACTIONS: { label: string; href: string; icon: IconName; hint: string }[] = [
-  { label: "Edit homepage hero", href: "/admin/content/home.hero", icon: "edit", hint: "Headline, CTAs, slides" },
   { label: "Publish a notice", href: "/admin/notices", icon: "megaphone", hint: "Events & announcements" },
   { label: "Add a faculty profile", href: "/admin/faculty", icon: "user-group", hint: "Published profiles" },
   { label: "Upload study material", href: "/admin/materials", icon: "book", hint: "PDFs & resources" },
@@ -28,20 +25,11 @@ export default async function AdminDashboardPage() {
   const session = await getSession();
   const user = session?.user;
   const firstName = user?.name.split(" ")[0] ?? "there";
-  const [counts, recentInquiriesResult, allContent] = await Promise.all([
+  const [counts, recentInquiriesResult] = await Promise.all([
     adminCounts(),
     getInquiries({ perPage: 5 }),
-    listContent(),
   ]);
   const recentInquiries = Array.isArray(recentInquiriesResult?.rows) ? recentInquiriesResult.rows : [];
-  const reviewBlocks = Array.isArray(allContent) ? allContent.filter((block) => block.status === "needs_review").slice(0, 6) : [];
-  const [affiliation, eligibility] = await Promise.all([
-    getContentRecord("settings.affiliation"),
-    getContentRecord("admissions.eligibility"),
-  ]);
-  const affiliationNeedsReview = affiliation?.status !== "published";
-  const eligibilityNeedsReview = eligibility?.status !== "published";
-  const hasConflict = affiliationNeedsReview || eligibilityNeedsReview;
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const today = new Intl.DateTimeFormat("en-IN", {
@@ -81,56 +69,9 @@ export default async function AdminDashboardPage() {
         </Link>
       </AdminPageHeader>
 
-      {/* conflict / review callout */}
-      {hasConflict && (
-        <section
-          aria-label="Content review required"
-          className="overflow-hidden rounded-2xl border border-[#F2DDB0] bg-[#FFF9EE]"
-        >
-          <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#FFE9B8] text-[#8a5a00]">
-              <Icon name="alert-triangle" className="h-5 w-5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <h2 className="font-display text-[17px] font-semibold text-[#6b4400]">
-                Verify before publishing
-              </h2>
-              <p className="mt-1 max-w-3xl text-[12.5px] font-semibold leading-relaxed text-[#7A5200]">
-                The current website claims <strong>UP Board affiliation</strong>, while the admissions content
-                references <strong>CBSE age guidelines</strong>. These items stay hidden from the public site until
-                you confirm the correct position and publish them.
-              </p>
-              <div className="mt-3.5 flex flex-wrap gap-2">
-                <Link
-                  href="/admin/content/settings.affiliation"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#8a5a00] px-3 text-[10.5px] font-extrabold text-white transition hover:bg-[#6b4400]"
-                >
-                  <Icon name="edit" className="h-3 w-3" /> Affiliation claim
-                  <StatusBadge status={affiliation?.status ?? "draft"} className="ml-1 border-white/20 bg-white/15 text-white" />
-                </Link>
-                <Link
-                  href="/admin/content/admissions.eligibility"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#E5C77E] bg-white px-3 text-[10.5px] font-extrabold text-[#7A5200] transition hover:bg-[#FFF4D6]"
-                >
-                  <Icon name="edit" className="h-3 w-3" /> Eligibility rules
-                  <StatusBadge status={eligibility?.status ?? "draft"} className="ml-1 border-[#E5C77E] bg-white" />
-                </Link>
-                <Link
-                  href="/admin/content?status=needs_review"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#E5C77E] bg-white px-3 text-[10.5px] font-extrabold text-[#7A5200] transition hover:bg-[#FFF4D6]"
-                >
-                  <Icon name="clock" className="h-3 w-3" /> All content to review ({counts.contentReview})
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <AdminStat label="New enquiries" value={counts.inquiriesNew} icon="mail" href="/admin/inquiries?status=new" tone="blue" hint={`${counts.inquiriesTotal} in total`} />
-        <AdminStat label="Content to review" value={counts.contentReview} icon="clock" href="/admin/content?status=needs_review" tone="yellow" hint="Hidden until published" />
         <AdminStat label="Published notices" value={counts.noticesPublished} icon="megaphone" href="/admin/notices" tone="pink" />
         <AdminStat label="Faculty profiles" value={counts.facultyPublished} icon="user-group" href="/admin/faculty" tone="mint" />
         <AdminStat label="Study materials" value={counts.materialsPublished} icon="book" href="/admin/materials" tone="blue" />
@@ -203,67 +144,6 @@ export default async function AdminDashboardPage() {
               </table>
             </div>
           )}
-        </AdminCard>
-
-        {/* review queue */}
-        <AdminCard>
-          <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
-            <div>
-              <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Review queue</h2>
-              <p className="mt-0.5 text-[11.5px] font-semibold text-muted">Unverified content, hidden publicly.</p>
-            </div>
-            <Link href="/admin/content?status=needs_review" className="text-[11.5px] font-extrabold text-blue">
-              View all →
-            </Link>
-          </div>
-          {reviewBlocks.length === 0 ? (
-            <EmptyState icon="check-circle" title="Everything is reviewed" text="No content blocks are waiting for review." />
-          ) : (
-            <ul className="divide-y divide-line/70">
-              {reviewBlocks.map((block) => {
-                const schema = CONTENT_SCHEMAS[block.key];
-                return (
-                  <li key={block.key}>
-                    <Link
-                      href={`/admin/content/${encodeURIComponent(block.key)}`}
-                      className="flex items-start gap-3 px-5 py-3.5 transition hover:bg-paper-2/60"
-                    >
-                      <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#FFF6E3] text-[#9A5B00]">
-                        <Icon name="clock" className="h-4 w-4" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[12px] font-extrabold text-navy-900">
-                          {schema?.label ?? block.key}
-                        </span>
-                        <span className="mt-0.5 block truncate text-[10.5px] font-semibold text-muted">
-                          {schema?.group ?? "Content"} · {block.key}
-                        </span>
-                      </span>
-                      <Icon name="chevron-right" className="mt-1 h-4 w-4 shrink-0 text-navy/20" />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          <div className="border-t border-line bg-paper-2/40 px-5 py-3">
-            <Link
-              href="/admin/testimonials"
-              className="flex items-center justify-between text-[11px] font-extrabold text-navy"
-            >
-              <span>Testimonials awaiting approval</span>
-              <span className="rounded-full bg-[#FFF6E3] px-2 py-0.5 text-[10px] text-[#9A5B00]">
-                {counts.testimonialsReview}
-              </span>
-            </Link>
-            <Link
-              href="/admin/faqs"
-              className="mt-2.5 flex items-center justify-between text-[11px] font-extrabold text-navy"
-            >
-              <span>FAQs awaiting approval</span>
-              <span className="rounded-full bg-[#FFF6E3] px-2 py-0.5 text-[10px] text-[#9A5B00]">{counts.faqsReview}</span>
-            </Link>
-          </div>
         </AdminCard>
       </div>
 
