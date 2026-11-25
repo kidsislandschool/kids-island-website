@@ -23,15 +23,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       items: [{ label: "Dashboard", href: "/admin", icon: "dashboard" }],
     },
     {
-      label: "Website",
-      items: [
-        { label: "Pages", href: "/admin/pages", icon: "file" },
-        { label: "Page content", href: "/admin/content", icon: "edit", badge: counts.contentReview },
-        { label: "SEO", href: "/admin/seo", icon: "search" },
-        { label: "Settings", href: "/admin/settings", icon: "settings" },
-      ],
-    },
-    {
       label: "Admissions",
       items: [
         { label: "Admissions", href: "/admin/admissions", icon: "graduation", badge: counts.inquiriesNew },
@@ -52,7 +43,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     {
       label: "System",
       items: [
-        { label: "Audit log", href: "/admin/audit-log", icon: "clock" },
         { label: "Account", href: "/admin/account", icon: "user" },
       ],
     },

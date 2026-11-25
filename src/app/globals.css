@@ -24,6 +24,11 @@
   --color-green-200: #bbf7d0;
   /* Dark green for footer/sections — replaces navy-900 */
   --color-green-900: #0d2e1e;
+
+  /* Blue accent for hover states — high contrast on dark green */
+  --color-blue-accent: #3b82f6;
+  --color-blue-accent-hover: #2563eb;
+
   --color-yellow: #ffc53d;
   --color-yellow-100: #fff4d6;
   --color-amber: #ff9f1c;
