@@ -5,7 +5,7 @@ import { adminCounts } from "@/lib/admin-data";
 import { getInquiries } from "@/lib/data";
 import { getContentRecord, listContent } from "@/lib/content";
 import { CONTENT_SCHEMAS } from "@/lib/content-schema";
-import { listAudit } from "@/lib/audit";
+
 import { AdminCard, AdminPageHeader, AdminStat, EmptyState, StatusBadge } from "@/components/admin/ui";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { cn, formatDateTime, truncate } from "@/lib/utils";
@@ -22,21 +22,18 @@ const QUICK_ACTIONS: { label: string; href: string; icon: IconName; hint: string
   { label: "Add a faculty profile", href: "/admin/faculty", icon: "user-group", hint: "Published profiles" },
   { label: "Upload study material", href: "/admin/materials", icon: "book", hint: "PDFs & resources" },
   { label: "Manage gallery", href: "/admin/gallery", icon: "image", hint: "Albums & photos" },
-  { label: "Review SEO", href: "/admin/seo", icon: "search", hint: "Titles & descriptions" },
 ];
 
 export default async function AdminDashboardPage() {
   const session = await getSession();
   const user = session?.user;
   const firstName = user?.name.split(" ")[0] ?? "there";
-  const [counts, recentInquiriesResult, auditResult, allContent] = await Promise.all([
+  const [counts, recentInquiriesResult, allContent] = await Promise.all([
     adminCounts(),
     getInquiries({ perPage: 5 }),
-    listAudit({ limit: 6 }),
     listContent(),
   ]);
   const recentInquiries = Array.isArray(recentInquiriesResult?.rows) ? recentInquiriesResult.rows : [];
-  const audit = Array.isArray(auditResult?.rows) ? auditResult.rows : [];
   const reviewBlocks = Array.isArray(allContent) ? allContent.filter((block) => block.status === "needs_review").slice(0, 6) : [];
   const [affiliation, eligibility] = await Promise.all([
     getContentRecord("settings.affiliation"),
@@ -299,34 +296,8 @@ export default async function AdminDashboardPage() {
             <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Recent admin activity</h2>
             <p className="mt-0.5 text-[11.5px] font-semibold text-muted">Every save, publish, upload and sign-in is recorded.</p>
           </div>
-          <Link href="/admin/audit-log" className="text-[11.5px] font-extrabold text-blue">
-            Audit log →
-          </Link>
         </div>
-        {audit.length === 0 ? (
-          <EmptyState icon="clock" title="No activity yet" text="Admin actions will be listed here." />
-        ) : (
-          <ul className="divide-y divide-line/70">
-            {audit.map((entry) => (
-              <li key={entry.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3">
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-paper-2 text-muted">
-                  <Icon name={actionIcon(entry.action)} className="h-3.5 w-3.5" />
-                </span>
-                <span className="text-[11.5px] font-extrabold text-navy-900">{prettyAction(entry.action)}</span>
-                {entry.entity && (
-                  <span className="text-[10.5px] font-semibold text-muted">
-                    {entry.entity}
-                    {entry.entity_id ? ` #${entry.entity_id}` : ""}
-                  </span>
-                )}
-                <span className="ml-auto text-[10px] font-semibold text-muted">{formatDateTime(entry.created_at)}</span>
-                <span className="w-full truncate pl-10 text-[10px] font-semibold text-muted/80 sm:w-auto sm:flex-1 sm:pl-0">
-                  {entry.name ?? "System"} {entry.detail ? `· ${truncate(entry.detail, 90)}` : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <EmptyState icon="clock" title="No activity yet" text="Admin actions will be listed here." />
       </AdminCard>
     </div>
   );
