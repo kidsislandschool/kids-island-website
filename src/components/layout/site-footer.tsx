@@ -17,10 +17,10 @@ export function SiteFooter({
 }) {
   return (
     <div className="bg-paper">
-      <CloudDivider fill="#0A1C38" />
+      <CloudDivider fill="#16A34A" />
       <footer className="relative overflow-hidden bg-navy-900 text-white/70">
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue/15 blur-[90px]" />
+          <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue/25 blur-[90px]" />
           <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-yellow/10 blur-[90px]" />
           <svg viewBox="0 0 220 120" className="absolute right-[8%] top-10 w-32 opacity-[0.05]" fill="#fff">
             <path d="M42 104c-20 0-34-13-34-30 0-15 11-26 25-29 3-22 20-37 43-37 19 0 34 10 41 26 6-4 13-6 21-6 19 0 34 13 37 31 16 2 28 13 28 28 0 16-13 27-31 27H42Z" />
@@ -42,7 +42,7 @@ export function SiteFooter({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-yellow/40 hover:bg-yellow hover:text-navy-900"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-blue/40 hover:bg-blue hover:text-navy-900"
                   >
                     <Icon
                       name={
@@ -61,14 +61,14 @@ export function SiteFooter({
                 <a
                   href={`mailto:${site.email}`}
                   aria-label="Email the school"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-yellow/40 hover:bg-yellow hover:text-navy-900"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-blue/40 hover:bg-blue hover:text-navy-900"
                 >
                   <Icon name="mail" className="h-4 w-4" />
                 </a>
                 <a
                   href={`tel:${site.phone.replace(/\s/g, "")}`}
                   aria-label="Call the school"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-yellow/40 hover:bg-yellow hover:text-navy-900"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-blue/40 hover:bg-blue hover:text-navy-900"
                 >
                   <Icon name="phone" className="h-4 w-4" />
                 </a>
@@ -80,8 +80,8 @@ export function SiteFooter({
               <ul className="mt-5 space-y-2.5">
                 {footer.quickLinks.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors hover:text-white">
-                      <span className="h-1 w-1 rounded-full bg-yellow/60 transition-transform group-hover:scale-150" />
+                    <Link href={link.href} className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors hover:text-blue">
+                      <span className="h-1 w-1 rounded-full bg-blue transition-transform group-hover:scale-150" />
                       {link.label}
                     </Link>
                   </li>
@@ -94,8 +94,8 @@ export function SiteFooter({
               <ul className="mt-5 space-y-2.5">
                 {footer.resources.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors hover:text-white">
-                      <span className="h-1 w-1 rounded-full bg-yellow/60 transition-transform group-hover:scale-150" />
+                    <Link href={link.href} className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors hover:text-blue">
+                      <span className="h-1 w-1 rounded-full bg-blue transition-transform group-hover:scale-150" />
                       {link.label}
                     </Link>
                   </li>
@@ -117,8 +117,8 @@ export function SiteFooter({
                   </a>
                 </li>
                 <li className="flex gap-2.5">
-                  <Icon name="mail" className="mt-0.5 h-4 w-4 shrink-0 text-yellow" />
-                  <a href={`mailto:${site.email}`} className="break-all transition-colors hover:text-white">
+                  <Icon name="mail" className="mt-0.5 h-4 w-4 shrink-0 text-blue" />
+                  <a href={`mailto:${site.email}`} className="break-all transition-colors hover:text-blue">
                     {site.email}
                   </a>
                 </li>
@@ -134,11 +134,11 @@ export function SiteFooter({
             <p>© {new Date().getFullYear()} {footer.copyright}</p>
             <div className="flex items-center gap-5">
               {footer.legal.map((link) => (
-                <Link key={link.href} href={link.href} className="transition-colors hover:text-white">
+                <Link key={link.href} href={link.href} className="transition-colors hover:text-blue">
                   {link.label}
                 </Link>
               ))}
-              <Link href="/staff-login" className="flex items-center gap-1.5 transition-colors hover:text-white">
+              <Link href="/staff-login" className="flex items-center gap-1.5 transition-colors hover:text-blue">
                 <Icon name="lock" className="h-3 w-3" /> Staff
               </Link>
             </div>
