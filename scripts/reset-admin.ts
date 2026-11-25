@@ -46,8 +46,8 @@ async function main() {
 
   const providedPassword = process.env.ADMIN_PASSWORD ?? "";
   const password = providedPassword || generatePassword();
-  if (password.length < 12) {
-    console.error("ADMIN_PASSWORD must be at least 12 characters.");
+  if (password.length < 10) {
+    console.error("ADMIN_PASSWORD must be at least 10 characters.");
     process.exitCode = 1;
     return;
   }
