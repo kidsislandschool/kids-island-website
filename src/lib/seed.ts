@@ -200,16 +200,28 @@ const CONTENT: ContentSeed[] = [
         variant: "blue",
       },
       {
-        title: "Senior Secondary",
-        stage: "Class 11 – Class 12",
-        text: "Specialized streams in Maths and Biology with expert faculty guidance.",
+        title: "Senior Secondary – Maths",
+        stage: "Class 11 – 12 (PCM)",
+        text: "Specialized Mathematics stream with expert faculty for JEE and competitive exam preparation.",
         variant: "green",
+      },
+      {
+        title: "Senior Secondary – Biology",
+        stage: "Class 11 – 12 (PCB)",
+        text: "Specialized Biology stream with expert faculty for NEET and medical entrance preparation.",
+        variant: "amber",
+      },
+      {
+        title: "Co-curricular Activities",
+        stage: "All Classes",
+        text: "Sports, arts, music, debate, and clubs for holistic personality development.",
+        variant: "pink",
       },
       {
         title: "Skill Development",
         stage: "Beyond Academics",
-        text: "Beyond academics, focus on critical thinking, creativity, and leadership skills.",
-        variant: "amber",
+        text: "Critical thinking, creativity, leadership, and life skills for future readiness.",
+        variant: "blue",
       },
     ],
   },
@@ -231,9 +243,9 @@ const CONTENT: ContentSeed[] = [
     status: REVIEW,
     value: [
       { value: 1500, suffix: "+", label: "Students Enrolled" },
-      { value: 25, suffix: "", label: "Years of Excellence" },
-      { value: 47, suffix: "", label: "Experienced Faculty" },
-      { value: 94.7, suffix: "%", label: "Board Exam Success Rate" },
+      { value: 99, suffix: "%", label: "Board Exam Success Rate" },
+      { value: 2001, suffix: "", label: "Year Established" },
+      { value: 32000, suffix: "", label: "Students Nurtured" },
     ],
   },
   {
@@ -509,7 +521,7 @@ const ROWS: RowSeed[] = [
         author_name: "Priya Sharma",
         author_role: "Parent of Class 10 Student",
         order_index: 1,
-        status: REVIEW,
+        status: PUBLISHED,
       },
       {
         quote:
@@ -517,7 +529,7 @@ const ROWS: RowSeed[] = [
         author_name: "Rajesh Kumar",
         author_role: "Parent of Class 12 Student",
         order_index: 2,
-        status: REVIEW,
+        status: PUBLISHED,
       },
       {
         quote:
@@ -525,7 +537,7 @@ const ROWS: RowSeed[] = [
         author_name: "Anita Verma",
         author_role: "Parent of Class 8 Student",
         order_index: 3,
-        status: REVIEW,
+        status: PUBLISHED,
       },
     ],
   },

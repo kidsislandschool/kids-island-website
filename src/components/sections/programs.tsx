@@ -41,7 +41,7 @@ export function ProgramsSection({ programs }: { programs: Program[] }) {
           </Reveal>
         </div>
 
-        <RevealGroup className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <RevealGroup className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {programs.map((program, i) => {
             const tone = TONES[program.variant] ?? TONES.blue;
             return (
@@ -58,7 +58,13 @@ export function ProgramsSection({ programs }: { programs: Program[] }) {
                   <div className="relative flex items-start justify-between">
                     <span className={cn("grid h-12 w-12 place-items-center rounded-2xl", tone.icon)}>
                       <Icon
-                        name={i === 0 ? "book" : i === 1 ? "graduation" : i === 2 ? "sparkle" : "star"}
+                        name={
+                          i === 0 ? "book" :
+                          i === 1 ? "graduation" :
+                          i === 2 ? "sparkle" :
+                          i === 3 ? "star" :
+                          i === 4 ? "trophy" : "heart"
+                        }
                         className="h-5.5 w-5.5"
                         strokeWidth={1.8}
                       />
