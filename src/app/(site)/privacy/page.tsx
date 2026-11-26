@@ -16,7 +16,7 @@ const sections = [
   },
   {
     title: "Information we collect",
-    body: "When you submit an admission enquiry or contact form, we collect the details you choose to provide: name, parent or guardian name, phone number, email address, class applying for, and your message. Server logs may also record your IP address for security and spam prevention.",
+    body: "When you submit an admission inquiry or contact form, we collect the details you choose to provide: name, parent or guardian name, phone number, email address, class applying for, and your message. Server logs may also record your IP address for security and spam prevention.",
   },
   {
     title: "How we use it",
@@ -28,7 +28,7 @@ const sections = [
   },
   {
     title: "Storage and retention",
-    body: "Submissions are stored in the school's secure database and retained for as long as needed to process the enquiry and meet record-keeping requirements. You may ask us to remove your enquiry by contacting the school.",
+    body: "Submissions are stored in the school's secure database and retained for as long as needed to process the inquiry and meet record-keeping requirements. You may ask us to remove your inquiry by contacting the school.",
   },
   {
     title: "Third-party links",

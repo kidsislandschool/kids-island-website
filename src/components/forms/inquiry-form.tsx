@@ -83,7 +83,7 @@ export function InquiryForm({
           <div>
             <h3 className="text-2xl text-navy-900">Thank you{submittedName ? `, ${submittedName.split(" ")[0]}` : ""}!</h3>
             <p className="mx-auto mt-2 max-w-sm text-[13.5px] leading-relaxed text-muted">
-              Your {isAdmission ? "admission enquiry" : "message"} has reached the school office. Our team will get in touch with you shortly.
+              Your {isAdmission ? "admission inquiry" : "message"} has reached the school office. Our team will get in touch with you shortly.
             </p>
             {reference && (
               <p className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-extrabold tracking-wider text-navy shadow-sm">

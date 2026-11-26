@@ -265,7 +265,7 @@ export default async function AboutPage() {
               Come and see what a <span className="text-yellow">joyful school day</span> looks like.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-[14.5px] text-white/60">
-              Book a campus visit or send us an enquiry — we would love to meet your family.
+              Book a campus visit or send us an inquiry — we would love to meet your family.
             </p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Button href="/admissions#inquiry">Apply for admission</Button>

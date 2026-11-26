@@ -20,7 +20,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
   if (!inquiry) notFound();
 
   const subject = encodeURIComponent(
-    `Re: your ${inquiry.type === "admission" ? "admission" : "website"} enquiry — Kids Island Senior Secondary School`
+    `Re: your ${inquiry.type === "admission" ? "admission" : "website"} inquiry — Kids Island Senior Secondary School`
   );
   const mailto = inquiry.email ? `mailto:${inquiry.email}?subject=${subject}` : undefined;
   const tel = inquiry.phone ? `tel:${inquiry.phone.replace(/[^\d+]/g, "")}` : undefined;
@@ -38,7 +38,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
       </nav>
 
       <AdminPageHeader
-        eyebrow={inquiry.type === "admission" ? "Admission enquiry" : "Contact message"}
+        eyebrow={inquiry.type === "admission" ? "Admission inquiry" : "Contact message"}
         title={inquiry.name}
         description={`Received ${formatDateTime(inquiry.created_at)} · Reference #${inquiry.id}`}
       >
@@ -112,7 +112,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
                   {inquiry.message}
                 </p>
               ) : (
-                <p className="text-[12px] font-semibold text-muted">No message was included with this enquiry.</p>
+                <p className="text-[12px] font-semibold text-muted">No message was included with this inquiry.</p>
               )}
             </div>
           </AdminCard>
@@ -168,7 +168,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
               <MetaRow label="Source IP" value={inquiry.ip ?? "Not recorded"} mono />
             </dl>
             <p className="mt-4 rounded-lg bg-paper-2 px-3 py-2.5 text-[10px] font-semibold leading-relaxed text-muted">
-              Opening an enquiry is recorded in the audit log. Enquiries contain personal information — handle them
+              Opening an inquiry is recorded in the audit log. Inquiries contain personal information — handle them
               according to the school&apos;s privacy policy.
             </p>
 

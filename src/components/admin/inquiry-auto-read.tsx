@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 /**
- * Opening a new enquiry marks it as read and records the access once per mount.
+ * Opening a new inquiry marks it as read and records the access once per mount.
  */
 export function InquiryAutoRead({ id, status }: { id: number; status: string }) {
   const router = useRouter();

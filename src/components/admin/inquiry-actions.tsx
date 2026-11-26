@@ -156,7 +156,7 @@ export function DeleteInquiryButton({
               <div>
                 <h2 className="font-display text-[17px] font-semibold text-navy-900">Delete this inquiry?</h2>
                 <p className="mt-1 text-[12px] leading-relaxed text-muted">
-                  The enquiry from <strong className="text-navy">{name}</strong> will be permanently removed. This cannot be undone.
+                  The inquiry from <strong className="text-navy">{name}</strong> will be permanently removed. This cannot be undone.
                 </p>
               </div>
             </div>

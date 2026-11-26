@@ -67,7 +67,7 @@ export function AdmissionsCta({ content }: { content: CtaContent }) {
                     <Icon name="graduation" className="h-5 w-5" />
                   </span>
                   <div className="leading-tight text-navy-900">
-                    <p className="text-[13px] font-extrabold">Admissions enquiry</p>
+                    <p className="text-[13px] font-extrabold">Admissions inquiry</p>
                     <p className="text-[10.5px] font-bold text-navy/60">Nursery to Class 12</p>
                   </div>
                 </div>

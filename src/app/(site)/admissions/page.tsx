@@ -16,7 +16,7 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
   return await buildPageMetadata("/admissions", {
     title: "Admissions",
-    description: "Admission process, documents and enquiry form for Kids Island Senior Secondary School.",
+    description: "Admission process, documents and inquiry form for Kids Island Senior Secondary School.",
   });
 }
 
@@ -66,7 +66,7 @@ export default async function AdmissionsPage() {
       >
         <div className="flex flex-wrap items-center gap-3">
           <Button href="#inquiry" className="group/btn">
-            Start your enquiry
+            Start your inquiry
             <Icon name="arrow-down" className="h-4 w-4 transition-transform group-hover/btn:translate-y-0.5" />
           </Button>
           <Button href={`tel:${content.contactPhone.replace(/\s/g, "")}`} variant="outline">
@@ -84,7 +84,7 @@ export default async function AdmissionsPage() {
               eyebrow="Simple process"
               eyebrowTone="blue"
               title="Four easy steps to joining Kids Island"
-              text="From your first enquiry to the first day of school — here is exactly what happens along the way."
+              text="From your first inquiry to the first day of school — here is exactly what happens along the way."
             />
           </Reveal>
 
@@ -128,7 +128,7 @@ export default async function AdmissionsPage() {
                     <Icon name="file" className="h-5 w-5" />
                   </span>
                   <div>
-                    <h2 className="text-[clamp(1.5rem,2.6vw,1.9rem)] leading-tight text-navy-900">Admission enquiry</h2>
+                    <h2 className="text-[clamp(1.5rem,2.6vw,1.9rem)] leading-tight text-navy-900">Admission inquiry</h2>
                     <p className="text-[12.5px] font-semibold text-muted">Share a few details and our team will call you.</p>
                   </div>
                 </div>

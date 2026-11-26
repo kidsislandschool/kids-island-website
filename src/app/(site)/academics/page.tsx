@@ -56,7 +56,7 @@ export default async function AcademicsPage() {
         intro={content.intro}
       >
         <Button href="/admissions#inquiry" className="group/btn">
-          Start an admission enquiry
+          Start an admission inquiry
           <ButtonArrow />
         </Button>
       </PageHero>

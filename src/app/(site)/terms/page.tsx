@@ -20,7 +20,7 @@ const sections = [
   },
   {
     title: "Admissions",
-    body: "Submitting an enquiry or form does not constitute admission. Admissions remain subject to seat availability, document verification and the school's admission process.",
+    body: "Submitting an inquiry or form does not constitute admission. Admissions remain subject to seat availability, document verification and the school's admission process.",
   },
   {
     title: "Acceptable use",

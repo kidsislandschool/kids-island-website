@@ -209,7 +209,7 @@ export default async function ContactPage() {
                   <h2 className="text-lg text-navy-900">Looking for something else?</h2>
                   <ul className="mt-4 space-y-2">
                     {[
-                      { label: "Admission enquiry", href: "/admissions#inquiry" },
+                      { label: "Admission inquiry", href: "/admissions#inquiry" },
                       { label: "Study materials", href: "/study-materials" },
                       { label: "Notices & events", href: "/notices" },
                       { label: "Faculty", href: "/faculty" },

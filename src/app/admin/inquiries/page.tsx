@@ -213,7 +213,7 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
                       <div className="flex items-center justify-end gap-1">
                         <Link
                           href={`/admin/inquiries/${inquiry.id}`}
-                          aria-label={`View enquiry from ${inquiry.name}`}
+                          aria-label={`View inquiry from ${inquiry.name}`}
                           className="grid h-8 w-8 place-items-center rounded-md text-muted transition hover:bg-green-200 hover:text-blue"
                         >
                           <Icon name="eye" className="h-3.5 w-3.5" />

@@ -64,7 +64,7 @@ export default async function AdminAdmissionsPage() {
             <EmptyState
               icon="graduation"
               title="No admission enquiries yet"
-              text="When a family submits the admission form, their details will appear here and in the enquiry inbox."
+              text="When a family submits the admission form, their details will appear here and in the inquiry inbox."
             />
           ) : (
             <div className="overflow-x-auto">
