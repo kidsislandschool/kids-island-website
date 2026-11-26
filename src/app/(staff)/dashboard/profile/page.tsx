@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getStaffSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { getDb } from "@/lib/db";
+import { getDirectDb } from "@/lib/db";
 import { StaffShell } from "@/components/staff/staff-shell";
 import { Icon } from "@/components/ui/icon";
 import { UploadInput } from "@/components/admin/upload-input";
@@ -18,8 +18,8 @@ export default async function ProfilePage() {
   const session = await getStaffSession();
   if (!session) redirect("/staff-login");
 
-  const db = getDb();
-  const profile = await db.prepare("SELECT * FROM staff WHERE id = ?").get(session.user.id) as
+  const db = getDirectDb();
+  const profile = await db.selectOne('staff', '*', { id: session.user.id }) as
     | { id: number; name: string; email: string; phone: string | null; designation: string | null; qualification: string | null; bio: string | null; photo: string | null; created_at: string; updated_at: string }
     | undefined;
 
@@ -40,7 +40,7 @@ export default async function ProfilePage() {
 
         <form action={async (formData: FormData) => {
           "use server";
-          const db = (await import("@/lib/db")).getDb();
+          const db = (await import("@/lib/db")).getDirectDb();
           const { getStaffSession } = await import("@/lib/auth");
           const session = await getStaffSession();
           if (!session) throw new Error("Not authenticated");
@@ -54,10 +54,15 @@ export default async function ProfilePage() {
 
           if (!name) throw new Error("Name is required.");
 
-          db.prepare(
-            `UPDATE staff SET name = ?, phone = ?, designation = ?, qualification = ?, bio = ?, photo = ?, updated_at = datetime('now')
-             WHERE id = ?`
-          ).run(name, phone || null, designation || null, qualification || null, bio || null, photo || null, session.user.id);
+          await db.update('staff', {
+            name,
+            phone: phone || null,
+            designation: designation || null,
+            qualification: qualification || null,
+            bio: bio || null,
+            photo: photo || null,
+            updated_at: new Date().toISOString(),
+          }, { id: session.user.id });
         }} className="space-y-6">
           <StaffCard title="Profile Photo">
             <AdminField label="Current Photo" htmlFor="photo_upload">

@@ -1,4 +1,4 @@
-import { getDb } from "@/lib/db";
+import { getDirectDb } from "@/lib/db";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { requireAdminApi } from "@/lib/auth";
 
@@ -25,8 +25,8 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     return jsonError("Choose a valid status (approved/rejected)", 422);
   }
 
-  const db = getDb();
-  const existing = db.prepare("SELECT * FROM staff WHERE id = ?").get(staffId) as
+  const db = getDirectDb();
+  const existing = await db.selectOne('staff', '*', { id: staffId }) as
     | { id: number; status: string; name: string; email: string }
     | undefined;
   if (!existing) return jsonError("Staff not found", 404);
@@ -35,9 +35,12 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     return jsonError("Only pending staff can be approved or rejected.", 422);
   }
 
-  db.prepare(
-    `UPDATE staff SET status = ?, approved_by = ?, approved_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`
-  ).run(status, user.id, staffId);
+  await db.update('staff', {
+    status,
+    approved_by: user.id,
+    approved_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }, { id: staffId });
 
   logAudit({
     userId: user.id,

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getStaffSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { getDb } from "@/lib/db";
+import { getDirectDb } from "@/lib/db";
 import { getStaffMaterials } from "@/lib/data";
 import { StaffShell } from "@/components/staff/staff-shell";
 import { Icon } from "@/components/ui/icon";
@@ -47,8 +47,8 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ i
   const materialId = Number(id);
   if (!Number.isInteger(materialId)) notFound();
 
-  const db = getDb();
-  const material = await db.prepare("SELECT * FROM materials WHERE id = ? AND created_by = ?").get(materialId, session.user.id) as
+  const db = getDirectDb();
+  const material = await db.selectOne('materials', '*', { id: materialId, created_by: session.user.id }) as
     | { id: number; title: string; class_level: string; subject: string; description: string | null; file_url: string | null; tags: string | null; status: string; published_at: string | null; created_at: string; updated_at: string }
     | undefined;
 
@@ -69,7 +69,7 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ i
 
         <form action={async (formData: FormData) => {
           "use server";
-          const db = (await import("@/lib/db")).getDb();
+          const db = (await import("@/lib/db")).getDirectDb();
           const { getStaffSession } = await import("@/lib/auth");
           const session = await getStaffSession();
           if (!session) throw new Error("Not authenticated");
@@ -87,10 +87,17 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ i
             throw new Error("Please fill in all required fields (Title, Class, Subject).");
           }
 
-          db.prepare(
-            `UPDATE materials SET title = ?, class_level = ?, subject = ?, description = ?, file_url = ?, tags = ?, status = ?, published_at = ?, updated_at = datetime('now')
-             WHERE id = ? AND created_by = ?`
-          ).run(title, class_level, subject, description, file_url || null, tags || null, status, published_at, materialId, session.user.id);
+          await db.update('materials', {
+            title,
+            class_level,
+            subject,
+            description: description || null,
+            file_url: file_url || null,
+            tags: tags || null,
+            status,
+            published_at,
+            updated_at: new Date().toISOString(),
+          }, { id: materialId, created_by: session.user.id });
         }} className="space-y-6">
           <StaffCard title="Basic Information">
             <AdminField label="Material Title *" htmlFor="title" required>

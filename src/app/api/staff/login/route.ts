@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getDb } from "@/lib/db";
+import { getDirectDb } from "@/lib/db";
 import { getStaffByEmail } from "@/lib/staff";
 import { verifyPassword } from "@/lib/password";
 import { createStaffSession, checkStaffLoginLockout, staffRateLimit } from "@/lib/auth";
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     { id: staff.id, email: staff.email, name: staff.name, role: "staff" },
     { ip, userAgent: req.headers.get("user-agent") }
   );
-  await getDb().from('staff').update({ last_login_at: new Date().toISOString() }).eq('id', staff.id);
+  await getDirectDb().update('staff', { last_login_at: new Date().toISOString() }, { id: staff.id });
   logAudit({ action: "staff_login", entity: "staff", entityId: staff.id, ip });
 
   return Response.json({ ok: true, redirect: "/staff/dashboard" });

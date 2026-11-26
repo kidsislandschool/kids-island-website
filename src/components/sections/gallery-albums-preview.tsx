@@ -50,7 +50,7 @@ export async function GalleryAlbumsPreview() {
               >
                 <div className="relative overflow-hidden bg-paper-2">
                   <CmsImage
-                    src={album.cover_photo}
+                    src={album.cover_url}
                     alt={album.title}
                     variant="school"
                     imgClassName="h-auto w-full object-contain"

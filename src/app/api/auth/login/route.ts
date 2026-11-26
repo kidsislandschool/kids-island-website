@@ -8,7 +8,7 @@ import {
   verifyPassword,
 } from "@/lib/auth";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
-import { getDb } from "@/lib/db";
+import { getDirectDb } from "@/lib/db";
 
 const schema = z.object({
   email: z.string().trim().max(200),
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     { id: user.id, email: user.email, name: user.name, role: user.role },
     { ip, userAgent: req.headers.get("user-agent") }
   );
-  await getDb().from('users').update({ last_login_at: new Date().toISOString() }).eq('id', user.id);
+  await getDirectDb().update('users', { last_login_at: new Date().toISOString() }, { id: user.id });
   logAudit({ userId: user.id, action: "login", entity: "master_admin", entityId: user.id, ip });
 
   const redirect =
