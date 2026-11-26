@@ -41,24 +41,20 @@ export async function GalleryAlbumsPreview() {
 
         <RevealGroup className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {displayAlbums.map((album, i) => (
-            <RevealItem key={album.id} className={cn("h-full", i === 0 && "sm:col-span-2 lg:col-span-1 lg:row-span-2")}>
+            <RevealItem key={album.id} className="h-full">
               <Link
                 href={`/gallery`}
                 className={cn(
-                  "group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-white/70 bg-white shadow-[0_16px_40px_-28px_rgba(18,50,92,0.4)] transition-transform duration-300 hover:-translate-y-1",
-                  i === 0 && "lg:min-h-[34rem]"
+                  "group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-white/70 bg-white shadow-[0_16px_40px_-28px_rgba(18,50,92,0.4)] transition-transform duration-300 hover:-translate-y-1"
                 )}
               >
-                <div className={cn("relative overflow-hidden", i === 0 ? "aspect-[16/10] lg:aspect-auto lg:flex-[1.1]" : "aspect-[16/10]")}>
+                <div className="relative overflow-hidden aspect-[4/3]">
                   <CmsImage
                     src={album.cover_photo}
                     alt={album.title}
                     variant="school"
                     className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                   />
-                  <span className="absolute left-3 top-3 rounded-full bg-white/92 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-navy shadow-sm backdrop-blur">
-                    Album
-                  </span>
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <h3 className="text-[19px] leading-snug text-navy-900">{album.title}</h3>
