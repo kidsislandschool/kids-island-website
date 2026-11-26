@@ -65,12 +65,14 @@ export function CollectionManager({
   initialRows,
   initialTotal,
   optionOverrides,
+  customColumns,
 }: {
   collectionKey: string;
   def: CollectionDef;
   initialRows: Row[];
   initialTotal: number;
   optionOverrides?: Record<string, { value: string; label: string }[]>;
+  customColumns?: (row: Row) => React.ReactNode | null;
 }) {
   const router = useRouter();
   const reduce = useReducedMotion();
@@ -320,6 +322,11 @@ export function CollectionManager({
                       {field.label}
                     </th>
                   ))}
+                  {customColumns && (
+                    <th className="px-4 py-3 text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-muted">
+                      Flags
+                    </th>
+                  )}
                   <th className="px-4 py-3 text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-muted">
                     Status
                   </th>
@@ -350,6 +357,9 @@ export function CollectionManager({
                           {renderCell(row[field.name], field)}
                         </td>
                       ))}
+                      {customColumns && (
+                        <td className="px-4 py-3">{customColumns(row)}</td>
+                      )}
                       <td className="px-4 py-3">
                         <StatusBadge status={String(row.status ?? "draft")} />
                       </td>
