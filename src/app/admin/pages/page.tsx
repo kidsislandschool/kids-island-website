@@ -24,7 +24,7 @@ const COLLECTION_LINKS: Record<string, string> = {
 };
 
 export default async function AdminPagesPage() {
-  const records = listContent();
+  const records = await listContent();
   const recordMap = new Map(records.map((record) => [record.key, record]));
   const collectionCounts = new Map<string, number>();
   for (const key of Object.keys(COLLECTIONS)) {
