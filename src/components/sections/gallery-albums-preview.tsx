@@ -48,12 +48,13 @@ export async function GalleryAlbumsPreview() {
                   "group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-white/70 bg-white shadow-[0_16px_40px_-28px_rgba(18,50,92,0.4)] transition-transform duration-300 hover:-translate-y-1"
                 )}
               >
-                <div className="relative overflow-hidden aspect-[4/3]">
+                <div className="relative overflow-hidden bg-paper-2">
                   <CmsImage
                     src={album.cover_photo}
                     alt={album.title}
                     variant="school"
-                    className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                    imgClassName="h-auto w-full object-contain"
+                    className="flex items-center justify-center py-4"
                   />
                 </div>
                 <div className="flex flex-1 flex-col p-5">
