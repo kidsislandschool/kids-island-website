@@ -25,6 +25,11 @@ export default async function ProfilePage() {
 
   if (!profile) redirect("/staff-login");
 
+  // Also fetch the linked faculty profile
+  const faculty = await db.selectOne('faculty', '*', { email: profile.email }) as
+    | { id: number; name: string; email: string; designation: string | null; qualification: string | null; bio: string | null; photo: string | null; subjects: string | null; status: string; order_index: number; featured: boolean; created_at: string; updated_at: string }
+    | undefined;
+
   return (
     <StaffShell user={{ name: session.user.name, email: session.user.email }}>
       <div className="flex flex-col gap-6">
@@ -34,7 +39,7 @@ export default async function ProfilePage() {
               <Icon name="arrow-left" className="h-4 w-4" /> Back to dashboard
             </Link>
             <h1 className="mt-1 font-display text-[24px] font-semibold text-navy-900">My Profile</h1>
-            <p className="mt-1 text-[13px] font-semibold text-muted">Update your personal information and profile picture.</p>
+            <p className="mt-1 text-[13px] font-semibold text-muted">Update your personal information and public faculty profile.</p>
           </div>
         </div>
 
@@ -50,10 +55,12 @@ export default async function ProfilePage() {
           const designation = formData.get("designation") as string;
           const qualification = formData.get("qualification") as string;
           const bio = formData.get("bio") as string;
+          const subjects = formData.get("subjects") as string;
           const photo = formData.get("photo") as string;
 
           if (!name) throw new Error("Name is required.");
 
+          // Update staff table
           await db.update('staff', {
             name,
             phone: phone || null,
@@ -63,6 +70,20 @@ export default async function ProfilePage() {
             photo: photo || null,
             updated_at: new Date().toISOString(),
           }, { id: session.user.id });
+
+          // Update faculty table (public profile)
+          const staffProfile = await db.selectOne('staff', '*', { id: session.user.id });
+          if (staffProfile) {
+            await db.update('faculty', {
+              name,
+              designation: designation || 'Faculty Member',
+              qualification: qualification || '',
+              bio: bio || '',
+              photo: photo || null,
+              subjects: subjects || '',
+              updated_at: new Date().toISOString(),
+            }, { email: staffProfile.email });
+          }
         }} className="space-y-6">
           <StaffCard title="Profile Photo">
             <AdminField label="Current Photo" htmlFor="photo_upload">
@@ -133,7 +154,7 @@ export default async function ProfilePage() {
                   id="designation"
                   name="designation"
                   type="text"
-                  defaultValue={profile.designation ?? ""}
+                  defaultValue={profile.designation ?? faculty?.designation ?? ""}
                   className={adminInput}
                   placeholder="e.g. Senior Teacher, TGT Mathematics"
                 />
@@ -145,19 +166,30 @@ export default async function ProfilePage() {
                 id="qualification"
                 name="qualification"
                 type="text"
-                defaultValue={profile.qualification ?? ""}
+                defaultValue={profile.qualification ?? faculty?.qualification ?? ""}
                 className={adminInput}
                 placeholder="e.g. M.Sc Mathematics, B.Ed"
               />
             </AdminField>
 
-            <AdminField label="About Me" htmlFor="bio" help="A short bio for students and parents to see.">
+            <AdminField label="Subjects Taught" htmlFor="subjects" help="Subjects you teach (e.g. Mathematics, Physics, Chemistry).">
+              <input
+                id="subjects"
+                name="subjects"
+                type="text"
+                defaultValue={faculty?.subjects ?? ""}
+                className={adminInput}
+                placeholder="e.g. Mathematics, Physics"
+              />
+            </AdminField>
+
+            <AdminField label="About Me" htmlFor="bio" help="A short bio for students and parents to see on the public faculty page.">
               <textarea
                 id="bio"
                 name="bio"
                 rows={4}
                 className={adminTextarea}
-                defaultValue={profile.bio ?? ""}
+                defaultValue={profile.bio ?? faculty?.bio ?? ""}
                 placeholder="Write a few lines about your teaching experience, philosophy, or interests…"
               />
             </AdminField>
@@ -177,6 +209,16 @@ export default async function ProfilePage() {
             <p className="mt-4 text-[11px] font-semibold text-muted">
               To change your password, contact the administrator.
             </p>
+            {faculty && (
+              <p className="mt-2 text-[11px] font-semibold text-green-700">
+                ✓ Public faculty profile is linked and will be updated.
+              </p>
+            )}
+            {!faculty && (
+              <p className="mt-2 text-[11px] font-semibold text-amber-700">
+                ⚠ No public faculty profile found. One will be created on next save.
+              </p>
+            )}
           </StaffCard>
 
           <div className="flex items-center justify-end gap-3">
