@@ -570,7 +570,7 @@ const ROWS: RowSeed[] = [
           "School hours are 8:00 AM to 2:30 PM for all classes. Office remains open until 4:00 PM on weekdays.",
         category: "General",
         order_index: 1,
-        status: REVIEW,
+        status: PUBLISHED,
       },
       {
         question: "Do you provide transportation?",
@@ -578,7 +578,7 @@ const ROWS: RowSeed[] = [
           "Yes, school bus services covering major areas of Aligarh; routes and details are shared during admission.",
         category: "Facilities",
         order_index: 2,
-        status: REVIEW,
+        status: PUBLISHED,
       },
       {
         question: "How can I schedule a campus visit?",
@@ -586,7 +586,7 @@ const ROWS: RowSeed[] = [
           "Call +91 9012655655, message WhatsApp +91 9997973574, or fill out the contact form and our team will get back to you.",
         category: "Admissions",
         order_index: 3,
-        status: REVIEW,
+        status: PUBLISHED,
       },
       {
         question: "What is the student-teacher ratio?",
@@ -594,7 +594,87 @@ const ROWS: RowSeed[] = [
           "Our classes are kept at a size that allows personalised attention for every student. The school will publish exact figures once confirmed.",
         category: "General",
         order_index: 4,
-        status: REVIEW,
+        status: PUBLISHED,
+      },
+      {
+        question: "What is the admission process?",
+        answer:
+          "The admission process involves: 1) Submit an inquiry form, 2) Schedule a campus visit, 3) Submit required documents, 4) Receive admission confirmation and complete enrollment.",
+        category: "Admissions",
+        order_index: 5,
+        status: PUBLISHED,
+      },
+      {
+        question: "What documents are required for admission?",
+        answer:
+          "Birth certificate, transfer certificate, previous year mark sheets, Aadhar card copy, passport photos (4), parent ID proof, address proof, and caste certificate (if applicable).",
+        category: "Admissions",
+        order_index: 6,
+        status: PUBLISHED,
+      },
+      {
+        question: "What are the age criteria for Nursery admission?",
+        answer:
+          "Minimum 3 years as of March 31st of the academic year for Nursery admission.",
+        category: "Admissions",
+        order_index: 7,
+        status: PUBLISHED,
+      },
+      {
+        question: "Which board is the school affiliated with?",
+        answer:
+          "Kids Island Senior Secondary School is affiliated with the Uttar Pradesh Board (UP Board).",
+        category: "General",
+        order_index: 8,
+        status: PUBLISHED,
+      },
+      {
+        question: "What streams are available in Class 11 and 12?",
+        answer:
+          "We offer Science stream with Mathematics (PCM) and Biology (PCB) options in senior secondary classes.",
+        category: "Academics",
+        order_index: 9,
+        status: PUBLISHED,
+      },
+      {
+        question: "Are there co-curricular activities?",
+        answer:
+          "Yes, we offer sports, arts, music, dance, debate, quiz, and various clubs for holistic development across all classes.",
+        category: "Facilities",
+        order_index: 10,
+        status: PUBLISHED,
+      },
+      {
+        question: "What is the fee structure?",
+        answer:
+          "Fee structure varies by class and stream. Please contact the school office at +91 9012655655 for detailed fee information.",
+        category: "Admissions",
+        order_index: 11,
+        status: PUBLISHED,
+      },
+      {
+        question: "Is there a playground and sports facilities?",
+        answer:
+          "Yes, we have a playground and a caged all-weather turf for football and multiple sports.",
+        category: "Facilities",
+        order_index: 12,
+        status: PUBLISHED,
+      },
+      {
+        question: "How can I contact the school office?",
+        answer:
+          "Call +91 9012655655, WhatsApp +91 9997973574, or email contact@kidsaligarh.com. Office hours: 8:00 AM - 4:00 PM on weekdays.",
+        category: "General",
+        order_index: 13,
+        status: PUBLISHED,
+      },
+      {
+        question: "Does the school provide career guidance?",
+        answer:
+          "Yes, we provide career and competitive exam guidance (JEE, NEET) for senior secondary students through expert faculty.",
+        category: "Academics",
+        order_index: 14,
+        status: PUBLISHED,
       },
     ],
   },
