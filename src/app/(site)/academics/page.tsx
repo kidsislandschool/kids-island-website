@@ -25,6 +25,7 @@ type Stage = {
   text: string;
   points: string[];
   variant: string;
+  image?: string | null;
 };
 
 type AcademicsPage = { heading: string; intro: string; stages: Stage[] };
@@ -84,6 +85,7 @@ export default async function AcademicsPage() {
                   >
                     <div className="relative overflow-hidden rounded-[1.5rem]">
                       <CmsImage
+                        src={stage.image}
                         alt={`${stage.title} at Kids Island`}
                         variant={tone.scene}
                         className="aspect-[16/11] w-full"

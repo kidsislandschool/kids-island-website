@@ -385,6 +385,14 @@ export async function getFAQCategories(): Promise<string[]> {
 
 /* ---------------------------------------------------------------- albums */
 
+export type PublicAlbumPhoto = {
+  id: number;
+  url: string;
+  caption: string | null;
+  alt: string;
+  sort_order: number;
+};
+
 export type PublicAlbum = {
   id: number;
   title: string;
@@ -392,17 +400,18 @@ export type PublicAlbum = {
   cover_url: string;
   sort_order: number;
   status: string;
+  photos: PublicAlbumPhoto[];
 };
 
 export async function getPublishedAlbums(): Promise<PublicAlbum[]> {
   try {
     const { data, error } = await supabaseAdmin
-      .from('albums')
+      .from('gallery_albums')
       .select('*')
       .eq('status', 'published')
-      .order('sort_order', { ascending: true })
+      .order('order_index', { ascending: true })
       .order('id', { ascending: true });
-    
+
     if (error) {
       console.error('getPublishedAlbums error:', error);
       return [];
@@ -411,7 +420,44 @@ export async function getPublishedAlbums(): Promise<PublicAlbum[]> {
       console.error('getPublishedAlbums: data is not an array:', data);
       return [];
     }
-    return data as PublicAlbum[];
+    if (data.length === 0) return [];
+
+    const albumIds = data.map((album) => album.id);
+    const { data: photosData, error: photosError } = await supabaseAdmin
+      .from('gallery_photos')
+      .select('*')
+      .in('album_id', albumIds)
+      .eq('status', 'published')
+      .order('order_index', { ascending: true })
+      .order('id', { ascending: true });
+
+    if (photosError) {
+      console.error('getPublishedAlbums photos error:', photosError);
+    }
+
+    const photos = Array.isArray(photosData) ? photosData : [];
+
+    return data.map((album) => {
+      const albumPhotos: PublicAlbumPhoto[] = photos
+        .filter((photo) => photo.album_id === album.id)
+        .map((photo) => ({
+          id: photo.id,
+          url: photo.url,
+          caption: photo.caption ?? null,
+          alt: photo.alt || album.title,
+          sort_order: photo.order_index ?? 0,
+        }));
+
+      return {
+        id: album.id,
+        title: album.title,
+        description: album.description ?? null,
+        cover_url: album.cover_photo || albumPhotos[0]?.url || '',
+        sort_order: album.order_index ?? 0,
+        status: album.status,
+        photos: albumPhotos,
+      };
+    });
   } catch (err) {
     console.error('getPublishedAlbums exception:', err);
     return [];
@@ -429,11 +475,13 @@ export type PublicAlbumImage = {
 export async function getAlbumImages(albumId: number): Promise<PublicAlbumImage[]> {
   try {
     const { data, error } = await supabaseAdmin
-      .from('album_images')
+      .from('gallery_photos')
       .select('*')
       .eq('album_id', albumId)
-      .order('sort_order', { ascending: true });
-    
+      .eq('status', 'published')
+      .order('order_index', { ascending: true })
+      .order('id', { ascending: true });
+
     if (error) {
       console.error('getAlbumImages error:', error);
       return [];
@@ -442,7 +490,13 @@ export async function getAlbumImages(albumId: number): Promise<PublicAlbumImage[
       console.error('getAlbumImages: data is not an array:', data);
       return [];
     }
-    return data as PublicAlbumImage[];
+    return data.map((photo) => ({
+      id: photo.id,
+      album_id: photo.album_id,
+      image_url: photo.url,
+      caption: photo.caption ?? null,
+      sort_order: photo.order_index ?? 0,
+    }));
   } catch (err) {
     console.error('getAlbumImages exception:', err);
     return [];
@@ -450,20 +504,8 @@ export async function getAlbumImages(albumId: number): Promise<PublicAlbumImage[
 }
 
 export async function getAlbum(albumId: number): Promise<PublicAlbum | undefined> {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('albums')
-      .select('*')
-      .eq('id', albumId)
-      .eq('status', 'published')
-      .single();
-    
-    if (error || !data) return undefined;
-    return data as PublicAlbum;
-  } catch (err) {
-    console.error('getAlbum exception:', err);
-    return undefined;
-  }
+  const albums = await getPublishedAlbums();
+  return albums.find((album) => album.id === albumId);
 }
 
 /* ---------------------------------------------------------------- faculty */

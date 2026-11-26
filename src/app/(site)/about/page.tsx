@@ -31,6 +31,8 @@ type AboutPage = {
   values: { title: string; text: string }[];
   whyChoose: { title: string; text: string }[];
   facilities: string[];
+  storyPhoto?: string | null;
+  storyInset?: string | null;
 };
 
 const FALLBACK: AboutPage = {
@@ -46,6 +48,8 @@ const FALLBACK: AboutPage = {
   values: [],
   whyChoose: [],
   facilities: [],
+  storyPhoto: null,
+  storyInset: null,
 };
 
 function highlight(text: string, phrase: string) {
@@ -91,10 +95,10 @@ export default async function AboutPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 sm:px-8 lg:grid-cols-[1fr_1.05fr]">
           <Reveal direction="left" className="relative mx-auto w-full max-w-lg lg:mx-0">
             <div className="relative overflow-hidden rounded-[2rem] border-[6px] border-white bg-white shadow-lift">
-              <CmsImage alt="Kids Island school building" variant="school" className="aspect-[4/3.2] w-full" />
+              <CmsImage src={content.storyPhoto} alt="Kids Island school building" variant="school" className="aspect-[4/3.2] w-full" />
             </div>
             <div className="absolute -bottom-8 -right-2 w-40 overflow-hidden rounded-[1.4rem] border-[5px] border-white shadow-lift sm:-right-6 sm:w-48">
-              <CmsImage alt="A classroom at Kids Island" variant="classroom" className="aspect-square w-full" />
+              <CmsImage src={content.storyInset} alt="A classroom at Kids Island" variant="classroom" className="aspect-square w-full" />
             </div>
             <div className="absolute -left-3 -top-4 rounded-2xl bg-yellow px-4 py-3 shadow-[0_16px_32px_-16px_rgba(255,159,28,0.8)]">
               <p className="font-display text-[15px] font-semibold leading-none text-navy-900">Nursery – Class 12</p>

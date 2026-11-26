@@ -5,7 +5,7 @@ import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export type Facility = { title: string; text: string; variant: string };
+export type Facility = { title: string; text: string; variant: string; image?: string | null };
 
 export function FacilitiesSection({ facilities }: { facilities: Facility[] }) {
   if (!facilities.length) return null;
@@ -49,6 +49,7 @@ export function FacilitiesSection({ facilities }: { facilities: Facility[] }) {
               >
                 <div className={cn("relative overflow-hidden", i === 0 ? "aspect-[16/10] lg:aspect-auto lg:flex-[1.1]" : "aspect-[16/10]")}>
                   <CmsImage
+                    src={facility.image}
                     alt={facility.title}
                     variant={facility.variant}
                     className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
