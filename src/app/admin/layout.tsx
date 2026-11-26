@@ -42,7 +42,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     },
     {
       label: "System",
-      items: [{ label: "Account", href: "/admin/account", icon: "user" }],
+      items: [
+        { label: "Staff Accounts", href: "/admin/staff", icon: "users" },
+        { label: "Account", href: "/admin/account", icon: "user" },
+      ],
     },
   ];
 
