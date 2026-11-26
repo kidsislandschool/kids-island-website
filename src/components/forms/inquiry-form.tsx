@@ -44,7 +44,8 @@ export function InquiryForm({
     setStatus("submitting");
     setMessage("");
     try {
-      const res = await fetch("/api/inquiries", {
+      const endpoint = isAdmission ? "/api/inquiries" : "/api/contact";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import { getNotices } from "@/lib/data";
 import { NextResponse } from "next/server";
 
-const getCachedNotices = unstable_cache(
+const getCachedNoticesData = unstable_cache(
   async (searchParams: URLSearchParams) => {
     const search = searchParams.get("q") || "";
     const category = searchParams.get("category") || "";
@@ -10,12 +10,13 @@ const getCachedNotices = unstable_cache(
     const perPage = parseInt(searchParams.get("perPage") || "9");
     
     const result = await getNotices({ search, category, page, perPage });
-    return NextResponse.json(result);
+    return result;
   },
   ["notices"],
   { revalidate: 60, tags: ["notices"] }
 );
 
 export async function GET(request: Request) {
-  return getCachedNotices(new URL(request.url).searchParams);
+  const data = await getCachedNoticesData(new URL(request.url).searchParams);
+  return NextResponse.json(data);
 }
