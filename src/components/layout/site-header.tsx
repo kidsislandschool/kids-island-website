@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Logo } from "./logo";
 import { Icon } from "@/components/ui/icon";
 import { Button, ButtonArrow } from "@/components/ui/button";
@@ -12,6 +12,9 @@ import { cn } from "@/lib/utils";
 import type { SiteSettings } from "@/lib/content";
 
 type NavLink = { label: string; href: string };
+
+// Number of visible nav items on mobile before showing "More" dropdown
+const MOBILE_VISIBLE_ITEMS = 5;
 
 export function SiteHeader({
   site,
@@ -26,6 +29,22 @@ export function SiteHeader({
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     setOpen(false);
@@ -167,7 +186,7 @@ export function SiteHeader({
                     visible: { transition: { staggerChildren: 0.035, delayChildren: 0.04 } },
                   }}
                 >
-                  {links.map((link) => (
+                  {links.slice(0, MOBILE_VISIBLE_ITEMS).map((link) => (
                     <motion.li
                       key={link.href}
                       variants={{
@@ -190,6 +209,81 @@ export function SiteHeader({
                       </Link>
                     </motion.li>
                   ))}
+                  {links.length > MOBILE_VISIBLE_ITEMS && (
+                    <motion.li
+                      key="more-dropdown"
+                      ref={moreRef}
+                      variants={{
+                        hidden: { opacity: 0, y: -10 },
+                        visible: { opacity: 1, y: 0, transition: { duration: DURATION.sm, ease: EASE.out } },
+                      }}
+                    >
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setMoreOpen((v) => !v)}
+                          aria-expanded={moreOpen}
+                          aria-label={moreOpen ? "Close more options" : "More options"}
+                          className={cn(
+                            "flex items-center justify-between rounded-2xl px-4 py-3 text-[15px] font-extrabold transition-colors",
+                            moreOpen ? "bg-navy text-white" : "text-navy/80 hover:bg-navy/5"
+                          )}
+                        >
+                          <span className="flex items-center gap-2">
+                            <Icon name="more-horizontal" className="h-4 w-4" />
+                            More
+                          </span>
+                          <Icon name={moreOpen ? "chevron-up" : "chevron-down"} className="h-4 w-4 opacity-40 transition-transform" />
+                        </button>
+                        {moreOpen && (
+                          <AnimatePresence initial={false}>
+                            <motion.div
+                              initial={{ opacity: 0, y: -8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -8 }}
+                              transition={{ duration: reduce ? 0.01 : DURATION.sm, ease: EASE.out }}
+                              className="absolute right-0 top-full mt-1 z-20 min-w-[180px] rounded-2xl border border-line bg-white shadow-[0_20px_40px_-20px_rgba(18,50,92,0.4)] overflow-hidden"
+                            >
+                              <motion.ul
+                                className="py-1"
+                                initial="hidden"
+                                animate="visible"
+                                variants={{
+                                  hidden: {},
+                                  visible: { transition: { staggerChildren: 0.03, delayChildren: 0.02 } },
+                                }}
+                              >
+                                {links.slice(MOBILE_VISIBLE_ITEMS).map((link) => (
+                                  <motion.li
+                                    key={link.href}
+                                    variants={{
+                                      hidden: { opacity: 0, x: -8 },
+                                      visible: { opacity: 1, x: 0, transition: { duration: DURATION.sm, ease: EASE.out } },
+                                    }}
+                                  >
+                                    <Link
+                                      href={link.href}
+                                      aria-current={isActive(link.href) ? "page" : undefined}
+                                      onClick={() => setMoreOpen(false)}
+                                      className={cn(
+                                        "flex items-center justify-between rounded-xl px-4 py-2.5 text-[14px] font-extrabold transition-colors",
+                                        isActive(link.href)
+                                          ? "bg-navy/10 text-navy"
+                                          : "text-navy/80 hover:bg-navy/5"
+                                      )}
+                                    >
+                                      {link.label}
+                                      <Icon name="chevron-right" className="h-3.5 w-3.5 opacity-40" />
+                                    </Link>
+                                  </motion.li>
+                                ))}
+                              </motion.ul>
+                            </motion.div>
+                          </AnimatePresence>
+                        )}
+                      </div>
+                    </motion.li>
+                  )}
                 </motion.ul>
 
                 <div className="mt-4 grid gap-2.5 border-t border-line pt-4 sm:grid-cols-2">
