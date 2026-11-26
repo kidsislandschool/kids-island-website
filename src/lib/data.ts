@@ -533,7 +533,7 @@ export async function getPublishedFaculty(): Promise<PublicFaculty[]> {
     
     if (error) {
       // If sort_order column doesn't exist, try without it
-      if (error.code === '42703' && error.message.includes('sort_order')) {
+      if (error.code === '42703' && (error.message.includes('sort_order') || error.message.includes('column') || error.message.includes('does not exist'))) {
         console.warn('getPublishedFaculty: sort_order column not found, falling back to id');
         const { data: data2, error: error2 } = await supabaseAdmin
           .from('faculty')

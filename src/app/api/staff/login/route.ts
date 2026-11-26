@@ -69,5 +69,5 @@ export async function POST(req: Request) {
   await getDirectDb().update('staff', { last_login_at: new Date().toISOString() }, { id: staff.id });
   logAudit({ action: "staff_login", entity: "staff", entityId: staff.id, ip });
 
-  return Response.json({ ok: true, redirect: "/staff/dashboard" });
+  return Response.json({ ok: true, redirect: "/dashboard" });
 }
