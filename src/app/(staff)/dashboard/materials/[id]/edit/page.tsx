@@ -185,6 +185,7 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ i
                 value={material.file_url ?? ""}
                 onChange={(url) => {}}
                 kind="file"
+                uploadEndpoint="/api/staff/uploads"
               />
             </AdminField>
           </StaffCard>

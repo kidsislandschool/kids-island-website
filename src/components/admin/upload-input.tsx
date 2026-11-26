@@ -17,12 +17,14 @@ export function UploadInput({
   kind = "image",
   id,
   disabled,
+  uploadEndpoint = "/api/admin/uploads",
 }: {
   value: string | null | undefined;
   onChange: (url: string | null) => void;
   kind?: "image" | "file";
   id?: string;
   disabled?: boolean;
+  uploadEndpoint?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -40,7 +42,7 @@ export function UploadInput({
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("/api/admin/uploads", { method: "POST", body: fd });
+      const res = await fetch(uploadEndpoint, { method: "POST", body: fd });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error ?? "Upload failed. Try a different file.");

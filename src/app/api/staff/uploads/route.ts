@@ -1,0 +1,131 @@
+import fs from "node:fs";
+import path from "node:path";
+import crypto from "node:crypto";
+import sharp from "sharp";
+import { supabaseAdmin } from "@/lib/supabase";
+import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
+import { requireStaffApi } from "@/lib/auth";
+import { getUploadRoot, getUploadUrlPrefix } from "@/lib/uploads";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const MAX_BYTES = 12 * 1024 * 1024;
+const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+
+export async function POST(req: Request) {
+  if (!assertSameOrigin(req)) return jsonError("Invalid request origin", 403);
+  const user = await requireStaffApi();
+  if (!user) return jsonError("Unauthorized", 401);
+
+  let form: FormData;
+  try {
+    form = await req.formData();
+  } catch {
+    return jsonError("Could not read the uploaded file.", 400);
+  }
+
+  const file = form.get("file");
+  if (!(file instanceof File)) return jsonError("Choose a file to upload.", 422);
+  if (file.size === 0) return jsonError("That file is empty.", 422);
+  if (file.size > MAX_BYTES) return jsonError("Files must be 12 MB or smaller.", 413);
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const now = new Date();
+  const subdir = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const alt = String(form.get("alt") ?? "").trim().slice(0, 300) || null;
+  const mime = (file.type || "").toLowerCase();
+
+  let storedName: string;
+  let output: Buffer;
+  let kind: "image" | "document";
+  let storedMime: string;
+
+  try {
+    if (IMAGE_TYPES.has(mime)) {
+      const image = sharp(buffer, { failOn: "error", limitInputPixels: 40_000_000 });
+      const meta = await image.metadata();
+      if (!meta.width || !meta.height) throw new Error("Unreadable image");
+      output = await image
+        .rotate()
+        .resize({ width: 1800, height: 1800, fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 82, effort: 4 })
+        .toBuffer();
+      storedName = `${crypto.randomUUID()}.webp`;
+      kind = "image";
+      storedMime = "image/webp";
+    } else if (mime === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+      if (buffer.subarray(0, 5).toString("latin1") !== "%PDF-") {
+        return jsonError("That PDF could not be verified. Please re-export it and try again.", 422);
+      }
+      output = buffer;
+      storedName = `${crypto.randomUUID()}.pdf`;
+      kind = "document";
+      storedMime = "application/pdf";
+    } else {
+      return jsonError("Upload a JPG, PNG, WebP, AVIF image or a PDF document.", 415);
+    }
+  } catch {
+    return jsonError("That file could not be processed. Try a different image.", 422);
+  }
+
+  let uploadRoot: string;
+  let urlPrefix: string;
+  try {
+    uploadRoot = getUploadRoot();
+    urlPrefix = getUploadUrlPrefix();
+  } catch (error) {
+    console.error(error);
+    return jsonError("Upload storage is not configured correctly.", 500);
+  }
+
+  const dir = path.join(uploadRoot, subdir);
+  fs.mkdirSync(dir, { recursive: true });
+  const diskPath = path.join(dir, storedName);
+  fs.writeFileSync(diskPath, output);
+
+  const url = `${urlPrefix}/${subdir.replace(/\\/g, "/")}/${storedName}`;
+  const { data: info, error: insertError } = await supabaseAdmin
+    .from("uploads")
+    .insert({
+      original_name: file.name.slice(0, 240),
+      stored_name: storedName,
+      url,
+      mime: storedMime,
+      size: output.length,
+      kind,
+      alt,
+      created_by: user.id,
+    })
+    .select("id")
+    .single();
+
+  if (insertError || !info) {
+    console.error("upload insert error:", insertError);
+    return jsonError("The file was saved but could not be recorded. Please try again.", 500);
+  }
+
+  await logAudit({
+    userId: user.id,
+    action: "upload_created",
+    entity: "upload",
+    entityId: info.id,
+    detail: { name: file.name, kind, size: output.length },
+    ip: clientIp(req),
+  }).catch(() => {});
+
+  return Response.json(
+    {
+      ok: true,
+      upload: {
+        id: info.id,
+        url,
+        kind,
+        mime: storedMime,
+        size: output.length,
+        originalName: file.name,
+      },
+    },
+    { status: 201 }
+  );
+}

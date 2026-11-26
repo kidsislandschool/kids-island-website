@@ -173,6 +173,7 @@ export function NewMaterialForm() {
             label="Choose File *"
             kind="file"
             required
+            uploadEndpoint="/api/staff/uploads"
             help="PDF, JPG, PNG, WebP — max 12 MB. PDFs are best for documents. Images will be converted to WebP."
           />
 

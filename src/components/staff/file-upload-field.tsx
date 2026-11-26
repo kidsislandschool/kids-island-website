@@ -11,12 +11,14 @@ export function FileUploadField({
   kind = "file",
   required = false,
   help,
+  uploadEndpoint = "/api/admin/uploads",
 }: {
   name: string;
   label: string;
   kind?: "image" | "file";
   required?: boolean;
   help?: string;
+  uploadEndpoint?: string;
 }) {
   const [value, setValue] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -35,6 +37,7 @@ export function FileUploadField({
         kind={kind}
         value={value}
         onChange={handleChange}
+        uploadEndpoint={uploadEndpoint}
       />
       <input
         id={`${name}-hidden`}
