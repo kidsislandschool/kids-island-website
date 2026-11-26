@@ -103,9 +103,9 @@ export function CrossfadeSlideshow({
         >
           <motion.div
             className="h-full w-full"
-            initial={{ scale: reduce ? 1 : 1.08 }}
+            initial={{ scale: reduce ? 1 : 0.96 }}
             animate={{ scale: 1 }}
-            transition={{ duration: reduce ? 0.01 : 7, ease: "linear" }}
+            transition={{ duration: reduce ? 0.01 : interval / 1000 * 0.9, ease: "easeOut" }}
           >
             <CmsImage
               src={active.image}
