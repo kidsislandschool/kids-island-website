@@ -283,7 +283,7 @@ export async function createStaffSession(
     .from('staff_sessions')
     .insert({
       token_hash: STAFF_sha256(token),
-      staff_id: user.id,
+      user_id: user.id,
       expires_at: expires,
       ip: meta.ip ?? null,
       user_agent: meta.userAgent ?? null,
@@ -315,7 +315,7 @@ export async function getStaffSessionByToken(token: string): Promise<StaffSessio
     .select(`
       token_hash,
       expires_at,
-      staff_id,
+      user_id,
       staff!inner (id, email, name, status)
     `)
     .eq('token_hash', STAFF_sha256(token))
@@ -348,7 +348,7 @@ export async function revokeOtherStaffSessions(staffId: number, currentToken: st
   const { data, error } = await supabaseAdmin
     .from('staff_sessions')
     .update({ revoked_at: new Date().toISOString() })
-    .eq('staff_id', staffId)
+    .eq('user_id', staffId)
     .neq('token_hash', STAFF_sha256(currentToken))
     .is('revoked_at', null);
   

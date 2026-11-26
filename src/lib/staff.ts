@@ -1,4 +1,4 @@
-import { getDb } from "@/lib/db";
+import { supabaseAdmin } from './supabase';
 
 export type StaffRow = {
   id: number;
@@ -15,9 +15,10 @@ export type StaffRow = {
   updated_at: string;
   approved_by: number | null;
   approved_at: string | null;
+  auth_user_id: number | null;
 };
 
-export async function createStaff(data: {
+export async function createStaff(input: {
   email: string;
   name: string;
   phone?: string;
@@ -26,80 +27,117 @@ export async function createStaff(data: {
   bio?: string;
   password_hash: string;
 }): Promise<{ id: number }> {
-  const db = getDb();
-  const info = await db
-    .prepare(
-      `INSERT INTO staff (email, name, phone, designation, qualification, bio, password_hash, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')`
-    )
-    .run(
-      data.email.toLowerCase(),
-      data.name,
-      data.phone ?? null,
-      data.designation ?? null,
-      data.qualification ?? null,
-      data.bio ?? null,
-      data.password_hash
-    );
-  return { id: Number(info.lastInsertRowid) };
+  const { data, error } = await supabaseAdmin
+    .from('staff')
+    .insert({
+      email: input.email.toLowerCase(),
+      name: input.name,
+      phone: input.phone ?? null,
+      designation: input.designation ?? null,
+      qualification: input.qualification ?? null,
+      bio: input.bio ?? null,
+      password_hash: input.password_hash,
+      status: 'pending',
+    })
+    .select('id')
+    .single();
+
+  if (error) throw error;
+  return { id: data.id };
 }
 
 export async function getStaffByEmail(email: string): Promise<StaffRow | undefined> {
-  return getDb()
-    .prepare("SELECT * FROM staff WHERE email = ?")
-    .get(email.toLowerCase()) as StaffRow | undefined;
+  const { data, error } = await supabaseAdmin
+    .from('staff')
+    .select('*')
+    .eq('email', email.toLowerCase())
+    .maybeSingle();
+
+  if (error) throw error;
+  return data as StaffRow | undefined;
 }
 
 export async function getStaffById(id: number): Promise<StaffRow | undefined> {
-  return getDb().prepare("SELECT * FROM staff WHERE id = ?").get(id) as StaffRow | undefined;
+  const { data, error } = await supabaseAdmin
+    .from('staff')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data as StaffRow | undefined;
 }
 
 export async function listStaff(opts: { status?: string; search?: string } = {}): Promise<StaffRow[]> {
-  const db = getDb();
-  let sql = "SELECT * FROM staff";
-  const params: any[] = [];
-  const where: string[] = [];
+  let query = supabaseAdmin.from('staff').select('*');
+
   if (opts.status) {
-    where.push("status = ?");
-    params.push(opts.status);
+    query = query.eq('status', opts.status);
   }
   if (opts.search) {
-    where.push("(name LIKE ? OR email LIKE ? OR designation LIKE ?)");
     const term = `%${opts.search}%`;
-    params.push(term, term, term);
+    query = query.or(`name.ilike.${term},email.ilike.${term},designation.ilike.${term}`);
   }
-  if (where.length) sql += " WHERE " + where.join(" AND ");
-  sql += " ORDER BY created_at DESC";
-  return db.prepare(sql).all(...params) as StaffRow[];
+
+  query = query.order('created_at', { ascending: false });
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data || []) as StaffRow[];
 }
 
 export async function updateStaffStatus(id: number, status: "approved" | "rejected", adminId: number): Promise<void> {
-  const db = getDb();
-  await db
-    .prepare(
-      `UPDATE staff SET status = ?, approved_by = ?, approved_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`
-    )
-    .run(status, adminId, id);
+  const { error } = await supabaseAdmin
+    .from('staff')
+    .update({
+      status,
+      approved_by: adminId,
+      approved_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id);
+
+  if (error) throw error;
 }
 
 export async function updateStaffProfile(id: number, data: Partial<StaffRow>): Promise<void> {
-  const db = getDb();
-  const fields: string[] = [];
-  const params: any[] = [];
+  const allowedFields = [
+    'name', 'phone', 'designation', 'qualification', 'bio', 'photo', 'status'
+  ];
+  
+  const updates: Record<string, any> = { updated_at: new Date().toISOString() };
+  
   for (const [key, value] of Object.entries(data)) {
-    if (key === "id" || key === "password_hash" || key === "status" || key === "created_at") continue;
-    fields.push(`${key} = ?`);
-    params.push(value);
+    if (allowedFields.includes(key)) {
+      updates[key] = value;
+    }
   }
-  if (!fields.length) return;
-  fields.push("updated_at = datetime('now')");
-  params.push(id);
-  await db.prepare(`UPDATE staff SET ${fields.join(", ")} WHERE id = ?`).run(...params);
+
+  const { error } = await supabaseAdmin
+    .from('staff')
+    .update(updates)
+    .eq('id', id);
+
+  if (error) throw error;
 }
 
 export async function countStaffByStatus(): Promise<{ status: string; c: number }[]> {
-  const db = getDb();
-  return db
-    .prepare("SELECT status, COUNT(*) AS c FROM staff GROUP BY status")
-    .all() as { status: string; c: number }[];
+  const { data, error } = await supabaseAdmin
+    .from('staff')
+    .select('status', { count: 'exact', head: true });
+
+  if (error) throw error;
+
+  // Get counts for each status
+  const [{ count: pending }, { count: approved }, { count: rejected }] = await Promise.all([
+    supabaseAdmin.from('staff').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabaseAdmin.from('staff').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
+    supabaseAdmin.from('staff').select('*', { count: 'exact', head: true }).eq('status', 'rejected'),
+  ]);
+
+  return [
+    { status: 'pending', c: pending ?? 0 },
+    { status: 'approved', c: approved ?? 0 },
+    { status: 'rejected', c: rejected ?? 0 },
+  ];
 }
