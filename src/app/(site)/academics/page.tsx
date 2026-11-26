@@ -103,7 +103,13 @@ export default async function AcademicsPage() {
                     <div className="px-3 pb-4 sm:px-5 lg:py-4 lg:pr-8">
                       <span className={cn("inline-grid h-11 w-11 place-items-center rounded-2xl", tone.bg, tone.icon)}>
                         <Icon
-                          name={i === 0 ? "book" : i === 1 ? "graduation" : i === 2 ? "sparkle" : "star"}
+                          name={
+                            i === 0 ? "book" :
+                            i === 1 ? "graduation" :
+                            i === 2 ? "calculator" :
+                            i === 3 ? "dna" :
+                            i === 4 ? "trophy" : "sparkle"
+                          }
                           className="h-5 w-5"
                         />
                       </span>
