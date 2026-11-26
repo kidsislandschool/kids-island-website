@@ -42,6 +42,27 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     updated_at: new Date().toISOString(),
   }, { id: staffId });
 
+  // If approved, also create faculty profile from staff data
+  if (status === "approved") {
+    const existingFaculty = await db.selectOne('faculty', '*', { email: existing.email });
+    if (!existingFaculty) {
+      await db.insert('faculty', {
+        name: existing.name,
+        email: existing.email,
+        designation: existing.designation || 'Faculty Member',
+        qualification: existing.qualification || '',
+        subjects: existing.subjects || '',
+        bio: existing.bio || '',
+        photo: existing.photo || null,
+        status: 'published',
+        order_index: 0,
+        featured: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+    }
+  }
+
   logAudit({
     userId: user.id,
     action: `staff_${status}`,
