@@ -332,11 +332,11 @@ const CONTENT: ContentSeed[] = [
       ],
       facilities: [
         "Well-equipped classrooms",
-        "Library",
         "Science laboratories",
         "Computer lab",
         "Small caged turf for multiple sports",
         "Playground",
+        "Co-curricular activities (sports, arts, music, debate, clubs)",
       ],
     },
   },
