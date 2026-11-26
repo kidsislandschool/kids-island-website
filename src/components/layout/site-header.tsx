@@ -58,7 +58,7 @@ export function SiteHeader({
   return (
     <>
       {/* slim top contact strip */}
-      <div className="relative z-40 bg-navy-900 text-white/75">
+      <div className="relative z-40 bg-green-900 text-white/75">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-2 text-[11.5px] font-semibold sm:px-8">
           <div className="flex min-w-0 items-center gap-4">
             <span className="hidden items-center gap-1.5 sm:flex">
@@ -91,8 +91,8 @@ export function SiteHeader({
       {/* main navbar */}
       <header
         className={cn(
-          "sticky top-0 z-50 border-b border-transparent bg-paper/92 backdrop-blur-xl transition-[box-shadow,border-color,padding] duration-300",
-          scrolled && "border-line shadow-[0_10px_30px_-20px_rgba(18,50,92,0.35)]"
+          "sticky top-0 z-50 border-b border-transparent bg-green-900/95 backdrop-blur-xl transition-[box-shadow,border-color,padding] duration-300",
+          scrolled && "border-green-700 shadow-[0_10px_30px_-20px_rgba(13,46,30,0.5)]"
         )}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
@@ -155,7 +155,7 @@ export function SiteHeader({
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: reduce ? 0.01 : DURATION.sm, ease: EASE.inOut }}
-              className="overflow-hidden border-t border-line bg-paper xl:hidden"
+              className="overflow-hidden border-t border-green-700 bg-green-900 xl:hidden"
             >
               <div className="max-h-[calc(100svh-118px)] overflow-y-auto px-5 pb-7 pt-4 sm:px-8">
                 <motion.ul
@@ -181,8 +181,8 @@ export function SiteHeader({
                         className={cn(
                           "flex items-center justify-between rounded-2xl px-4 py-3 text-[15px] font-extrabold transition-colors",
                           isActive(link.href)
-                            ? "bg-navy text-white"
-                            : "text-navy/80 hover:bg-navy/5"
+                            ? "bg-white text-green-900"
+                            : "text-white/80 hover:bg-white/10"
                         )}
                       >
                         {link.label}
@@ -202,17 +202,17 @@ export function SiteHeader({
                   </Button>
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] font-bold text-muted">
-                  <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5">
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] font-bold text-white/70">
+                  <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5 hover:text-white">
                     <Icon name="phone" className="h-3.5 w-3.5 text-yellow" /> {site.phone}
                   </a>
-                  <a href={`mailto:${site.email}`} className="flex items-center gap-1.5">
+                  <a href={`mailto:${site.email}`} className="flex items-center gap-1.5 hover:text-white">
                     <Icon name="mail" className="h-3.5 w-3.5 text-yellow" /> {site.email}
                   </a>
-                  <Link href="/admin-login" className="flex items-center gap-1.5">
+                  <Link href="/admin-login" className="flex items-center gap-1.5 hover:text-white">
                     <Icon name="lock" className="h-3.5 w-3.5 text-white" /> Admin Login
                   </Link>
-                  <Link href="/staff-login" className="flex items-center gap-1.5">
+                  <Link href="/staff-login" className="flex items-center gap-1.5 hover:text-white">
                     <Icon name="lock" className="h-3.5 w-3.5 text-white" /> Staff Login
                   </Link>
                 </div>

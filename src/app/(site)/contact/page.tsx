@@ -70,7 +70,7 @@ export default async function ContactPage() {
       value: content.address,
       icon: "pin" as const,
       tone: "bg-green-200 text-blue",
-      href: undefined,
+      href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Kids Island Senior Secondary School Aligarh")}`,
     },
     {
       label: "Call the office",
@@ -108,7 +108,12 @@ export default async function ContactPage() {
         intro={content.intro}
       >
         <div className="flex flex-wrap gap-3">
-          <Button href="#visit" variant="navy">
+          <Button
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Kids Island Senior Secondary School Aligarh")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="navy"
+          >
             <Icon name="pin" className="h-4 w-4" />
             Plan a campus visit
           </Button>

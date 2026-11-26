@@ -251,6 +251,7 @@ export function Hero({ content, affiliation }: { content: HeroContent; affiliati
                 rounded="rounded-[1.9rem]"
                 priority
                 ariaLabel="Life at Kids Island"
+                showLabel={false}
               />
             </div>
 

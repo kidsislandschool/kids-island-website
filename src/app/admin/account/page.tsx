@@ -91,18 +91,6 @@ export default async function AdminAccountPage() {
             </dl>
           </AdminCard>
 
-          <AdminCard className="bg-navy p-5 text-white">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 text-yellow">
-              <Icon name="lock" className="h-4 w-4" />
-            </span>
-            <h2 className="mt-3 font-display text-[16px] font-semibold text-white">Security notes</h2>
-            <ul className="mt-2.5 space-y-2 text-[11px] font-semibold leading-relaxed text-white/60">
-              <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-yellow" />Sessions are stored hashed and expire after seven days.</li>
-              <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-yellow" />Repeated failed sign-ins trigger a temporary lockout.</li>
-              <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-yellow" />Password resets are run on the server with <code className="rounded bg-white/10 px-1 text-[9.5px]">npm run reset-admin</code>.</li>
-            </ul>
-          </AdminCard>
-
           <div className="rounded-xl border border-line bg-white px-4 py-3 text-[10.5px] font-semibold leading-relaxed text-muted">
             This phase supports one Master Admin role only. Additional staff accounts and role-based permissions are
             not enabled.
