@@ -329,3 +329,11 @@ export async function getStudentCount(): Promise<number> {
     .select("*", { count: "exact", head: true });
   return count ?? 0;
 }
+
+export async function getPendingStaffCount(): Promise<number> {
+  const { count } = await supabaseAdmin
+    .from("staff")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "pending");
+  return count ?? 0;
+}

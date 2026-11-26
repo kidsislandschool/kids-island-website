@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/auth";
-import { adminCounts, getRedFlagCount, getStudentCount } from "@/lib/admin-data";
+import { adminCounts, getRedFlagCount, getStudentCount, getPendingStaffCount } from "@/lib/admin-data";
 import { AdminShell, type AdminNavGroup } from "@/components/admin/admin-shell";
 
 export const dynamic = "force-dynamic";
@@ -15,10 +15,11 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await requireAdmin();
-  const [counts, redFlagCounts, studentCount] = await Promise.all([
+  const [counts, redFlagCounts, studentCount, pendingStaffCount] = await Promise.all([
     adminCounts(),
     getRedFlagCount(),
     getStudentCount(),
+    getPendingStaffCount(),
   ]);
 
   const groups: AdminNavGroup[] = [
@@ -54,7 +55,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     {
       label: "System",
       items: [
-        { label: "Staff Accounts", href: "/admin/staff", icon: "users" },
+        { label: "Staff Accounts", href: "/admin/staff", icon: "users", badge: pendingStaffCount },
         { label: "Account", href: "/admin/account", icon: "user" },
       ],
     },
