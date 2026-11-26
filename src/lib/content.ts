@@ -262,19 +262,29 @@ export async function getPublishedFaqs(): Promise<FAQ[]> {
 export type Album = {
   id: number;
   title: string;
-  description: string;
+  description: string | null;
   cover_url: string;
   status: ContentStatus;
+  photos: AlbumPhoto[];
+};
+
+export type AlbumPhoto = {
+  id: number;
+  url: string;
+  caption: string | null;
+  alt: string;
+  sort_order: number;
 };
 
 export async function getPublishedAlbums(): Promise<Album[]> {
   const client = supabaseAdmin;
   const { data, error } = await client
-    .from('albums')
+    .from('gallery_albums')
     .select('*')
     .eq('status', 'published')
-    .order('id', { ascending: false });
-  
+    .order('order_index', { ascending: true })
+    .order('id', { ascending: true });
+
   if (error) {
     console.error('getPublishedAlbums error:', error);
     return [];
@@ -283,25 +293,63 @@ export async function getPublishedAlbums(): Promise<Album[]> {
     console.error('getPublishedAlbums: data is not an array:', data);
     return [];
   }
-  return data as Album[];
+  if (data.length === 0) return [];
+
+  const albumIds = data.map((album) => album.id);
+  const { data: photosData, error: photosError } = await client
+    .from('gallery_photos')
+    .select('*')
+    .in('album_id', albumIds)
+    .eq('status', 'published')
+    .order('order_index', { ascending: true })
+    .order('id', { ascending: true });
+
+  if (photosError) {
+    console.error('getPublishedAlbums photos error:', photosError);
+  }
+
+  const photos = Array.isArray(photosData) ? photosData : [];
+
+  return data.map((album) => {
+    const albumPhotos: AlbumPhoto[] = photos
+      .filter((photo) => photo.album_id === album.id)
+      .map((photo) => ({
+        id: photo.id,
+        url: photo.url,
+        caption: photo.caption ?? null,
+        alt: photo.alt || album.title,
+        sort_order: photo.order_index ?? 0,
+      }));
+
+    return {
+      id: album.id,
+      title: album.title,
+      description: album.description ?? null,
+      cover_url: album.cover_photo || albumPhotos[0]?.url || '',
+      status: album.status as ContentStatus,
+      photos: albumPhotos,
+    };
+  });
 }
 
 export type AlbumImage = {
   id: number;
   album_id: number;
   image_url: string;
-  caption: string;
+  caption: string | null;
   sort_order: number;
 };
 
 export async function getAlbumImages(albumId: number): Promise<AlbumImage[]> {
   const client = supabaseAdmin;
   const { data, error } = await client
-    .from('album_images')
+    .from('gallery_photos')
     .select('*')
     .eq('album_id', albumId)
-    .order('sort_order', { ascending: true });
-  
+    .eq('status', 'published')
+    .order('order_index', { ascending: true })
+    .order('id', { ascending: true });
+
   if (error) {
     console.error('getAlbumImages error:', error);
     return [];
@@ -310,7 +358,13 @@ export async function getAlbumImages(albumId: number): Promise<AlbumImage[]> {
     console.error('getAlbumImages: data is not an array:', data);
     return [];
   }
-  return data as AlbumImage[];
+  return data.map((photo) => ({
+    id: photo.id,
+    album_id: photo.album_id,
+    image_url: photo.url,
+    caption: photo.caption ?? null,
+    sort_order: photo.order_index ?? 0,
+  }));
 }
 
 export type FacultyMember = {
