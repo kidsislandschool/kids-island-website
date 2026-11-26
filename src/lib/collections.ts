@@ -233,6 +233,35 @@ export const COLLECTIONS: Record<string, CollectionDef> = {
       ...STATUS_FIELDS,
     ],
   },
+
+  students: {
+    key: "students",
+    table: "students",
+    label: "Students",
+    singular: "Student",
+    statuses: ["published", "draft", "needs_review"],
+    defaultStatus: "published",
+    orderBy: "admission_number ASC",
+    emptyMessage: "No students yet.",
+    fields: [
+      { name: "admission_number", label: "Admission Number", type: "text", required: true, column: true, title: true, searchable: true },
+      { name: "first_name", label: "First Name", type: "text", required: true, column: true, searchable: true },
+      { name: "last_name", label: "Last Name", type: "text", required: true, column: true, searchable: true },
+      { name: "class", label: "Class", type: "text", column: true, searchable: true },
+      { name: "section", label: "Section", type: "text", column: true },
+      { name: "date_of_birth", label: "Date of Birth", type: "date", optional: true },
+      { name: "gender", label: "Gender", type: "select", optional: true, column: true, options: [
+        { value: "Male", label: "Male" },
+        { value: "Female", label: "Female" },
+        { value: "Other", label: "Other" },
+      ]},
+      { name: "parent_name", label: "Parent Name", type: "text", optional: true, column: true, searchable: true },
+      { name: "parent_phone", label: "Parent Phone", type: "text", optional: true, searchable: true },
+      { name: "parent_email", label: "Parent Email", type: "email", optional: true, searchable: true },
+      { name: "address", label: "Address", type: "textarea", optional: true },
+      ...STATUS_FIELDS,
+    ],
+  },
 };
 
 /** Columns that a collection is allowed to write (generated from its fields). */

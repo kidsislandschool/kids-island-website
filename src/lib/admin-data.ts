@@ -145,6 +145,7 @@ export async function adminCounts() {
     { count: materialsPublished },
     { count: albums },
     { count: photos },
+    { count: redFlagsActive },
   ] = await Promise.all([
     supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }).eq('status', 'new'),
     supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }),
@@ -157,6 +158,7 @@ export async function adminCounts() {
     supabaseAdmin.from('faculty').select('*', { count: 'exact', head: true }).eq('status', 'published'),
     supabaseAdmin.from('materials').select('*', { count: 'exact', head: true }).eq('status', 'published'),
     supabaseAdmin.from('gallery_albums').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('red_flags').select('*', { count: 'exact', head: true }).eq('resolved', false),
     supabaseAdmin.from('gallery_photos').select('*', { count: 'exact', head: true }),
   ]);
   
@@ -173,6 +175,11 @@ export async function adminCounts() {
     materialsPublished: materialsPublished ?? 0,
     albums: albums ?? 0,
     photos: photos ?? 0,
+    redFlags: {
+      active: redFlagsActive ?? 0,
+      resolved: 0,
+      total: redFlagsActive ?? 0,
+    },
   };
 }
 
@@ -294,4 +301,31 @@ export async function adminInquiryCounts(): Promise<{
     new: newCount ?? 0,
     replied: replied ?? 0,
   };
+}
+
+export async function getRedFlagCount(): Promise<{
+  active: number;
+  resolved: number;
+  total: number;
+}> {
+  const [
+    { count: active },
+    { count: resolved },
+  ] = await Promise.all([
+    supabaseAdmin.from("red_flags").select("*", { count: "exact", head: true }).eq("resolved", false),
+    supabaseAdmin.from("red_flags").select("*", { count: "exact", head: true }).eq("resolved", true),
+  ]);
+
+  return {
+    active: active ?? 0,
+    resolved: resolved ?? 0,
+    total: (active ?? 0) + (resolved ?? 0),
+  };
+}
+
+export async function getStudentCount(): Promise<number> {
+  const { count } = await supabaseAdmin
+    .from("students")
+    .select("*", { count: "exact", head: true });
+  return count ?? 0;
 }
