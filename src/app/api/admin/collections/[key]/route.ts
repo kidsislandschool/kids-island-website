@@ -2,7 +2,7 @@ import { getCollectionDef, getCollectionRows, createCollectionRow } from "@/lib/
 import { validateCollectionInput } from "@/lib/admin-validation";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { requireAdminApi } from "@/lib/auth";
-import { getDb } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ key: string }> 
   if (!def) return jsonError("Unknown collection", 404);
 
   const url = new URL(req.url);
-  const result = getCollectionRows(key, {
+  const result = await getCollectionRows(key, {
     search: url.searchParams.get("search") ?? undefined,
     status: url.searchParams.get("status") ?? undefined,
     page: Number(url.searchParams.get("page")) || 1,
@@ -49,17 +49,19 @@ export async function POST(req: Request, ctx: { params: Promise<{ key: string }>
   if (errors.length) return Response.json({ error: errors[0], fields: errors }, { status: 422 });
 
   if (key === "gallery_photos" && data.album_id) {
-    const exists = getDb()
-      .prepare("SELECT 1 AS ok FROM gallery_albums WHERE id = ?")
-      .get(data.album_id);
-    if (!exists) return jsonError("Choose an existing album for this photo.", 422);
+    const { data: album } = await supabaseAdmin
+      .from("gallery_albums")
+      .select("id")
+      .eq("id", data.album_id)
+      .maybeSingle();
+    if (!album) return jsonError("Choose an existing album for this photo.", 422);
   }
 
   if ("published_at" in data && data.status === "published" && !data.published_at) {
     data.published_at = new Date().toISOString().slice(0, 10);
   }
 
-  const row = createCollectionRow(key, data);
+  const row = await createCollectionRow(key, data);
   logAudit({
     userId: user.id,
     action: `${def.key}_created`,

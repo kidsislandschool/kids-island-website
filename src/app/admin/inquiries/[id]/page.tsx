@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getInquiry } from "@/lib/data";
+import { getAdminInquiry } from "@/lib/admin-data";
 import { AdminCard, AdminPageHeader, StatusBadge } from "@/components/admin/ui";
 import { DeleteInquiryButton, InquiryStatusSelect } from "@/components/admin/inquiry-actions";
 import { InquiryAutoRead } from "@/components/admin/inquiry-auto-read";
@@ -16,7 +16,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const inquiryId = Number(id);
   if (!Number.isInteger(inquiryId)) notFound();
-  const inquiry = getInquiry(inquiryId);
+  const inquiry = await getAdminInquiry(inquiryId);
   if (!inquiry) notFound();
 
   const subject = encodeURIComponent(
@@ -171,9 +171,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
               Opening an enquiry is recorded in the audit log. Enquiries contain personal information — handle them
               according to the school&apos;s privacy policy.
             </p>
-            <Link href="/admin/audit-log" className="mt-3 inline-flex items-center gap-1.5 text-[10.5px] font-extrabold text-blue">
-              <Icon name="clock" className="h-3 w-3" /> View audit log
-            </Link>
+
           </AdminCard>
         </aside>
       </div>

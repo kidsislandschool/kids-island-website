@@ -7,7 +7,7 @@ import {
 import { validateCollectionInput } from "@/lib/admin-validation";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { requireAdminApi } from "@/lib/auth";
-import { getDb } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,7 @@ export async function PATCH(
   const rowId = Number(id);
   if (!Number.isInteger(rowId)) return jsonError("Invalid record id", 400);
 
-  const existing = getCollectionRow(key, rowId);
+  const existing = await getCollectionRow(key, rowId);
   if (!existing) return jsonError("Record not found", 404);
 
   let body: unknown;
@@ -39,10 +39,12 @@ export async function PATCH(
   if (errors.length) return Response.json({ error: errors[0], fields: errors }, { status: 422 });
 
   if (key === "gallery_photos" && data.album_id) {
-    const exists = getDb()
-      .prepare("SELECT 1 AS ok FROM gallery_albums WHERE id = ?")
-      .get(data.album_id);
-    if (!exists) return jsonError("Choose an existing album for this photo.", 422);
+    const { data: album } = await supabaseAdmin
+      .from("gallery_albums")
+      .select("id")
+      .eq("id", data.album_id)
+      .maybeSingle();
+    if (!album) return jsonError("Choose an existing album for this photo.", 422);
   }
 
   if (
@@ -54,7 +56,7 @@ export async function PATCH(
     data.published_at = new Date().toISOString().slice(0, 10);
   }
 
-  const row = updateCollectionRow(key, rowId, data);
+  const row = await updateCollectionRow(key, rowId, data);
   logAudit({
     userId: user.id,
     action:
@@ -84,11 +86,10 @@ export async function DELETE(
   const rowId = Number(id);
   if (!Number.isInteger(rowId)) return jsonError("Invalid record id", 400);
 
-  const existing = getCollectionRow(key, rowId);
+  const existing = await getCollectionRow(key, rowId);
   if (!existing) return jsonError("Record not found", 404);
 
-  const removed = deleteCollectionRow(key, rowId);
-  if (!removed) return jsonError("Record not found", 404);
+  await deleteCollectionRow(key, rowId);
 
   logAudit({
     userId: user.id,

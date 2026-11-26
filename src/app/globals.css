@@ -66,11 +66,23 @@ body {
   color: var(--color-navy-900);
 }
 
-h1, h2, h3, h4, h5 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--color-navy-900);
+@layer base {
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-navy-900);
+  }
+}
+
+/* Headings on dark navy/blue panels must always read white, even when a
+   component forgets a text-* utility. */
+.bg-navy h1, .bg-navy h2, .bg-navy h3, .bg-navy h4, .bg-navy h5,
+.bg-navy-700 h1, .bg-navy-700 h2, .bg-navy-700 h3, .bg-navy-700 h4, .bg-navy-700 h5,
+.bg-navy-900 h1, .bg-navy-900 h2, .bg-navy-900 h3, .bg-navy-900 h4, .bg-navy-900 h5,
+.bg-blue h1, .bg-blue h2, .bg-blue h3, .bg-blue h4, .bg-blue h5,
+.bg-green-900 h1, .bg-green-900 h2, .bg-green-900 h3, .bg-green-900 h4, .bg-green-900 h5 {
+  color: #fff;
 }
 
 /* Footer headings override — force white text */

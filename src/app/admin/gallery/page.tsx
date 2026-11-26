@@ -24,9 +24,13 @@ export default async function AdminGalleryPage({
   const tab = rawTab === "photos" ? "photos" : "albums";
   const collectionKey = tab === "photos" ? "gallery_photos" : "gallery_albums";
   const def = getCollectionDef(collectionKey);
-  const initial = getCollectionRows(collectionKey, { perPage: 50 });
-  const counts = getCollectionStatusCounts(collectionKey);
-  const albums = albumChoices();
+  const [initial, counts, albums, albumCounts, photoCounts] = await Promise.all([
+    getCollectionRows(collectionKey, { perPage: 50 }),
+    getCollectionStatusCounts(collectionKey),
+    albumChoices(),
+    getCollectionStatusCounts("gallery_albums"),
+    getCollectionStatusCounts("gallery_photos"),
+  ]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -49,8 +53,8 @@ export default async function AdminGalleryPage({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div role="tablist" aria-label="Gallery sections" className="inline-flex rounded-xl border border-line bg-white p-1">
           {[
-            { id: "albums", label: "Albums", count: getCollectionStatusCounts("gallery_albums").total },
-            { id: "photos", label: "Photos", count: getCollectionStatusCounts("gallery_photos").total },
+            { id: "albums", label: "Albums", count: albumCounts.total },
+            { id: "photos", label: "Photos", count: photoCounts.total },
           ].map((entry) => (
             <Link
               key={entry.id}

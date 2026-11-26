@@ -1,4 +1,4 @@
-import { getDb } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { requireAdminApi } from "@/lib/auth";
 
@@ -18,24 +18,28 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   const inquiryId = Number(id);
   if (!Number.isInteger(inquiryId)) return jsonError("Invalid inquiry id", 400);
 
-  const db = getDb();
-  const existing = db.prepare("SELECT id, name, status FROM inquiries WHERE id = ?").get(inquiryId) as
-    | { id: number; name: string; status: string }
-    | undefined;
+  const { data: existing } = await supabaseAdmin
+    .from("inquiries")
+    .select("id, name, status")
+    .eq("id", inquiryId)
+    .maybeSingle();
   if (!existing) return jsonError("Inquiry not found", 404);
 
   if (existing.status === "new") {
-    db.prepare("UPDATE inquiries SET status = 'read', updated_at = datetime('now') WHERE id = ?").run(inquiryId);
+    await supabaseAdmin
+      .from("inquiries")
+      .update({ status: "read", updated_at: new Date().toISOString() })
+      .eq("id", inquiryId);
   }
 
-  logAudit({
+  await logAudit({
     userId: user.id,
     action: "inquiry_viewed",
     entity: "inquiry",
     entityId: inquiryId,
     detail: { name: existing.name, previousStatus: existing.status },
     ip: clientIp(req),
-  });
+  }).catch(() => {});
 
   return Response.json({ ok: true, status: existing.status === "new" ? "read" : existing.status });
 }

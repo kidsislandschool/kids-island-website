@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import sharp from "sharp";
-import { getDb } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { requireAdminApi } from "@/lib/auth";
 import { getUploadRoot, getUploadUrlPrefix } from "@/lib/uploads";
@@ -85,28 +85,40 @@ export async function POST(req: Request) {
   fs.writeFileSync(diskPath, output);
 
   const url = `${urlPrefix}/${subdir.replace(/\\/g, "/")}/${storedName}`;
-  const db = getDb();
-  const info = db
-    .prepare(
-      `INSERT INTO uploads (original_name, stored_name, url, mime, size, kind, alt, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-    )
-    .run(file.name.slice(0, 240), storedName, url, storedMime, output.length, kind, alt, user.id);
+  const { data: info, error: insertError } = await supabaseAdmin
+    .from("uploads")
+    .insert({
+      original_name: file.name.slice(0, 240),
+      stored_name: storedName,
+      url,
+      mime: storedMime,
+      size: output.length,
+      kind,
+      alt,
+      created_by: user.id,
+    })
+    .select("id")
+    .single();
 
-  logAudit({
+  if (insertError || !info) {
+    console.error("upload insert error:", insertError);
+    return jsonError("The file was saved but could not be recorded. Please try again.", 500);
+  }
+
+  await logAudit({
     userId: user.id,
     action: "upload_created",
     entity: "upload",
-    entityId: Number(info.lastInsertRowid),
+    entityId: info.id,
     detail: { name: file.name, kind, size: output.length },
     ip: clientIp(req),
-  });
+  }).catch(() => {});
 
   return Response.json(
     {
       ok: true,
       upload: {
-        id: Number(info.lastInsertRowid),
+        id: info.id,
         url,
         kind,
         mime: storedMime,

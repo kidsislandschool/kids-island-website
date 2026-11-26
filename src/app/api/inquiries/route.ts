@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getDb } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { rateLimit } from "@/lib/auth";
 import { sendInquiryNotification, sendContactFormNotification } from "@/lib/email";
@@ -80,31 +80,34 @@ export async function POST(req: Request) {
     return Response.json({ ok: true, reference: "KI-00000" }, { status: 201 });
   }
 
-  const db = getDb();
-  const info = db
-    .prepare(
-      `INSERT INTO inquiries (type, name, parent_name, email, phone, class_apply, message, ip)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-    )
-    .run(
-      data.type,
-      data.name,
-      data.parentName || null,
-      data.email || null,
-      data.phone || null,
-      data.classApply || null,
-      data.message || null,
-      ip
-    );
+  const { data: inserted, error: insertError } = await supabaseAdmin
+    .from("inquiries")
+    .insert({
+      type: data.type,
+      name: data.name,
+      parent_name: data.parentName || null,
+      email: data.email || null,
+      phone: data.phone || null,
+      class_apply: data.classApply || null,
+      message: data.message || null,
+      ip,
+    })
+    .select("id")
+    .single();
 
-  const id = Number(info.lastInsertRowid);
-  logAudit({
+  if (insertError || !inserted) {
+    console.error("inquiry insert error:", insertError);
+    return jsonError("Could not save your enquiry. Please call the school office.", 500);
+  }
+
+  const id = inserted.id;
+  await logAudit({
     action: "inquiry_received",
     entity: data.type,
     entityId: id,
     detail: { name: data.name },
     ip,
-  });
+  }).catch(() => {});
 
   // Send email notification (don't await - fire and forget)
   if (data.type === "admission") {

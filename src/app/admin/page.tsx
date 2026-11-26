@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
-import { adminCounts } from "@/lib/admin-data";
-import { getInquiries } from "@/lib/data";
+import { adminCounts, adminInquiryCounts, getAdminInquiries } from "@/lib/admin-data";
 
 import { AdminCard, AdminPageHeader, AdminStat, EmptyState, StatusBadge } from "@/components/admin/ui";
 import { Icon, type IconName } from "@/components/ui/icon";
-import { cn, formatDateTime, truncate } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -25,11 +24,12 @@ export default async function AdminDashboardPage() {
   const session = await getSession();
   const user = session?.user;
   const firstName = user?.name.split(" ")[0] ?? "there";
-  const [counts, recentInquiriesResult] = await Promise.all([
+  const [counts, inquiryStats, recentInquiriesResult] = await Promise.all([
     adminCounts(),
-    getInquiries({ perPage: 5 }),
+    adminInquiryCounts(),
+    getAdminInquiries({ perPage: 5 }),
   ]);
-  const recentInquiries = Array.isArray(recentInquiriesResult?.rows) ? recentInquiriesResult.rows : [];
+  const recentInquiries = recentInquiriesResult.rows;
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const today = new Intl.DateTimeFormat("en-IN", {
@@ -71,11 +71,12 @@ export default async function AdminDashboardPage() {
 
       {/* stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <AdminStat label="New enquiries" value={counts.inquiriesNew} icon="mail" href="/admin/inquiries?status=new" tone="blue" hint={`${counts.inquiriesTotal} in total`} />
+        <AdminStat label="New enquiries" value={inquiryStats.new} icon="mail" href="/admin/inquiries?status=new" tone="blue" hint={`${inquiryStats.total} in total`} />
         <AdminStat label="Published notices" value={counts.noticesPublished} icon="megaphone" href="/admin/notices" tone="pink" />
         <AdminStat label="Faculty profiles" value={counts.facultyPublished} icon="user-group" href="/admin/faculty" tone="mint" />
         <AdminStat label="Study materials" value={counts.materialsPublished} icon="book" href="/admin/materials" tone="blue" />
         <AdminStat label="Gallery photos" value={counts.photos} icon="image" href="/admin/gallery" tone="navy" hint={`${counts.albums} album${counts.albums === 1 ? "" : "s"}`} />
+        <AdminStat label="Awaiting review" value={counts.testimonialsReview + counts.faqsReview} icon="alert-triangle" href="/admin/testimonials" tone="yellow" hint="Testimonials & FAQs" />
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
@@ -169,31 +170,6 @@ export default async function AdminDashboardPage() {
         </div>
       </section>
 
-      {/* recent activity */}
-      <AdminCard>
-        <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
-          <div>
-            <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Recent admin activity</h2>
-            <p className="mt-0.5 text-[11.5px] font-semibold text-muted">Every save, publish, upload and sign-in is recorded.</p>
-          </div>
-        </div>
-        <EmptyState icon="clock" title="No activity yet" text="Admin actions will be listed here." />
-      </AdminCard>
     </div>
   );
-}
-
-function prettyAction(action: string) {
-  return action.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function actionIcon(action: string): IconName {
-  if (action.startsWith("login")) return "lock";
-  if (action.startsWith("logout")) return "logout";
-  if (action.includes("delete")) return "trash";
-  if (action.includes("upload")) return "image";
-  if (action.includes("publish")) return "check-circle";
-  if (action.includes("inquiry")) return "mail";
-  if (action.includes("content") || action.includes("settings")) return "edit";
-  return "clock";
 }

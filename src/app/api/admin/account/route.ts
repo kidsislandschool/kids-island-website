@@ -1,4 +1,4 @@
-import { getDb } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { getSession, revokeOtherSessions, setPassword, verifyPassword } from "@/lib/auth";
 import { z } from "zod";
@@ -32,30 +32,30 @@ export async function PATCH(req: Request) {
   const { name, email, currentPassword, newPassword } = parsed.data;
   if (!name && !email && !newPassword) return jsonError("Nothing to update", 422);
 
-  const db = getDb();
-  const user = db.prepare("SELECT * FROM users WHERE id = ?").get(session.user.id) as
-    | { id: number; email: string; password_hash: string }
-    | undefined;
+  const { data: user } = await supabaseAdmin
+    .from("users")
+    .select("id, email, password_hash")
+    .eq("id", session.user.id)
+    .maybeSingle();
   if (!user) return jsonError("Account not found", 404);
 
-  const updates: string[] = [];
-  const params: unknown[] = [];
+  const updates: Record<string, unknown> = {};
   const auditDetail: Record<string, unknown> = {};
 
   if (name && name !== session.user.name) {
-    updates.push("name = ?");
-    params.push(name);
+    updates.name = name;
     auditDetail.name = name;
   }
 
   if (email && email.toLowerCase() !== user.email) {
-    const exists = db.prepare("SELECT 1 AS ok FROM users WHERE email = ? AND id != ?").get(
-      email.toLowerCase(),
-      user.id
-    );
+    const { data: exists } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("email", email.toLowerCase())
+      .neq("id", user.id)
+      .maybeSingle();
     if (exists) return jsonError("That email is already in use.", 422);
-    updates.push("email = ?");
-    params.push(email.toLowerCase());
+    updates.email = email.toLowerCase();
     auditDetail.email = email.toLowerCase();
   }
 
@@ -66,27 +66,28 @@ export async function PATCH(req: Request) {
     if (!currentPassword || !verifyPassword(currentPassword, user.password_hash)) {
       return jsonError("Your current password is incorrect.", 422);
     }
-    setPassword(user.id, newPassword);
-    const revoked = revokeOtherSessions(user.id, session.token);
+    await setPassword(user.id, newPassword);
     auditDetail.passwordChanged = true;
-    auditDetail.sessionsRevoked = revoked;
+    auditDetail.sessionsRevoked = await revokeOtherSessions(user.id, session.token);
   }
 
-  if (updates.length) {
-    db.prepare(
-      `UPDATE users SET ${updates.join(", ")}, updated_at = datetime('now') WHERE id = ?`
-    ).run(...params, user.id);
+  if (Object.keys(updates).length) {
+    const { error } = await supabaseAdmin
+      .from("users")
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq("id", user.id);
+    if (error) return jsonError(error.message, 500);
   }
 
   if (Object.keys(auditDetail).length) {
-    logAudit({
+    await logAudit({
       userId: user.id,
       action: auditDetail.passwordChanged ? "password_changed" : "account_updated",
       entity: "user",
       entityId: user.id,
       detail: auditDetail,
       ip: clientIp(req),
-    });
+    }).catch(() => {});
   }
 
   return Response.json({ ok: true });

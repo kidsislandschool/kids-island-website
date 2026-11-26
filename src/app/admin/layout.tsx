@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await requireAdmin();
-  const counts = adminCounts();
+  const counts = await adminCounts();
 
   const groups: AdminNavGroup[] = [
     {
@@ -41,20 +41,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       ],
     },
     {
-      label: "Website",
-      items: [
-        { label: "Pages", href: "/admin/pages", icon: "file" },
-        { label: "Page content", href: "/admin/content", icon: "edit" },
-        { label: "SEO", href: "/admin/seo", icon: "search" },
-        { label: "Settings", href: "/admin/settings", icon: "settings" },
-      ],
-    },
-    {
       label: "System",
-      items: [
-        { label: "Account", href: "/admin/account", icon: "user" },
-        { label: "Audit log", href: "/admin/audit-log", icon: "clock" },
-      ],
+      items: [{ label: "Account", href: "/admin/account", icon: "user" }],
     },
   ];
 

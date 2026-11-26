@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { getDb } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase";
 import { AdminCard, AdminPageHeader } from "@/components/admin/ui";
 import { ProfileForm, PasswordForm } from "@/components/admin/account-forms";
 import { Icon } from "@/components/ui/icon";
@@ -13,36 +12,28 @@ export const metadata: Metadata = { title: "Account" };
 
 export default async function AdminAccountPage() {
   const user = await requireAdmin();
-  const db = getDb();
-  const profile = db
-    .prepare("SELECT id, email, name, role, created_at, last_login_at FROM users WHERE id = ?")
-    .get(user.id) as
-    | { id: number; email: string; name: string; role: string; created_at: string; last_login_at: string | null }
-    | undefined;
-  const activeSessions = (
-    db
-      .prepare(
-        `SELECT COUNT(*) AS c FROM sessions
-         WHERE user_id = ? AND revoked_at IS NULL AND expires_at > datetime('now')`
-      )
-      .get(user.id) as { c: number }
-  ).c;
+  const [{ data: profile }, { count: sessionCount }] = await Promise.all([
+    supabaseAdmin
+      .from("users")
+      .select("id, email, name, role, created_at, last_login_at")
+      .eq("id", user.id)
+      .single(),
+    supabaseAdmin
+      .from("sessions")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .is("revoked_at", null)
+      .gt("expires_at", new Date().toISOString()),
+  ]);
+  const activeSessions = sessionCount ?? 0;
 
   return (
     <div className="flex flex-col gap-5">
       <AdminPageHeader
         eyebrow="System"
         title="Your account"
-        description="Manage the single Master Admin profile and password for this phase. All account changes are audit-logged."
-      >
-        <Link
-          href="/admin/audit-log"
-          className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-line bg-white px-3.5 text-[11.5px] font-extrabold text-navy transition hover:bg-cream"
-        >
-          <Icon name="clock" className="h-3.5 w-3.5" />
-          Audit log
-        </Link>
-      </AdminPageHeader>
+        description="Manage the single Master Admin profile and password for this phase. All account changes are recorded."
+      />
 
       <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-4">

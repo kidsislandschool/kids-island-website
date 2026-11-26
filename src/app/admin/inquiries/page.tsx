@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getInquiries, inquiryCounts } from "@/lib/data";
+import { adminInquiryCounts, getAdminInquiries } from "@/lib/admin-data";
 import { AdminCard, AdminPageHeader, adminInput, adminSelect, EmptyState } from "@/components/admin/ui";
 import { Pagination } from "@/components/ui/pagination";
 import { DeleteInquiryButton, InquiryStatusSelect } from "@/components/admin/inquiry-actions";
@@ -26,9 +26,10 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
   const q = params.q?.trim() ?? "";
   const page = Math.max(Number(params.page) || 1, 1);
 
-  const result = getInquiries({ type, status, search: q || undefined, page, perPage: 20 });
-  const counts = inquiryCounts();
-  const contactCount = counts.total - counts.admission;
+  const [result, counts] = await Promise.all([
+    getAdminInquiries({ type, status, search: q || undefined, page, perPage: 20 }),
+    adminInquiryCounts(),
+  ]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -57,7 +58,7 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
         {[
           { label: "All enquiries", value: counts.total, href: "/admin/inquiries", active: !type },
           { label: "Admission", value: counts.admission, href: "/admin/inquiries?type=admission", active: type === "admission" },
-          { label: "Contact", value: contactCount, href: "/admin/inquiries?type=contact", active: type === "contact" },
+          { label: "Contact", value: counts.contact, href: "/admin/inquiries?type=contact", active: type === "contact" },
           { label: "Unread / new", value: counts.new, href: "/admin/inquiries?status=new", active: status === "new" && !type },
         ].map((tile) => (
           <Link

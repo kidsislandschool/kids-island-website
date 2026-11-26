@@ -156,8 +156,8 @@ export async function adminCounts() {
     supabaseAdmin.from('notices').select('*', { count: 'exact', head: true }).eq('status', 'published'),
     supabaseAdmin.from('faculty').select('*', { count: 'exact', head: true }).eq('status', 'published'),
     supabaseAdmin.from('materials').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-    supabaseAdmin.from('albums').select('*', { count: 'exact', head: true }),
-    supabaseAdmin.from('album_images').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('gallery_albums').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('gallery_photos').select('*', { count: 'exact', head: true }),
   ]);
   
   return {
@@ -194,11 +194,104 @@ export async function getCollectionStatusCounts(key: string): Promise<{ publishe
 /** Get album choices for dropdowns (id, title). */
 export async function albumChoices(): Promise<{ id: number; title: string }[]> {
   const { data, error } = await supabaseAdmin
-    .from('albums')
+    .from('gallery_albums')
     .select('id, title')
-    .eq('status', 'published')
     .order('title', { ascending: true });
   
   if (error) return [];
   return (data || []) as { id: number; title: string }[];
+}
+
+/* --------------------------------------------------------------- inquiries */
+
+export type AdminInquiry = {
+  id: number;
+  type: "admission" | "contact";
+  name: string;
+  parent_name: string | null;
+  email: string | null;
+  phone: string | null;
+  class_apply: string | null;
+  message: string | null;
+  status: "new" | "read" | "replied" | "closed";
+  ip: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function getAdminInquiries(
+  opts: { page?: number; perPage?: number; status?: string; type?: string; search?: string } = {}
+): Promise<{ rows: AdminInquiry[]; total: number; page: number; pages: number }> {
+  const page = Math.max(opts.page ?? 1, 1);
+  const perPage = Math.min(opts.perPage ?? 20, 100);
+
+  let query = supabaseAdmin.from("inquiries").select("*", { count: "exact" });
+
+  if (opts.type === "admission" || opts.type === "contact") {
+    query = query.eq("type", opts.type);
+  }
+  if (opts.status && ["new", "read", "replied", "closed"].includes(opts.status)) {
+    query = query.eq("status", opts.status);
+  }
+  const search = opts.search?.replace(/[%,()]/g, " ").trim();
+  if (search) {
+    query = query.or(
+      `name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%,message.ilike.%${search}%`
+    );
+  }
+
+  query = query
+    .order("created_at", { ascending: false })
+    .range((page - 1) * perPage, page * perPage - 1);
+
+  const { data, error, count } = await query;
+  if (error) {
+    console.error("getAdminInquiries error:", error);
+    return { rows: [], total: 0, page, pages: 1 };
+  }
+
+  const total = count ?? 0;
+  return {
+    rows: (data || []) as AdminInquiry[],
+    total,
+    page,
+    pages: Math.max(1, Math.ceil(total / perPage)),
+  };
+}
+
+export async function getAdminInquiry(id: number): Promise<AdminInquiry | undefined> {
+  const { data, error } = await supabaseAdmin.from("inquiries").select("*").eq("id", id).single();
+  if (error || !data) return undefined;
+  return data as AdminInquiry;
+}
+
+export async function adminInquiryCounts(): Promise<{
+  total: number;
+  admission: number;
+  contact: number;
+  new: number;
+  replied: number;
+}> {
+  const base = () => supabaseAdmin.from("inquiries").select("*", { count: "exact", head: true });
+  const [
+    { count: total },
+    { count: admission },
+    { count: contact },
+    { count: newCount },
+    { count: replied },
+  ] = await Promise.all([
+    base(),
+    base().eq("type", "admission"),
+    base().eq("type", "contact"),
+    base().eq("status", "new"),
+    base().eq("status", "replied"),
+  ]);
+
+  return {
+    total: total ?? 0,
+    admission: admission ?? 0,
+    contact: contact ?? 0,
+    new: newCount ?? 0,
+    replied: replied ?? 0,
+  };
 }

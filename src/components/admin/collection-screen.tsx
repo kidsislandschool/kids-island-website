@@ -8,7 +8,7 @@ import { CollectionManager } from "./collection-manager";
  * materials, testimonials, FAQs). Keeps status summaries and headers
  * consistent across the admin.
  */
-export function CollectionScreen({
+export async function CollectionScreen({
   collectionKey,
   eyebrow,
   description,
@@ -28,8 +28,8 @@ export function CollectionScreen({
   const def = getCollectionDef(collectionKey);
   if (!def) notFound();
 
-  const initial = getCollectionRows(collectionKey, { perPage: 50 });
-  const counts = getCollectionStatusCounts(collectionKey);
+  const initial = await getCollectionRows(collectionKey, { perPage: 50 });
+  const counts = await getCollectionStatusCounts(collectionKey);
 
   return (
     <div className="flex flex-col gap-5">

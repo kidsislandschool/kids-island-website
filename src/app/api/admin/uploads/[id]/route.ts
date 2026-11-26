@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { getDb } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { requireAdminApi } from "@/lib/auth";
 import { getUploadRoot, getUploadUrlPrefix } from "@/lib/uploads";
@@ -17,10 +17,11 @@ export async function DELETE(req: Request, ctx: { params: Promise<{ id: string }
   const uploadId = Number(id);
   if (!Number.isInteger(uploadId)) return jsonError("Invalid upload id", 400);
 
-  const db = getDb();
-  const row = db.prepare("SELECT * FROM uploads WHERE id = ?").get(uploadId) as
-    | { id: number; url: string; stored_name: string; original_name: string }
-    | undefined;
+  const { data: row } = await supabaseAdmin
+    .from("uploads")
+    .select("id, url, stored_name, original_name")
+    .eq("id", uploadId)
+    .maybeSingle();
   if (!row) return jsonError("Upload not found", 404);
 
   // Only ever delete inside the configured upload folder — never trust the
@@ -37,15 +38,15 @@ export async function DELETE(req: Request, ctx: { params: Promise<{ id: string }
     console.error("Upload storage path error:", error);
   }
 
-  db.prepare("DELETE FROM uploads WHERE id = ?").run(uploadId);
-  logAudit({
+  await supabaseAdmin.from("uploads").delete().eq("id", uploadId);
+  await logAudit({
     userId: user.id,
     action: "upload_deleted",
     entity: "upload",
     entityId: uploadId,
     detail: { name: row.original_name },
     ip: clientIp(req),
-  });
+  }).catch(() => {});
 
   return Response.json({ ok: true });
 }
