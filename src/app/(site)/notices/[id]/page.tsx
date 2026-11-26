@@ -72,6 +72,16 @@ export default async function NoticeDetailPage({ params }: { params: Promise<{ i
                 </div>
               )}
 
+              {notice.image && (
+                <div className="mb-6 relative aspect-video overflow-hidden rounded-xl">
+                  <img
+                    src={notice.image}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
+
               {bodyParagraphs.length > 0 ? (
                 <div className="space-y-4 text-[15px] leading-relaxed text-navy/75">
                   {bodyParagraphs.map((paragraph, i) => (

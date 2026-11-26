@@ -91,6 +91,7 @@ export const COLLECTIONS: Record<string, CollectionDef> = {
       ] },
       { name: "summary", label: "Summary", type: "textarea", searchable: true, placeholder: "One or two line preview shown on cards." },
       { name: "body", label: "Full details", type: "richtext" },
+      { name: "image", label: "Image", type: "image", optional: true, help: "Upload an image for this notice (optional). Will be displayed on the notice card and detail page." },
       { name: "event_date", label: "Event / effective date", type: "date", optional: true, column: true },
       { name: "pinned", label: "Pin to top", type: "checkbox" },
       ...STATUS_FIELDS,

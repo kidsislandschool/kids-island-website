@@ -18,6 +18,7 @@ interface Notice {
   pinned: number;
   published_at: string | null;
   created_at: string;
+  image: string | null;
 }
 
 interface NoticeListProps {
@@ -231,6 +232,15 @@ export function NoticeList({
                         ) : null}
                       </div>
                     </div>
+                    {notice.image && (
+                      <div className="mt-4 relative aspect-video overflow-hidden rounded-xl">
+                        <img
+                          src={notice.image}
+                          alt=""
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                    )}
                     <h2 className="mt-4 text-[17px] leading-snug text-navy-900 transition-colors group-hover:text-blue">
                       {notice.title}
                     </h2>

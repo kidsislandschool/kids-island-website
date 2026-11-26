@@ -42,6 +42,7 @@ export type PublicNotice = {
   created_at: string;
   status: string;
   created_by: number | null;
+  image: string | null;
 };
 
 export async function getLatestNotices(limit = 3): Promise<PublicNotice[]> {
