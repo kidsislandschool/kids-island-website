@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { getAffiliation, getContent } from "@/lib/content";
 import { buildPageMetadata } from "@/lib/seo";
-import { getLatestNotices, getPublishedTestimonials } from "@/lib/data";
+import { getPublishedAlbums, getPublishedTestimonials, getLatestNotices } from "@/lib/data";
 import { Hero, type HeroContent } from "@/components/motion/hero";
 import { PinnedSequence } from "@/components/motion/pinned-sequence";
 import { TrustRow, type Highlight } from "@/components/sections/trust-row";
 import { ProgramsSection, type Program } from "@/components/sections/programs";
-import { FacilitiesSection, type Facility } from "@/components/sections/facilities";
+import { GalleryAlbumsPreview } from "@/components/sections/gallery-albums-preview";
 import { AdmissionsCta, type CtaContent } from "@/components/sections/admissions-cta";
 import { PrincipalMessage, type PrincipalContent } from "@/components/sections/principal";
 import { StatsBand, type Stat } from "@/components/sections/stats";
@@ -64,7 +64,6 @@ export default async function HomePage() {
     affiliation,
     highlights,
     programs,
-    facilities,
     cta,
     principal,
     why,
@@ -76,7 +75,6 @@ export default async function HomePage() {
     getAffiliation(),
     getContent<Highlight[]>("home.highlights", []),
     getContent<Program[]>("home.programs", []),
-    getContent<Facility[]>("home.facilities", []),
     getContent<CtaContent>("home.cta", FALLBACK_CTA),
     getContent<PrincipalContent>("home.principal", FALLBACK_PRINCIPAL),
     getContent<SequenceItem[]>("home.why", []),
@@ -97,9 +95,9 @@ export default async function HomePage() {
       <Hero content={hero} affiliation={affiliation || undefined} />
       <TrustRow items={highlights} />
       <ProgramsSection programs={programs} />
-      <FacilitiesSection facilities={facilities} />
-      <AdmissionsCta content={cta} />
       <PrincipalMessage content={principal} />
+      <GalleryAlbumsPreview />
+      <AdmissionsCta content={cta} />
       {why.length > 0 && (
         <PinnedSequence
           id="why"
