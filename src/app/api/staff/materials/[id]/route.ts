@@ -1,7 +1,7 @@
 import { getDirectDb } from "@/lib/db";
 import { requireStaffApi } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
-import { clientIp, jsonError } from "@/lib/audit";
+import { clientIp } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +40,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   const db = getDirectDb();
 
   // Verify ownership
-  const existing = await db.selectOne('materials', '*', { id: materialId, created_by: session.user.id });
+  const existing = await db.selectOne('materials', '*', { id: materialId, created_by: user.id });
   if (!existing) return Response.json({ error: "Material not found or access denied" }, { status: 404 });
 
   await db.update('materials', {
@@ -53,15 +53,48 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     status,
     published_at,
     updated_at: new Date().toISOString(),
-  }, { id: materialId, created_by: session.user.id });
+  }, { id: materialId, created_by: user.id });
 
   await logAudit({
-    userId: session.user.id,
+    userId: user.id,
     action: "material_updated",
     entity: "materials",
     entityId: materialId,
     detail: { title },
     ip: clientIp(req),
+  }).catch(() => {});
+
+  return Response.json({ ok: true });
+}
+
+export async function DELETE(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const user = await requireStaffApi();
+  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await ctx.params;
+  const materialId = Number(id);
+  if (!Number.isInteger(materialId)) return Response.json({ error: "Invalid ID" }, { status: 400 });
+
+  const db = getDirectDb();
+
+  // Verify ownership
+  const existing = await db.selectOne('materials', '*', { id: materialId, created_by: user.id });
+  if (!existing) return Response.json({ error: "Material not found or access denied" }, { status: 404 });
+
+  const { error } = await db.delete('materials', { id: materialId });
+
+  if (error) {
+    console.error("Error deleting material:", error);
+    return Response.json({ error: "Could not delete material" }, { status: 500 });
+  }
+
+  await logAudit({
+    userId: user.id,
+    action: "material_deleted",
+    entity: "materials",
+    entityId: materialId,
+    detail: { title: existing.title },
+    ip: "server",
   }).catch(() => {});
 
   return Response.json({ ok: true });
