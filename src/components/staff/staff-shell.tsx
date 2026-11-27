@@ -8,7 +8,6 @@ import { Logo } from "@/components/layout/logo";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { DURATION, EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { destroyStaffSession, getStaffSession } from "@/lib/auth";
 
 type StaffNavItem = {
   label: string;
