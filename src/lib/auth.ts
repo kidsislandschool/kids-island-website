@@ -296,7 +296,6 @@ export async function createStaffSession(
     httpOnly: true,
     sameSite: "lax",
     secure: true,
-    domain: ".kidsaligarh.com",
     path: "/",
     maxAge: STAFF_SESSION_DAYS * 86400,
   });
