@@ -34,6 +34,29 @@ export function AdminShell({
   const reduce = useReducedMotion();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [activeAdmins, setActiveAdmins] = useState<number>(0);
+  const [activeAdminNames, setActiveAdminNames] = useState<string[]>([]);
+
+  // Fetch active admin count
+  useEffect(() => {
+    const fetchActiveAdmins = async () => {
+      try {
+        const res = await fetch("/api/admin/active-admins", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.ok) {
+            setActiveAdmins(data.activeCount);
+            setActiveAdminNames(data.admins?.map((a: { name: string }) => a.name) ?? []);
+          }
+        }
+      } catch {
+        // Silently fail
+      }
+    };
+    fetchActiveAdmins();
+    const interval = setInterval(fetchActiveAdmins, 30000); // Refresh every 30s
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -188,7 +211,18 @@ export function AdminShell({
             </p>
           </div>
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-3">
+            {/* Active Admins Indicator */}
+            {activeAdmins > 0 && (
+              <div className="hidden items-center gap-1.5 rounded-full border border-green-accent/30 bg-green-accent/10 px-3 py-1.5 sm:flex" title={`Active admins: ${activeAdminNames.join(", ")}`}>
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-green-accent text-white text-[9px] font-extrabold">
+                  {activeAdmins}
+                </span>
+                <span className="text-[10.5px] font-extrabold text-green-accent">
+                  {activeAdmins} active
+                </span>
+              </div>
+            )}
             <div className="hidden items-center gap-2.5 rounded-full border border-line bg-white py-1.5 pl-1.5 pr-3 sm:flex">
               <span className="grid h-7 w-7 place-items-center rounded-full bg-navy text-[10.5px] font-extrabold text-white">
                 {user.name

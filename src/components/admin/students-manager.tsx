@@ -90,8 +90,8 @@ function buildSidebarItems(
   sectionCounts: Map<string, Map<string, number>>,
   totalStudents: number
 ) {
-  const items: Array<{ key: string; label: string; count: number; isSection?: boolean; parentClass?: string }> = [
-    { key: "all", label: "All Students", count: totalStudents },
+  const items: Array<{ key: string; label: string; isSection?: boolean; parentClass?: string }> = [
+    { key: "all", label: "All Students" },
   ];
 
   // Always show these early years classes for sorting, even if 0 students
@@ -105,7 +105,6 @@ function buildSidebarItems(
     items.push({
       key: cls,
       label: classLabel(cls),
-      count: classCount,
       isSection: false,
     });
 
@@ -117,7 +116,6 @@ function buildSidebarItems(
           items.push({
             key: `${cls}|${section}`,
             label: `  Section ${section}`,
-            count,
             isSection: true,
             parentClass: cls,
           });
@@ -508,14 +506,6 @@ export function StudentsManager({
                       {item.label}
                     </span>
                   </div>
-                  {item.count > 0 && (
-                    <span className={cn(
-                      "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-extrabold",
-                      selectedClass === item.key ? "bg-white/20 text-white" : "bg-paper-2 text-muted"
-                    )}>
-                      {item.count}
-                    </span>
-                  )}
                 </button>
               );
             })}
