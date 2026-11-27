@@ -412,7 +412,13 @@ export async function checkStaffLoginLockout(identifier: string): Promise<{ lock
     .eq('entity', identifier)
     .gt('created_at', new Date(Date.now() - STAFF_LOCKOUT_MINUTES * 60_000).toISOString());
   
-  if (error) throw error;
+  // If table doesn't exist, skip lockout check
+  if (error) {
+    if (error.code === 'PGRST205' || error.message.includes('Could not find the table')) {
+      return { locked: false, retryAfterSec: 0 };
+    }
+    throw error;
+  }
   
   const total = count ?? 0;
   if (total >= STAFF_MAX_FAILED_ATTEMPTS) {
