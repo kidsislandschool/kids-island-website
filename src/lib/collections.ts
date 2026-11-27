@@ -155,6 +155,7 @@ export const COLLECTIONS: Record<string, CollectionDef> = {
       { name: "file_url", label: "File / document URL", type: "file", optional: true, help: "PDF or document link students can download." },
       { name: "tags", label: "Tags", type: "tags", optional: true, searchable: true },
       { name: "published_at", label: "Publish date", type: "date", optional: true },
+      { name: "created_by", label: "Published by", type: "select", column: true, optional: true, options: [] },
       ...STATUS_FIELDS,
     ],
   },
