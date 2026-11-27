@@ -108,8 +108,13 @@ export default async function ProfilePage() {
                 id="photo_upload"
                 kind="image"
                 value={profile.photo ?? ""}
-                onChange={() => {}}
+                onChange={(url) => {
+                  const photoInput = document.getElementById('photo_hidden');
+                  if (photoInput) photoInput.value = url ?? '';
+                }}
+                uploadEndpoint="/api/staff/uploads"
               />
+              <input type="hidden" id="photo_hidden" name="photo" value={profile.photo ?? ""} />
             </AdminField>
           </StaffCard>
 
