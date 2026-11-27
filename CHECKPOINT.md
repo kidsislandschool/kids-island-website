@@ -66,7 +66,7 @@
   - Ms. Tara Jabeen
   - Founder & Manager
   - Kids Island Senior Secondary School
-- [ ] **1.7** Testimonials - Update heading to include "parents and successful students" ✅ DONE
+- [x] **1.7** Testimonials - Update heading to include "parents and successful students" ✅ DONE
 - [ ] **1.8** Footer and floating WhatsApp - Improve appearance/positioning, fix overlap issues, verify number/link
 
 ### 2. ABOUT PAGE - FACILITIES
@@ -87,7 +87,7 @@
 
 ### 6. STAFF DASHBOARD
 - [x] Staff Login - working
-- [ ] **6.1** Change "Total Material" → "My Material"
+- [x] **6.1** Change "Total Material" → "My Material" ✅ DONE
 - [ ] **6.2** My Profile - Faculty display request option
   - Staff submits request from My Profile
   - Show request status (pending/approved/rejected)
@@ -137,4 +137,4 @@
 ---
 
 **Last Updated:** $(date)
-**Current Status:** Gallery images fixed, About page updated, Homepage Managing Director message fixed
+**Current Status:** Homepage Managing Director message fixed, Testimonials heading updated, About page Library→Projector Hall, Gallery images fixed
