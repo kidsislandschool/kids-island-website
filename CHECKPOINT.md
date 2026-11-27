@@ -60,7 +60,7 @@
 - [x] **1.2** Duplicate "A Message from the School" - **REMOVED** duplicate section
 - [x] **1.3** "Ready to Join Our Community" building photo - add supplied photograph (pending asset)
 - [ ] **1.4** "Small Campus, Big Possibilities" - keep pending, preserve section
-- [ ] **1.5** Students Nurtured: 32,000+ - **DONE** update with plus sign in CMS
+- [x] **1.5** Students Nurtured: 32,000+ - **DONE** update with plus sign in CMS
 - [x] **1.6** Managing Director's Message - **FIXED**: Changed title to "A Message from Founder & Manager", updated signature to:
   - Warm regards,
   - Ms. Tara Jabeen
