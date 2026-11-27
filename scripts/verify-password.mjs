@@ -1,0 +1,18 @@
+import crypto from "node:crypto";
+const password = '@KIBA2001@';
+const stored = 'scrypt$27zWKEnZOJr7w33xSaP1qA==$0BUxkErqxCmf+pKH04G/x9dIf1SRZUzt1Mh5/MqTXMYyKJ3cgfcOtU+oBO992k7m1pP7LUyT7GW2m+iZKls51Q==';
+const parts = stored.split('$');
+console.log('Parts:', parts);
+const algo = parts[0];
+const saltB64 = parts[1];
+const hashB64 = parts[2];
+console.log('algo:', algo);
+console.log('saltB64:', saltB64);
+console.log('hashB64:', hashB64);
+const salt = Buffer.from(saltB64, 'base64');
+const expected = Buffer.from(hashB64, 'base64');
+console.log('salt length:', salt.length);
+console.log('expected length:', expected.length);
+const actual = crypto.scryptSync(password, salt, expected.length, { N: 16384, r: 8, p: 1 });
+console.log('actual length:', actual.length);
+console.log('Match:', crypto.timingSafeEqual(actual, expected));
