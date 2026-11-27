@@ -68,6 +68,8 @@ export function CrossfadeSlideshow({
 
   const active = slides[index];
   const fade = reduce ? 0.01 : DURATION.crossfade;
+  // Disable scale animation (Ken Burns effect) when using SVG fallback to prevent rendering glitches
+  const isUsingFallback = !active.image;
 
   return (
     <div
@@ -103,9 +105,9 @@ export function CrossfadeSlideshow({
         >
           <motion.div
             className="h-full w-full"
-            initial={{ scale: reduce ? 1 : 0.96 }}
+            initial={{ scale: reduce || isUsingFallback ? 1 : 0.96 }}
             animate={{ scale: 1 }}
-            transition={{ duration: reduce ? 0.01 : interval / 1000 * 0.9, ease: "easeOut" }}
+            transition={{ duration: reduce || isUsingFallback ? 0.01 : interval / 1000 * 0.9, ease: "easeOut" }}
           >
             <CmsImage
               src={active.image}

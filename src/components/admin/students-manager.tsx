@@ -84,12 +84,66 @@ function classLabel(cls: string) {
   return `Class ${cls}`;
 }
 
+/** Build sidebar items with class + section breakdown */
+function buildSidebarItems(
+  classCounts: Map<string, number>,
+  sectionCounts: Map<string, Map<string, number>>,
+  totalStudents: number
+) {
+  const items: Array<{ key: string; label: string; count: number; isSection?: boolean; parentClass?: string }> = [
+    { key: "all", label: "All Students", count: totalStudents },
+  ];
+
+  for (const cls of CLASS_ORDER) {
+    const classCount = classCounts.get(cls) ?? 0;
+    if (classCount === 0) continue;
+
+    items.push({
+      key: cls,
+      label: classLabel(cls),
+      count: classCount,
+      isSection: false,
+    });
+
+    // Add sections for this class
+    const sections = sectionCounts.get(cls);
+    if (sections) {
+      for (const [section, count] of sections) {
+        if (count > 0) {
+          items.push({
+            key: `${cls}|${section}`,
+            label: `  Section ${section}`,
+            count,
+            isSection: true,
+            parentClass: cls,
+          });
+        }
+      }
+    }
+  }
+
+  return items;
+}
+
 /** Get count of students per class from initial data */
 function getClassCounts(rows: Row[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const row of rows) {
     const cls = String(row.class ?? "");
     counts.set(cls, (counts.get(cls) ?? 0) + 1);
+  }
+  return counts;
+}
+
+/** Get count of students per class AND section */
+function getSectionCounts(rows: Row[]): Map<string, Map<string, number>> {
+  const counts = new Map<string, Map<string, number>>();
+  for (const row of rows) {
+    const cls = String(row.class ?? "");
+    const section = String(row.section ?? "").trim();
+    if (!counts.has(cls)) counts.set(cls, new Map());
+    const classMap = counts.get(cls)!;
+    classMap.set(section, (classMap.get(section) ?? 0) + 1);
   }
   return counts;
 }
@@ -111,7 +165,7 @@ export function StudentsManager({
   const [rows, setRows] = useState<Row[]>(initialRows);
   const [total, setTotal] = useState(initialTotal);
   const [search, setSearch] = useState("");
-  const [selectedClass, setSelectedClass] = useState<string>("all"); // "all" or class name
+  const [selectedClass, setSelectedClass] = useState<string>("all"); // "all" or "class" or "class|section"
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
@@ -133,6 +187,8 @@ export function StudentsManager({
   const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Calculate section counts from initial data
+  const sectionCounts = getSectionCounts(initialRows);
   // Class counts for sidebar badges
   const totalStudents = initialTotal;
 
@@ -148,7 +204,16 @@ export function StudentsManager({
       try {
         const params = new URLSearchParams({ page: String(page), perPage: String(PER_PAGE) });
         if (search.trim()) params.set("search", search.trim());
-        if (selectedClass !== "all") params.set("class", selectedClass);
+        if (selectedClass !== "all") {
+          // Handle section filtering: format is "class|section"
+          if (selectedClass.includes("|")) {
+            const [cls, section] = selectedClass.split("|");
+            params.set("class", cls);
+            params.set("section", section);
+          } else {
+            params.set("class", selectedClass);
+          }
+        }
         const res = await fetch(`/api/admin/collections/students?${params.toString()}`, { signal });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error ?? "Could not load students");
@@ -335,15 +400,8 @@ export function StudentsManager({
 
   const studentFlags = flagStudent ? flags.filter((f) => f.student_id === flagStudent.id) : [];
 
-  // Build sidebar items
-  const sidebarItems = [
-    { key: "all", label: "All Students", count: totalStudents },
-    ...CLASS_ORDER.map((cls) => ({
-      key: cls,
-      label: classLabel(cls),
-      count: classCounts.get(cls) ?? 0,
-    })).filter((item) => item.count > 0), // only show classes with students
-  ];
+  // Build sidebar items with class + section breakdown
+  const sidebarItems = buildSidebarItems(classCounts, sectionCounts, totalStudents);
 
   return (
     <div className="flex flex-col h-full min-h-[calc(100vh-200px)]">
@@ -365,7 +423,11 @@ export function StudentsManager({
         </label>
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-bold text-muted">
-            {selectedClass === "all" ? "All Students" : classLabel(selectedClass)}
+            {selectedClass === "all" ? "All Students" : 
+              selectedClass.includes("|") 
+                ? `${classLabel(selectedClass.split("|")[0])} · Section ${selectedClass.split("|")[1]}`
+                : classLabel(selectedClass)
+            }
           </span>
           {selectedClass !== "all" && (
             <button
@@ -383,33 +445,46 @@ export function StudentsManager({
         {/* Sidebar - Class Folders */}
         <aside className="w-64 flex-shrink-0 overflow-y-auto rounded-2xl border border-line bg-white shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)] p-2">
           <nav className="space-y-1" aria-label="Classes">
-            {sidebarItems.map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => { setSelectedClass(item.key); setPage(1); }}
-                className={cn(
-                  "w-full flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left transition",
-                  selectedClass === item.key
-                    ? "bg-navy text-white"
-                    : "text-navy hover:bg-paper-2"
-                )}
-                aria-current={selectedClass === item.key ? "page" : undefined}
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <Icon name={item.key === "all" ? "users" : "folder"} className="h-5 w-5 shrink-0" />
-                  <span className="text-[12px] font-semibold truncate">{item.label}</span>
-                </div>
-                {item.count > 0 && (
-                  <span className={cn(
-                    "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-extrabold",
-                    selectedClass === item.key ? "bg-white/20 text-white" : "bg-paper-2 text-muted"
-                  )}>
-                    {item.count}
-                  </span>
-                )}
-              </button>
-            ))}
+            {sidebarItems.map((item) => {
+              const isSection = item.isSection === true;
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => { setSelectedClass(item.key); setPage(1); }}
+                  className={cn(
+                    "w-full flex items-center justify-between gap-2 rounded-xl text-left transition",
+                    isSection ? "px-5 py-2 text-[11px]" : "px-3 py-2.5",
+                    selectedClass === item.key
+                      ? "bg-navy text-white"
+                      : "text-navy hover:bg-paper-2"
+                  )}
+                  aria-current={selectedClass === item.key ? "page" : undefined}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    {isSection ? (
+                      <Icon name="book-open" className="h-4 w-4 shrink-0 text-muted" />
+                    ) : (
+                      <Icon name={item.key === "all" ? "users" : "folder"} className="h-5 w-5 shrink-0" />
+                    )}
+                    <span className={cn(
+                      "font-semibold truncate",
+                      isSection ? "text-[11px]" : "text-[12px]"
+                    )}>
+                      {item.label}
+                    </span>
+                  </div>
+                  {item.count > 0 && (
+                    <span className={cn(
+                      "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-extrabold",
+                      selectedClass === item.key ? "bg-white/20 text-white" : "bg-paper-2 text-muted"
+                    )}>
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </nav>
         </aside>
 
@@ -418,7 +493,10 @@ export function StudentsManager({
           <div className="flex items-center justify-between gap-2 px-2">
             <p className="text-[11px] font-bold text-muted" aria-live="polite">
               {loading ? "Loading…" : `${total.toLocaleString()} ${total === 1 ? "student" : "students"}`}
-              {selectedClass !== "all" ? ` · ${classLabel(selectedClass)}` : ""}
+              {selectedClass !== "all" ? (selectedClass.includes("|")
+                ? ` · ${classLabel(selectedClass.split("|")[0])} · Section ${selectedClass.split("|")[1]}`
+                : ` · ${classLabel(selectedClass)}`
+              ) : ""}
               {flags.length > 0 ? ` · ${flags.length} active red flag${flags.length === 1 ? "" : "s"}` : ""}
             </p>
             {totalPages > 1 && (

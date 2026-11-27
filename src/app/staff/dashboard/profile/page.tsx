@@ -57,6 +57,7 @@ export default async function ProfilePage() {
           const bio = formData.get("bio") as string;
           const subjects = formData.get("subjects") as string;
           const photo = formData.get("photo") as string;
+          const requestFacultyDisplay = formData.get("request_faculty_display") === "on";
 
           if (!name) throw new Error("Name is required.");
 
@@ -74,6 +75,19 @@ export default async function ProfilePage() {
           // Update faculty table (public profile)
           const staffProfile = await db.selectOne('staff', '*', { id: session.user.id });
           if (staffProfile) {
+            const faculty = await db.selectOne('faculty', '*', { email: staffProfile.email });
+            
+            // Determine faculty status
+            let facultyStatus = 'draft';
+            if (faculty) {
+              facultyStatus = faculty.status;
+            }
+            
+            // If staff requests faculty display, set status to 'needs_review' for admin approval
+            if (requestFacultyDisplay && facultyStatus !== 'published') {
+              facultyStatus = 'needs_review';
+            }
+            
             await db.update('faculty', {
               name,
               designation: designation || 'Faculty Member',
@@ -81,6 +95,7 @@ export default async function ProfilePage() {
               bio: bio || '',
               photo: photo || null,
               subjects: subjects || '',
+              status: facultyStatus,
               updated_at: new Date().toISOString(),
             }, { email: staffProfile.email });
           }
@@ -223,6 +238,60 @@ export default async function ProfilePage() {
               <p className="mt-2 text-[11px] font-semibold text-amber-700">
                 ⚠ No public faculty profile found. One will be created on next save.
               </p>
+            )}
+            {faculty && (
+              <div className="mt-4 rounded-xl border border-line bg-paper-2/50 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 grid h-5 w-5 place-items-center shrink-0 rounded bg-blue-100">
+                    <Icon name="info" className="h-2.5 w-2.5 text-blue" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-navy-900">Public Faculty Profile</h3>
+                    <p className="mt-1 text-[11.5px] font-semibold text-muted">
+                      {faculty.status === 'published' && (
+                        <>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[#EAF9F1] px-2 py-0.5 text-[9.5px] font-extrabold text-[#167A4A]">
+                            <Icon name="check-circle" className="h-2.5 w-2.5" /> Published
+                          </span>
+                          <span className="ml-2">Your faculty profile is publicly visible on the website.</span>
+                        </>
+                      )}
+                      {faculty.status === 'draft' && (
+                        <>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF6E3] px-2 py-0.5 text-[9.5px] font-extrabold text-[#9A5B00]">
+                            <Icon name="edit" className="h-2.5 w-2.5" /> Draft
+                          </span>
+                          <span className="ml-2">Your faculty profile is saved as a draft and not publicly visible.</span>
+                        </>
+                      )}
+                      {faculty.status === 'needs_review' && (
+                        <>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF6E3] px-2 py-0.5 text-[9.5px] font-extrabold text-[#9A5B00]">
+                            <Icon name="clock" className="h-2.5 w-2.5" /> Pending Review
+                          </span>
+                          <span className="ml-2">Your faculty profile is pending admin approval to be published.</span>
+                        </>
+                      )}
+                    </p>
+                    {faculty.status !== 'published' && (
+                      <div className="mt-3">
+                        <label className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-[11px] font-bold text-navy transition hover:bg-cream cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="request_faculty_display"
+                            defaultChecked={false}
+                            className="h-4 w-4 rounded border-navy/30 text-navy focus:ring-navy"
+                          />
+                          Request public faculty profile display
+                        </label>
+                        <p className="mt-2 text-[10.5px] font-semibold text-muted">
+                          Check this box to request admin approval for publishing your faculty profile on the public website.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
           </StaffCard>
 

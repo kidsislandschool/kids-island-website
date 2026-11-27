@@ -30,7 +30,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       label: "Admissions",
       items: [
         { label: "Admissions", href: "/admin/admissions", icon: "graduation", badge: counts.inquiriesNew },
-        { label: "Enquiries", href: "/admin/inquiries", icon: "mail", badge: counts.inquiriesNew },
+        { label: "Inquiries", href: "/admin/inquiries", icon: "mail", badge: counts.inquiriesNew },
       ],
     },
     {
@@ -49,6 +49,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         { label: "Notices", href: "/admin/notices", icon: "megaphone" },
         { label: "Testimonials", href: "/admin/testimonials", icon: "quote", badge: counts.testimonialsReview },
         { label: "FAQs", href: "/admin/faqs", icon: "info", badge: counts.faqsReview },
+      ],
+    },
+    {
+      label: "Analytics",
+      items: [
+        { label: "Analytics", href: "/admin/analytics", icon: "bar-chart" },
       ],
     },
     {

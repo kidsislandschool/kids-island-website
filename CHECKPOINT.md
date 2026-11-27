@@ -56,7 +56,7 @@
 ## 🔄 IN PROGRESS / NEEDS WORK
 
 ### 1. HOMEPAGE
-- [x] **1.1** Front Banner/Hero image glitches - investigate image paths, loading, carousel, animations, lazy loading
+- [x] **1.1** Front Banner/Hero image glitches - **FIXED**: Disabled scale animation on SVG fallbacks in CrossfadeSlideshow to prevent rendering glitches
 - [x] **1.2** Duplicate "A Message from the School" - **REMOVED** duplicate section
 - [x] **1.3** "Ready to Join Our Community" building photo - add supplied photograph (pending asset)
 - [ ] **1.4** "Small Campus, Big Possibilities" - keep pending, preserve section
@@ -67,7 +67,7 @@
   - Founder & Manager
   - Kids Island Senior Secondary School
 - [x] **1.7** Testimonials - Update heading to include "parents and successful students" ✅ DONE
-- [ ] **1.8** Footer and floating WhatsApp - Improve appearance/positioning, fix overlap issues, verify number/link
+- [x] **1.8** Footer and floating WhatsApp - **FIXED**: Improved footer overlap detection in WhatsAppFloat component - now detects actual footer element position and hides when footer enters viewport
 
 ### 2. ABOUT PAGE - FACILITIES
 - [x] Replace "Library" with "Projector Hall" under "Why Choose Kids Island – Facilities on Campus" ✅ DONE
@@ -81,20 +81,20 @@
 ### 5. ADMIN PANEL
 - [x] **5.1** Standardize "Enquiry" → "Inquiry" in labels, headings, buttons, nav, filters ✅ DONE
 - [ ] **5.2** Responsiveness and slow/stuck loading - audit desktop/tablet/mobile
-- [ ] **5.3** Incorrect student counts (Class 9 shows 1) - **FIXED** (Class 9 has 1 student in Section A, 0 in B)
-- [ ] **5.4** Student list and class Sections - cross-check records, add/repair Sections A/B
-- [ ] **5.5** Visitor count/active users analytics - add/repair Admin analytics
+- [x] **5.3** Incorrect student counts (Class 9 shows 1) - **FIXED** (Class 9 has 1 student in Section A, 0 in B)
+- [x] **5.4** Student list and class Sections - **FIXED**: Added section breakdown (A/B) in sidebar with filtering by class and section
+- [x] **5.5** Visitor count/active users analytics - **FIXED**: Added Admin Analytics page with page views, unique visitors, top pages, referrers, and daily charts. Client-side tracking via `/api/analytics/pageview` with page_views table.
 
 ### 6. STAFF DASHBOARD
 - [x] Staff Login - working
 - [x] **6.1** Change "Total Material" → "My Material" ✅ DONE
-- [ ] **6.2** My Profile - Faculty display request option
-  - Staff submits request from My Profile
-  - Show request status (pending/approved/rejected)
-  - Admin reviews and approves/rejects
-  - Only approved profiles publicly displayed
-  - Staff cannot publish themselves without approval
-  - Backend/RLS authorization
+- [x] **6.2** My Profile - Faculty display request option ✅ DONE
+  - Staff submits request from My Profile via checkbox
+  - Show request status (pending/approved/rejected) in profile
+  - Admin reviews and approves/rejects in Admin Faculty page
+  - Only approved profiles (status=published) publicly displayed
+  - Staff cannot publish themselves without admin approval
+  - Backend/RLS authorization via faculty.status field
 
 ### 7. REGRESSION AND SECURITY TESTS
 - [ ] Test all features listed in section 7
