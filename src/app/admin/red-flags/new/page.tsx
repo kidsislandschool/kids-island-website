@@ -4,8 +4,6 @@ import { redirect } from "next/navigation";
 import { AdminPageHeader, AdminCard, AdminCardHeader, AdminField, adminInput, adminSelect, adminTextarea } from "@/components/admin/ui";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
-import { supabaseAdmin } from "@/lib/supabase";
-import { logAudit } from "@/lib/audit";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -49,46 +47,21 @@ export default async function NewRedFlagPage() {
         </Link>
       </div>
 
-      <form action={async (formData: FormData) => {
-        "use server";
-        const { getSession } = await import("@/lib/auth");
-        const { logAudit } = await import("@/lib/audit");
-        const { supabaseAdmin: db } = await import("@/lib/supabase");
-        const session = await getSession();
-        if (!session) throw new Error("Not authenticated");
-
-        const studentId = Number(formData.get("student_id"));
-        const reason = formData.get("reason") as string;
-        const severity = formData.get("severity") as string;
-
-        if (!studentId || !reason) {
-          throw new Error("Student and reason are required");
-        }
-
-        const { data: redFlag, error } = await db
-          .from("red_flags")
-          .insert({
-            student_id: studentId,
-            reason: formData.get("reason") as string,
-            severity: formData.get("severity") as string,
-            assigned_by: session.user.id,
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        await logAudit({
-          userId: session.user.id,
-          action: "red_flag_created",
-          entity: "red_flags",
-          entityId: redFlag.id,
-          detail: { studentId, reason: formData.get("reason") },
-          ip: "server",
-        });
-
-        redirect(`/admin/red-flags`);
-      }} className="space-y-6">
+      <form onSubmit={async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            try {
+              const res = await fetch("/api/admin/red-flags", {
+                method: "POST",
+                body: formData,
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) throw new Error(data.error ?? "Failed to create red flag");
+              redirect("/admin/red-flags");
+            } catch (err) {
+              alert(err instanceof Error ? err.message : "Failed to create red flag");
+            }
+          }} className="space-y-6">
         <AdminCard>
           <AdminCardHeader title="Student Details" />
           <AdminField label="Student *" htmlFor="student_id" required>

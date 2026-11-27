@@ -10,7 +10,6 @@ import { Icon } from "@/components/ui/icon";
 import { UploadInput } from "@/components/admin/upload-input";
 import { AdminField, adminInput, adminSelect, adminTextarea } from "@/components/admin/ui";
 import { cn, formatDateTime } from "@/lib/utils";
-import { updateMaterial } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +67,21 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ i
           </div>
         </div>
 
-        <form action={(formData) => updateMaterial(materialId, formData)} className="space-y-6">
+        <form onSubmit={async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            try {
+              const res = await fetch(`/api/staff/materials/${materialId}`, {
+                method: "PATCH",
+                body: formData,
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) throw new Error(data.error ?? "Failed to update material");
+              redirect("/staff/dashboard/materials");
+            } catch (err) {
+              alert(err instanceof Error ? err.message : "Failed to update material");
+            }
+          }} className="space-y-6">
           <StaffCard title="Basic Information">
             <AdminField label="Material Title *" htmlFor="title" required>
               <input
