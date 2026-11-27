@@ -21,7 +21,7 @@ export default async function AdminStudentsPage() {
   const def = getCollectionDef("students");
   if (!def) notFound();
 
-  const [initial, flagsResult] = await Promise.all([
+  const [initial, flagsResult, classCountsResult] = await Promise.all([
     getCollectionRows("students", { perPage: 50 }),
     supabaseAdmin
       .from("red_flags")
@@ -29,9 +29,22 @@ export default async function AdminStudentsPage() {
       .eq("resolved", false)
       .order("assigned_at", { ascending: false })
       .then((r) => ({ data: r.data, error: r.error })),
+    supabaseAdmin
+      .from("students")
+      .select("class")
+      .eq("status", "published"),
   ]);
 
   const flags = flagsResult.data ?? [];
+
+  // Build class counts from all students
+  const classCounts = new Map<string, number>();
+  if (classCountsResult.data) {
+    for (const row of classCountsResult.data) {
+      const cls = row.class ?? "";
+      classCounts.set(cls, (classCounts.get(cls) ?? 0) + 1);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -54,6 +67,7 @@ export default async function AdminStudentsPage() {
         initialRows={initial.rows}
         initialTotal={initial.total}
         initialFlags={flags}
+        classCounts={classCounts}
       />
     </div>
   );

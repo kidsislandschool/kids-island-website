@@ -99,11 +99,13 @@ export function StudentsManager({
   initialRows,
   initialTotal,
   initialFlags,
+  classCounts,
 }: {
   def: CollectionDef;
   initialRows: Row[];
   initialTotal: number;
   initialFlags: FlagRow[];
+  classCounts: Map<string, number>;
 }) {
   const router = useRouter();
   const [rows, setRows] = useState<Row[]>(initialRows);
@@ -132,8 +134,7 @@ export function StudentsManager({
   const [deleting, setDeleting] = useState(false);
 
   // Class counts for sidebar badges
-  const classCounts = getClassCounts(initialRows);
-  const totalStudents = initialRows.length;
+  const totalStudents = initialTotal;
 
   const flash = useCallback((tone: "success" | "error", message: string) => {
     setNotice({ tone, message });
