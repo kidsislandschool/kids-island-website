@@ -175,7 +175,7 @@ export function PinnedSequence({
                 <ul className="flex flex-col gap-4" aria-label="Steps">
                   {items.map((item, i) => (
                     <li
-                      key={item.step}
+                      key={i}
                       data-seq-dot
                       className="group flex items-center gap-3 text-sm font-bold text-white/40 transition-colors duration-300 data-[active=true]:text-white"
                     >
