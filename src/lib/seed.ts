@@ -398,7 +398,7 @@ const CONTENT: ContentSeed[] = [
           text: "Sports, arts, music, debate, and clubs for holistic personality development.",
           points: ["Sports & athletics", "Music, dance & drama", "Debate, quiz & literary clubs"],
           variant: "pink",
-          image: "/images/academics/cocurricular.webp",
+          image: "/images/co-curricular.jpg",
         },
         {
           title: "Skill Development",
@@ -406,7 +406,7 @@ const CONTENT: ContentSeed[] = [
           text: "Critical thinking, creativity, leadership, and life skills for future readiness.",
           points: ["Critical thinking", "Creativity & expression", "Leadership & life skills"],
           variant: "blue",
-          image: "/images/academics/skills.webp",
+          image: "/images/sports.jpg",
         },
       ],
     },
