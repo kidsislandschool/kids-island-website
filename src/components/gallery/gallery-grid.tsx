@@ -88,6 +88,13 @@ export function GalleryGrid({ albums }: { albums: PublicAlbum[] }) {
                       loading="lazy"
                       decoding="async"
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (!target.dataset.retry) {
+                          target.dataset.retry = "1";
+                          setTimeout(() => { target.src = photo.url; }, 100);
+                        }
+                      }}
                     />
                     <span className="absolute inset-0 bg-gradient-to-t from-navy-900/45 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     {photo.caption && (
@@ -163,6 +170,13 @@ export function GalleryGrid({ albums }: { albums: PublicAlbum[] }) {
                 src={photos[active].url}
                 alt={photos[active].alt}
                 className="mx-auto max-h-[78svh] w-auto rounded-2xl object-contain"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.dataset.retry) {
+                    target.dataset.retry = "1";
+                    setTimeout(() => { target.src = photos[active].url; }, 100);
+                  }
+                }}
               />
               <figcaption className="mt-3 text-center">
                 {photos[active].caption && <p className="text-[14px] font-bold text-white">{photos[active].caption}</p>}
