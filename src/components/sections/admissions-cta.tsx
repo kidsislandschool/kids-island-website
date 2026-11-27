@@ -65,6 +65,7 @@ export function AdmissionsCta({ content }: { content: CtaContent }) {
                     alt="Kids Island Senior Secondary School campus"
                     className="aspect-[5/4] w-full rounded-[1.3rem] object-cover"
                     priority
+                    unoptimized
                   />
                 </div>
                 <div className="absolute -bottom-5 -left-4 flex items-center gap-3 rounded-2xl bg-yellow px-4 py-3 shadow-xl sm:-left-6">
