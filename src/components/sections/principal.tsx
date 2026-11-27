@@ -2,7 +2,6 @@ import { Reveal } from "@/components/motion/reveal";
 import { CmsImage } from "@/components/ui/cms-image";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Icon } from "@/components/ui/icon";
-import { Button } from "@/components/ui/button";
 
 export type PrincipalContent = {
   heading: string;
@@ -53,10 +52,6 @@ export function PrincipalMessage({ content }: { content: PrincipalContent }) {
                 <p className="font-display text-[16px] font-semibold text-navy-900 whitespace-pre-line">{content.authorName}</p>
                 <p className="text-[12px] font-bold text-muted whitespace-pre-line">{content.authorRole}</p>
               </div>
-              <Button href="/about" variant="outline" size="sm" className="group/btn w-fit">
-                Our story
-                <Icon name="arrow-right" className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-              </Button>
             </Reveal>
           </div>
         </div>
