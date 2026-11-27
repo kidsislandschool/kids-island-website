@@ -1,6 +1,6 @@
 import { Reveal } from "@/components/motion/reveal";
 import { Button, ButtonArrow } from "@/components/ui/button";
-import { SceneArt } from "@/components/ui/scene-art";
+import { CmsImage } from "@/components/ui/cms-image";
 import { Cloud, Sparkle } from "@/components/ui/clouds";
 import { Icon } from "@/components/ui/icon";
 
@@ -60,7 +60,12 @@ export function AdmissionsCta({ content }: { content: CtaContent }) {
 
               <div className="relative mx-auto w-full max-w-sm lg:ml-auto">
                 <div className="rotate-[-3deg] overflow-hidden rounded-[1.75rem] border-[5px] border-white/10 bg-white/5 p-2 shadow-2xl">
-                  <SceneArt variant="school" className="aspect-[5/4] w-full rounded-[1.3rem]" />
+                  <CmsImage
+                    src="/images/main.png"
+                    alt="Kids Island Senior Secondary School campus"
+                    className="aspect-[5/4] w-full rounded-[1.3rem] object-cover"
+                    priority
+                  />
                 </div>
                 <div className="absolute -bottom-5 -left-4 flex items-center gap-3 rounded-2xl bg-yellow px-4 py-3 shadow-xl sm:-left-6">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/60 text-navy-900">
