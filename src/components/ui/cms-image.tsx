@@ -16,6 +16,7 @@ export function CmsImage({
   priority = false,
   width,
   height,
+  unoptimized,
 }: {
   src?: string | null;
   alt: string;
@@ -27,10 +28,14 @@ export function CmsImage({
   width?: number;
   /** Explicit height for layout shift prevention (required if not using fill). */
   height?: number;
+  /** Disable Next.js image optimization (useful for large local files). */
+  unoptimized?: boolean;
 }) {
   // Supabase Storage URLs are already WebP (converted on upload)
   // Use fill when no explicit dimensions provided
   const useFill = !width || !height;
+  // Auto-unoptimize local files (starting with /) to avoid optimization timeouts on large files
+  const shouldUnoptimize = unoptimized ?? (typeof src === "string" && src.startsWith("/"));
 
   return (
     <div className={cn("relative overflow-hidden bg-paper-2", className)}>
@@ -45,6 +50,7 @@ export function CmsImage({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className={cn("object-cover", imgClassName)}
               quality={85}
+              unoptimized={shouldUnoptimize}
             />
           </div>
         ) : (
@@ -57,6 +63,7 @@ export function CmsImage({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className={cn("object-cover", imgClassName)}
             quality={85}
+            unoptimized={shouldUnoptimize}
           />
         )
       ) : (
