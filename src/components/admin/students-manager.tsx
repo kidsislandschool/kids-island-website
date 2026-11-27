@@ -219,9 +219,14 @@ export function StudentsManager({
         } else if (selectedClass !== "all") {
           // Class only from sidebar
           params.set("class", selectedClass);
+          
+          // Apply section filter from dropdown if also selected
+          if (selectedSection) {
+            params.set("section", selectedSection);
+          }
         }
         
-        // Section filter from dropdown (independent of class)
+        // Section filter from dropdown (when no class selected)
         if (selectedSection && selectedClass === "all") {
           params.set("section", selectedSection);
         }
