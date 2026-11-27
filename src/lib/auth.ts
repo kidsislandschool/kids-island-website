@@ -295,7 +295,8 @@ export async function createStaffSession(
   jar.set(STAFF_SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
+    domain: ".kidsaligarh.com",
     path: "/",
     maxAge: STAFF_SESSION_DAYS * 86400,
   });
