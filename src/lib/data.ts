@@ -653,13 +653,16 @@ export type StaffMaterial = {
   created_by: number | null;
 };
 
-export async function getStaffMaterials(opts: { page?: number; perPage?: number; status?: string } = {}): Promise<{ materials: StaffMaterial[]; total: number; totalPages: number }> {
-  const { page = 1, perPage = 20, status } = opts;
+export async function getStaffMaterials(opts: { page?: number; perPage?: number; status?: string; staffId?: number } = {}): Promise<{ materials: StaffMaterial[]; total: number; totalPages: number }> {
+  const { page = 1, perPage = 20, status, staffId } = opts;
   
   let query = supabaseAdmin
     .from('materials')
     .select('*', { count: 'exact' });
   
+  if (staffId) {
+    query = query.eq('created_by', staffId);
+  }
   if (status) {
     query = query.eq('status', status);
   }
