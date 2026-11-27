@@ -14,16 +14,17 @@ export async function GalleryAlbumsPreview() {
   const displayAlbums = albums.slice(0, 4);
 
   return (
-    <section className="relative overflow-hidden bg-cream py-20 sm:py-24" aria-labelledby="gallery-preview-title">
+    <>
+    <section className="relative overflow-hidden bg-cream py-12 sm:py-16 lg:py-20" aria-labelledby="gallery-preview-title">
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="dot-grid absolute inset-0 text-navy/[0.035]" />
         <div className="absolute -left-20 top-1/3 h-72 w-72 rounded-full bg-yellow/15 blur-[80px]" />
         <div className="absolute -right-16 top-10 h-72 w-72 rounded-full bg-green-200 blur-[80px]" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <Reveal>
-          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end gap-4 sm:gap-6">
             <SectionHeading
               align="left"
               eyebrow="Campus gallery"
@@ -32,14 +33,24 @@ export async function GalleryAlbumsPreview() {
               text="Browse our photo albums capturing daily life, events, and achievements at Kids Island."
               className="[&_h2]:max-w-xl"
             />
-            <Button href="/gallery" variant="white" className="group/btn hidden md:inline-flex">
+            <Button href="/gallery" variant="white" className="group/btn hidden sm:inline-flex">
               View all albums
               <Icon name="arrow-right" className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
             </Button>
           </div>
         </Reveal>
+      </div>
+    </section>
 
-        <RevealGroup className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="relative overflow-hidden bg-cream py-12 sm:py-16 lg:py-20" aria-labelledby="gallery-preview-title">
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="dot-grid absolute inset-0 text-navy/[0.035]" />
+        <div className="absolute -left-20 top-1/3 h-72 w-72 rounded-full bg-yellow/15 blur-[80px]" />
+        <div className="absolute -right-16 top-10 h-72 w-72 rounded-full bg-green-200 blur-[80px]" />
+      </div>
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <RevealGroup className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {displayAlbums.map((album, i) => (
             <RevealItem key={album.id} className="h-full">
               <Link
@@ -75,5 +86,6 @@ export async function GalleryAlbumsPreview() {
         </Reveal>
       </div>
     </section>
+    </>
   );
 }

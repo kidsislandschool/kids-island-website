@@ -48,6 +48,7 @@ export function CrossfadeSlideshow({
   const [paused, setPaused] = useState(false);
   const count = slides.length;
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const go = useCallback(
     (next: number) => setIndex(((next % count) + count) % count),
@@ -63,6 +64,14 @@ export function CrossfadeSlideshow({
       if (timer.current) clearInterval(timer.current);
     };
   }, [reduce, paused, count, interval, index]);
+
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   if (count === 0) return null;
 
@@ -116,6 +125,7 @@ export function CrossfadeSlideshow({
               className="h-full w-full"
               imgClassName={imgClassName}
               priority={priority}
+              unoptimized={true}
             />
           </motion.div>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-900/35 via-transparent to-transparent" />
@@ -123,7 +133,7 @@ export function CrossfadeSlideshow({
       </AnimatePresence>
 
       {showLabel && active.label && (
-        <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-3 p-4 sm:p-5">
+        <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-3 p-3 sm:p-4">
           <AnimatePresence mode="wait">
             <motion.span
               key={active.id}
@@ -131,12 +141,12 @@ export function CrossfadeSlideshow({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: DURATION.sm, ease: EASE.out }}
-              className="rounded-full bg-white/92 px-3.5 py-1.5 text-[12.5px] font-extrabold text-navy shadow-sm backdrop-blur"
+              className="rounded-full bg-white/92 px-3 py-1 text-[11px] font-extrabold text-navy shadow-sm backdrop-blur"
             >
               {active.label}
             </motion.span>
           </AnimatePresence>
-          <span className="rounded-full bg-navy-900/45 px-2.5 py-1 text-[11px] font-bold tracking-wider text-white/90 backdrop-blur">
+          <span className="rounded-full bg-navy-900/45 px-2 py-0.5 text-[10px] font-bold tracking-wider text-white/90 backdrop-blur">
             {String(index + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
           </span>
         </div>
@@ -144,7 +154,7 @@ export function CrossfadeSlideshow({
 
       {showControls && count > 1 && (
         <>
-          <div className="absolute left-1/2 top-4 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-white/85 px-2 py-1.5 shadow-sm backdrop-blur sm:top-5">
+          <div className="absolute left-1/2 top-3 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-white/85 px-1.5 py-1 shadow-sm backdrop-blur sm:top-4">
             {slides.map((slide, i) => (
               <button
                 key={slide.id}
@@ -152,36 +162,36 @@ export function CrossfadeSlideshow({
                 onClick={() => go(i)}
                 aria-label={`Show slide ${i + 1}${slide.label ? `: ${slide.label}` : ""}`}
                 aria-current={i === index}
-                className="group/dot flex h-6 items-center px-0.5"
+                className="group/dot flex h-5 items-center px-0.5"
               >
                 <motion.span
                   className={cn(
-                    "block h-1.5 rounded-full transition-colors",
+                    "block h-1 rounded-full transition-colors",
                     i === index ? "bg-navy" : "bg-navy/20 group-hover/dot:bg-navy/40"
                   )}
-                  animate={{ width: i === index ? 24 : 8 }}
+                  animate={{ width: i === index ? 20 : 6 }}
                   transition={{ duration: DURATION.sm, ease: EASE.out }}
                 />
               </button>
             ))}
           </div>
 
-          <div className="absolute bottom-4 right-4 z-10 flex gap-1.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
+          <div className="absolute bottom-3 right-3 z-10 flex gap-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
             <button
               type="button"
               onClick={() => go(index - 1)}
               aria-label="Previous photo"
-              className="grid h-9 w-9 place-items-center rounded-full bg-white/92 text-navy shadow-sm backdrop-blur transition hover:bg-white"
+              className="grid h-8 w-8 place-items-center rounded-full bg-white/92 text-navy shadow-sm backdrop-blur transition hover:bg-white"
             >
-              <Icon name="chevron-left" className="h-4 w-4" />
+              <Icon name="chevron-left" className="h-3.5 w-3.5" />
             </button>
             <button
               type="button"
               onClick={() => go(index + 1)}
               aria-label="Next photo"
-              className="grid h-9 w-9 place-items-center rounded-full bg-white/92 text-navy shadow-sm backdrop-blur transition hover:bg-white"
+              className="grid h-8 w-8 place-items-center rounded-full bg-white/92 text-navy shadow-sm backdrop-blur transition hover:bg-white"
             >
-              <Icon name="chevron-right" className="h-4 w-4" />
+              <Icon name="chevron-right" className="h-3.5 w-3.5" />
             </button>
           </div>
         </>

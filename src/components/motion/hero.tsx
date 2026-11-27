@@ -174,7 +174,7 @@ export function Hero({ content, affiliation }: { content: HeroContent; affiliati
         </svg>
       </div>
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pb-24 pt-12 sm:px-8 lg:grid-cols-[1.03fr_0.97fr] lg:gap-8 lg:pb-28 lg:pt-16">
+      <div className="relative mx-auto grid max-w-7xl items-start gap-8 px-4 pb-16 pt-10 sm:px-6 sm:gap-6 sm:pb-20 lg:grid-cols-[1.03fr_0.97fr] lg:gap-8 lg:pb-24 lg:pt-12">
         <div className="max-w-xl">
           <div data-hero-rise className="inline-flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-full border border-navy/10 bg-white/85 px-3.5 py-1.5 text-[12.5px] font-extrabold text-navy shadow-sm backdrop-blur">
@@ -193,16 +193,16 @@ export function Hero({ content, affiliation }: { content: HeroContent; affiliati
           <h1
             id="hero-title"
             data-hero-rise
-            className="mt-6 text-balance text-[clamp(2.55rem,5.6vw,4.35rem)] leading-[1.02] tracking-[-0.03em] text-navy-900"
+            className="mt-5 text-balance text-[clamp(2.25rem,5.2vw,3.75rem)] leading-[1.05] tracking-[-0.02em] text-navy-900"
           >
             <Headline text={content.headline} />
           </h1>
 
-          <p data-hero-rise className="mt-6 max-w-lg text-[17px] leading-relaxed text-muted">
+          <p data-hero-rise className="mt-5 max-w-lg text-[16px] leading-relaxed text-muted">
             {content.intro}
           </p>
 
-          <div data-hero-rise className="mt-8 flex flex-wrap items-center gap-3">
+          <div data-hero-rise className="mt-7 flex flex-col sm:flex-row flex-wrap items-center gap-3">
             <Button href={content.primaryCta.href} size="lg" className="group/btn">
               {content.primaryCta.label}
               <ButtonArrow />
@@ -212,7 +212,7 @@ export function Hero({ content, affiliation }: { content: HeroContent; affiliati
             </Button>
           </div>
 
-          <ul data-hero-rise className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-[13.5px] font-bold text-navy/70">
+          <ul data-hero-rise className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-bold text-navy/70">
             {content.badges.map((badge) => (
               <li key={badge} className="flex items-center gap-2">
                 <span className="grid h-5 w-5 place-items-center rounded-full bg-mint text-[#167a4a]">
@@ -225,7 +225,7 @@ export function Hero({ content, affiliation }: { content: HeroContent; affiliati
         </div>
 
         {/* ------------------------------------------------------ collage */}
-        <div className="relative mx-auto w-full max-w-[480px] lg:max-w-none" data-hero-collage>
+        <div className="relative mx-auto w-full max-w-[420px] lg:max-w-none" data-hero-collage>
           <div
             aria-hidden
             className="absolute -right-4 -top-5 h-40 w-40 rounded-[2.5rem] bg-yellow/35 blur-2xl sm:h-52 sm:w-52"
