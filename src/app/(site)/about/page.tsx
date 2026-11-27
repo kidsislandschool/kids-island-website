@@ -257,7 +257,7 @@ export default async function AboutPage() {
       </section>
 
       <div className="bg-paper">
-        <CloudDivider fill="#12325C" />
+        <CloudDivider />
         <section className="bg-navy px-5 py-16 text-center sm:px-8">
           <Reveal>
             <h2 className="mx-auto max-w-2xl text-balance text-[clamp(1.9rem,4vw,2.6rem)] leading-tight text-white">

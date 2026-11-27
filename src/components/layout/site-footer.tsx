@@ -20,7 +20,7 @@ export function SiteFooter({
       <CloudDivider fill="#0d2e1e" />
       <footer className="relative overflow-hidden bg-green-900 text-white/70">
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue/25 blur-[90px]" />
+          <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-green-accent/25 blur-[90px]" />
           <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-yellow/10 blur-[90px]" />
           <svg viewBox="0 0 220 120" className="absolute right-[8%] top-10 w-32 opacity-[0.05]" fill="#fff">
             <path d="M42 104c-20 0-34-13-34-30 0-15 11-26 25-29 3-22 20-37 43-37 19 0 34 10 41 26 6-4 13-6 21-6 19 0 34 13 37 31 16 2 28 13 28 28 0 16-13 27-31 27H42Z" />
