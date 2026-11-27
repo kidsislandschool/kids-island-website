@@ -94,9 +94,13 @@ function buildSidebarItems(
     { key: "all", label: "All Students", count: totalStudents },
   ];
 
+  // Always show these early years classes for sorting, even if 0 students
+  const alwaysShowClasses = ["Play Group", "LKG", "UKG"];
+
   for (const cls of CLASS_ORDER) {
     const classCount = classCounts.get(cls) ?? 0;
-    if (classCount === 0) continue;
+    const shouldShow = alwaysShowClasses.includes(cls) || classCount > 0;
+    if (!shouldShow) continue;
 
     items.push({
       key: cls,
