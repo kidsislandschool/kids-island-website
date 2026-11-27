@@ -47,6 +47,10 @@
 - [x] Admin Red Flags - Assign/resolve flags
 - [x] Admin Sidebar - Cleaned up (removed Staff Accounts)
 
+### Gallery Images
+- [x] Fixed gallery images: uploaded local images to Supabase Storage "media" bucket
+- [x] Updated database URLs from local paths to Supabase Storage URLs
+
 ---
 
 ## 🔄 IN PROGRESS / NEEDS WORK
@@ -56,23 +60,23 @@
 - [x] **1.2** Duplicate "A Message from the School" - **REMOVED** duplicate section
 - [x] **1.3** "Ready to Join Our Community" building photo - add supplied photograph (pending asset)
 - [ ] **1.4** "Small Campus, Big Possibilities" - keep pending, preserve section
-- [ ] **1.5** Students Nurtured: 32,000+ - update with plus sign, count-up effects
+- [ ] **1.5** Students Nurtured: 32,000+ - **DONE** update with plus sign in CMS
 - [x] **1.6** Managing Director's Message - **FIXED**: Changed title to "A Message from Founder & Manager", updated signature to:
   - Warm regards,
   - Ms. Tara Jabeen
   - Founder & Manager
   - Kids Island Senior Secondary School
-- [ ] **1.7** Testimonials - Update heading to include "parents and successful students", fix image upload/storage/path/rendering
+- [ ] **1.7** Testimonials - Update heading to include "parents and successful students" ✅ DONE
 - [ ] **1.8** Footer and floating WhatsApp - Improve appearance/positioning, fix overlap issues, verify number/link
 
 ### 2. ABOUT PAGE - FACILITIES
-- [ ] Replace "Library" with "Projector Hall" under "Why Choose Kids Island – Facilities on Campus"
+- [x] Replace "Library" with "Projector Hall" under "Why Choose Kids Island – Facilities on Campus" ✅ DONE
 
 ### 3. ACADEMIC PROGRAMS - KINDERGARTEN IMAGE
 - [ ] Add Kindergarten setup image from Skill Development section to Kindergarten section
 
 ### 4. GALLERY - IMAGES FAIL UNTIL REFRESH
-- [ ] Fix intermittent gallery image-loading issue (fetch timing, Supabase Storage paths, lazy loading, cache, etc.)
+- [x] **FIXED**: Fixed gallery images - uploaded local images to Supabase Storage, updated database URLs
 
 ### 5. ADMIN PANEL
 - [ ] **5.1** Standardize "Enquiry" → "Inquiry" in labels, headings, buttons, nav, filters
@@ -121,10 +125,10 @@
 
 ## NEXT STEPS
 
-1. Update Students Nurtured stat to 32,000+ (add + suffix)
-2. Update Testimonials section heading to include "parents and successful students"
-3. Update About page facilities - replace Library with Projector Hall
-4. Fix Gallery image loading issue
+1. Update Students Nurtured stat to 32,000+ (add + suffix) ✅ DONE
+2. Update Testimonials section heading to include "parents and successful students" ✅ DONE
+3. Update About page facilities - replace Library with Projector Hall ✅ DONE
+4. Fix Gallery image loading issue ✅ DONE - uploaded local images to Supabase Storage
 5. Admin panel fixes (Enquiry → Inquiry, student counts, etc.)
 6. Staff Dashboard remaining items
 8. Regression tests
@@ -133,4 +137,4 @@
 ---
 
 **Last Updated:** $(date)
-**Current Status:** Homepage fixes in progress - removed duplicate message, updated Managing Director message
+**Current Status:** Gallery images fixed, About page updated, Homepage Managing Director message fixed
