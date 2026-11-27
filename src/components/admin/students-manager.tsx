@@ -68,11 +68,32 @@ function editStudentValues(row: Row) {
   return values;
 }
 
-/**
- * Dedicated student directory: class/section filtering, real pagination and
- * inline red-flag assignment. Red flags are stored in the `red_flags` table and
- * only admins can create or resolve them.
- */
+/** Ordered class list for sidebar */
+const CLASS_ORDER = [
+  "Play Group",
+  "LKG",
+  "UKG",
+  "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"
+];
+
+/** Get display label for class */
+function classLabel(cls: string) {
+  if (cls === "Play Group") return "Play Group";
+  if (cls === "LKG") return "LKG";
+  if (cls === "UKG") return "UKG";
+  return `Class ${cls}`;
+}
+
+/** Get count of students per class from initial data */
+function getClassCounts(rows: Row[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const row of rows) {
+    const cls = String(row.class ?? "");
+    counts.set(cls, (counts.get(cls) ?? 0) + 1);
+  }
+  return counts;
+}
+
 export function StudentsManager({
   def,
   initialRows,
@@ -88,8 +109,7 @@ export function StudentsManager({
   const [rows, setRows] = useState<Row[]>(initialRows);
   const [total, setTotal] = useState(initialTotal);
   const [search, setSearch] = useState("");
-  const [classFilter, setClassFilter] = useState("all");
-  const [sectionFilter, setSectionFilter] = useState("all");
+  const [selectedClass, setSelectedClass] = useState<string>("all"); // "all" or class name
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
@@ -111,10 +131,9 @@ export function StudentsManager({
   const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const classField = def.fields.find((f) => f.name === "class");
-  const sectionField = def.fields.find((f) => f.name === "section");
-  const classOptions = classField?.options ?? [];
-  const sectionOptions = (sectionField?.options ?? []).filter((o) => o.value);
+  // Class counts for sidebar badges
+  const classCounts = getClassCounts(initialRows);
+  const totalStudents = initialRows.length;
 
   const flash = useCallback((tone: "success" | "error", message: string) => {
     setNotice({ tone, message });
@@ -128,8 +147,7 @@ export function StudentsManager({
       try {
         const params = new URLSearchParams({ page: String(page), perPage: String(PER_PAGE) });
         if (search.trim()) params.set("search", search.trim());
-        if (classFilter !== "all") params.set("class", classFilter);
-        if (sectionFilter !== "all") params.set("section", sectionFilter);
+        if (selectedClass !== "all") params.set("class", selectedClass);
         const res = await fetch(`/api/admin/collections/students?${params.toString()}`, { signal });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error ?? "Could not load students");
@@ -142,7 +160,7 @@ export function StudentsManager({
         setLoading(false);
       }
     },
-    [classFilter, flash, page, search, sectionFilter]
+    [flash, page, search, selectedClass]
   );
 
   useEffect(() => {
@@ -159,11 +177,6 @@ export function StudentsManager({
       if (noticeTimer.current) clearTimeout(noticeTimer.current);
     };
   }, []);
-
-  const flagCounts = new Map<number, number>();
-  for (const flag of flags) {
-    flagCounts.set(flag.student_id, (flagCounts.get(flag.student_id) ?? 0) + 1);
-  }
 
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 
@@ -321,10 +334,21 @@ export function StudentsManager({
 
   const studentFlags = flagStudent ? flags.filter((f) => f.student_id === flagStudent.id) : [];
 
+  // Build sidebar items
+  const sidebarItems = [
+    { key: "all", label: "All Students", count: totalStudents },
+    ...CLASS_ORDER.map((cls) => ({
+      key: cls,
+      label: classLabel(cls),
+      count: classCounts.get(cls) ?? 0,
+    })).filter((item) => item.count > 0), // only show classes with students
+  ];
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid gap-3 rounded-2xl border border-line bg-white p-3.5 shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)] lg:grid-cols-[1fr_auto_auto_auto]">
-        <label className="relative">
+    <div className="flex flex-col h-full min-h-[calc(100vh-200px)]">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-3.5 shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)] sm:flex-row sm:items-center">
+        <label className="relative flex-1">
           <span className="sr-only">Search students</span>
           <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <input
@@ -338,194 +362,203 @@ export function StudentsManager({
             className={cn(adminInput, "pl-9")}
           />
         </label>
-        <label>
-          <span className="sr-only">Filter by class</span>
-          <select
-            value={classFilter}
-            onChange={(e) => {
-              setClassFilter(e.target.value);
-              setPage(1);
-            }}
-            className={cn(adminSelect, "cursor-pointer lg:w-40")}
-          >
-            <option value="all">All classes</option>
-            {classOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span className="sr-only">Filter by section</span>
-          <select
-            value={sectionFilter}
-            onChange={(e) => {
-              setSectionFilter(e.target.value);
-              setPage(1);
-            }}
-            className={cn(adminSelect, "cursor-pointer lg:w-36")}
-          >
-            <option value="all">All sections</option>
-            {sectionOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                Section {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-navy px-4 text-[12px] font-extrabold text-white transition hover:bg-navy-700"
-        >
-          <Icon name="plus" className="h-4 w-4" />
-          New student
-        </button>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[11px] font-bold text-muted" aria-live="polite">
-          {loading ? "Loading…" : `${total.toLocaleString()} ${total === 1 ? "student" : "students"}`}
-          {classFilter !== "all" ? ` · ${classFilter}` : ""}
-          {sectionFilter !== "all" ? ` · Section ${sectionFilter}` : ""}
-          {flags.length > 0 ? ` · ${flags.length} active red flag${flags.length === 1 ? "" : "s"}` : ""}
-        </p>
-        <p className="text-[11px] font-bold text-muted">
-          Page {page} of {totalPages}
-        </p>
-      </div>
-
-      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)]">
-        {rows.length === 0 ? (
-          <div className="px-6 py-14 text-center">
-            <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-paper-2 text-muted">
-              <Icon name={loading ? "clock" : "user-group"} className="h-5 w-5" />
-            </span>
-            <h3 className="mt-3 font-display text-[17px] font-semibold text-navy-900">
-              {loading ? "Loading students…" : "No students match these filters"}
-            </h3>
-            <p className="mt-1 text-[12px] font-semibold text-muted">
-              {loading ? "Fetching the class list." : "Try a different class, section or search term."}
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[880px] text-left">
-              <thead>
-                <tr className="border-b border-line bg-paper-2/60">
-                  {["Student", "Class", "Parent", "Contact", "Red flags", "Actions"].map((heading) => (
-                    <th
-                      key={heading}
-                      className={cn(
-                        "px-4 py-3 text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-muted",
-                        heading === "Actions" && "text-right"
-                      )}
-                    >
-                      {heading}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => {
-                  const count = flagCounts.get(row.id) ?? 0;
-                  return (
-                    <tr key={row.id} className="border-b border-line/70 last:border-0 hover:bg-paper-2/40">
-                      <td className="max-w-[260px] px-4 py-3">
-                        <span className="block truncate text-[12px] font-extrabold text-navy-900">{fullName(row)}</span>
-                        <span className="mt-0.5 block text-[10.5px] font-semibold text-muted">
-                          {row.admission_number ? `Adm. ${row.admission_number}` : "No admission no."}
-                          {row.enrollment_status && row.enrollment_status !== "active" ? ` · ${row.enrollment_status}` : ""}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-[11.5px] font-bold text-navy/75">
-                        {row.class || "—"}
-                        {row.section ? ` · ${row.section}` : ""}
-                        {row.serial_no ? <span className="ml-1 text-[10.5px] font-semibold text-muted">#{String(row.serial_no)}</span> : null}
-                      </td>
-                      <td className="max-w-[180px] px-4 py-3">
-                        <span className="block truncate text-[11.5px] font-semibold text-muted">{row.father_name ? String(row.father_name) : "—"}</span>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-[11px] font-semibold text-muted">
-                        {row.phone ? String(row.phone) : "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {count > 0 ? (
-                          <button
-                            type="button"
-                            onClick={() => openFlagDialog(row)}
-                            className="inline-flex items-center gap-1 rounded-full bg-[#FFF1F4] px-2.5 py-1 text-[10.5px] font-extrabold text-[#A32D4B] transition hover:bg-[#FFE4E8]"
-                            title="Manage red flags"
-                          >
-                            <Icon name="alert-triangle" className="h-3 w-3" />
-                            {count} active
-                          </button>
-                        ) : (
-                          <span className="text-[10.5px] font-bold text-muted">Clear</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            type="button"
-                            onClick={() => openFlagDialog(row)}
-                            className="inline-flex h-8 items-center gap-1 rounded-md border border-line bg-white px-2 text-[10.5px] font-extrabold text-[#A32D4B] transition hover:bg-[#FFF1F4]"
-                            title="Assign or resolve a red flag"
-                          >
-                            <Icon name="alert-triangle" className="h-3 w-3" />
-                            Flag
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => openEdit(row)}
-                            aria-label="Edit student"
-                            className="grid h-8 w-8 place-items-center rounded-md text-muted transition hover:bg-blue-100 hover:text-blue"
-                          >
-                            <Icon name="edit" className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeleteTarget(row)}
-                            aria-label="Delete student"
-                            className="grid h-8 w-8 place-items-center rounded-md text-muted transition hover:bg-[#FFF1F4] hover:text-[#A32D4B]"
-                          >
-                            <Icon name="trash" className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white px-4 py-3">
-          <button
-            type="button"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page <= 1 || loading}
-            className="inline-flex h-9 items-center rounded-lg border border-line bg-white px-3.5 text-[11.5px] font-extrabold text-navy transition hover:bg-cream disabled:opacity-40"
-          >
-            Previous
-          </button>
-          <span className="text-[11.5px] font-bold text-muted">
-            {page} / {totalPages}
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-bold text-muted">
+            {selectedClass === "all" ? "All Students" : classLabel(selectedClass)}
           </span>
-          <button
-            type="button"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages || loading}
-            className="inline-flex h-9 items-center rounded-lg border border-line bg-white px-3.5 text-[11.5px] font-extrabold text-navy transition hover:bg-cream disabled:opacity-40"
-          >
-            Next
-          </button>
+          {selectedClass !== "all" && (
+            <button
+              type="button"
+              onClick={() => { setSelectedClass("all"); setPage(1); }}
+              className="inline-flex h-8 items-center gap-1 rounded-md bg-paper-2 px-2.5 text-[10.5px] font-extrabold text-navy/60 transition hover:bg-paper-3"
+            >
+              <Icon name="x" className="h-3 w-3" /> Clear filter
+            </button>
+          )}
         </div>
-      )}
+      </div>
+
+      <div className="flex flex-1 overflow-hidden gap-4">
+        {/* Sidebar - Class Folders */}
+        <aside className="w-64 flex-shrink-0 overflow-y-auto rounded-2xl border border-line bg-white shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)] p-2">
+          <nav className="space-y-1" aria-label="Classes">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => { setSelectedClass(item.key); setPage(1); }}
+                className={cn(
+                  "w-full flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left transition",
+                  selectedClass === item.key
+                    ? "bg-navy text-white"
+                    : "text-navy hover:bg-paper-2"
+                )}
+                aria-current={selectedClass === item.key ? "page" : undefined}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <Icon name={item.key === "all" ? "users" : "folder"} className="h-5 w-5 shrink-0" />
+                  <span className="text-[12px] font-semibold truncate">{item.label}</span>
+                </div>
+                {item.count > 0 && (
+                  <span className={cn(
+                    "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-extrabold",
+                    selectedClass === item.key ? "bg-white/20 text-white" : "bg-paper-2 text-muted"
+                  )}>
+                    {item.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Main Content - Students Table */}
+        <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between gap-2 px-2">
+            <p className="text-[11px] font-bold text-muted" aria-live="polite">
+              {loading ? "Loading…" : `${total.toLocaleString()} ${total === 1 ? "student" : "students"}`}
+              {selectedClass !== "all" ? ` · ${classLabel(selectedClass)}` : ""}
+              {flags.length > 0 ? ` · ${flags.length} active red flag${flags.length === 1 ? "" : "s"}` : ""}
+            </p>
+            {totalPages > 1 && (
+              <span className="text-[11px] font-bold text-muted">
+                Page {page} of {totalPages}
+              </span>
+            )}
+          </div>
+
+          <div className="flex-1 overflow-hidden rounded-2xl border border-line bg-white shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)]">
+            {rows.length === 0 ? (
+              <div className="px-6 py-14 text-center">
+                <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-paper-2 text-muted">
+                  <Icon name={loading ? "clock" : "user-group"} className="h-5 w-5" />
+                </span>
+                <h3 className="mt-3 font-display text-[17px] font-semibold text-navy-900">
+                  {loading ? "Loading students…" : "No students match these filters"}
+                </h3>
+                <p className="mt-1 text-[12px] font-semibold text-muted">
+                  {loading ? "Fetching the class list." : "Try a different class, section or search term."}
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[880px] text-left">
+                  <thead>
+                    <tr className="border-b border-line bg-paper-2/60">
+                      {["Student", "Class", "Parent", "Contact", "Red flags", "Actions"].map((heading) => (
+                        <th
+                          key={heading}
+                          className={cn(
+                            "px-4 py-3 text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-muted",
+                            heading === "Actions" && "text-right"
+                          )}
+                        >
+                          {heading}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((row) => {
+                      const count = flags.filter((f) => f.student_id === row.id).length;
+                      return (
+                        <tr key={row.id} className="border-b border-line/70 last:border-0 hover:bg-paper-2/40">
+                          <td className="max-w-[260px] px-4 py-3">
+                            <span className="block truncate text-[12px] font-extrabold text-navy-900">{fullName(row)}</span>
+                            <span className="mt-0.5 block text-[10.5px] font-semibold text-muted">
+                              {row.admission_number ? `Adm. ${row.admission_number}` : "No admission no."}
+                              {row.enrollment_status && row.enrollment_status !== "active" ? ` · ${row.enrollment_status}` : ""}
+                            </span>
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-3 text-[11.5px] font-bold text-navy/75">
+                            {row.class || "—"}
+                            {row.section ? ` · ${row.section}` : ""}
+                            {row.serial_no ? <span className="ml-1 text-[10.5px] font-semibold text-muted">#{String(row.serial_no)}</span> : null}
+                          </td>
+                          <td className="max-w-[180px] px-4 py-3">
+                            <span className="block truncate text-[11.5px] font-semibold text-muted">{row.father_name ? String(row.father_name) : "—"}</span>
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-3 text-[11px] font-semibold text-muted">
+                            {row.phone ? String(row.phone) : "—"}
+                          </td>
+                          <td className="px-4 py-3">
+                            {count > 0 ? (
+                              <button
+                                type="button"
+                                onClick={() => openFlagDialog(row)}
+                                className="inline-flex items-center gap-1 rounded-full bg-[#FFF1F4] px-2.5 py-1 text-[10.5px] font-extrabold text-[#A32D4B] transition hover:bg-[#FFE4E8]"
+                                title="Manage red flags"
+                              >
+                                <Icon name="alert-triangle" className="h-3 w-3" />
+                                {count} active
+                              </button>
+                            ) : (
+                              <span className="text-[10.5px] font-bold text-muted">Clear</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                type="button"
+                                onClick={() => openFlagDialog(row)}
+                                className="inline-flex h-8 items-center gap-1 rounded-md border border-line bg-white px-2 text-[10.5px] font-extrabold text-[#A32D4B] transition hover:bg-[#FFF1F4]"
+                                title="Assign or resolve a red flag"
+                              >
+                                <Icon name="alert-triangle" className="h-3 w-3" />
+                                Flag
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => openEdit(row)}
+                                aria-label="Edit student"
+                                className="grid h-8 w-8 place-items-center rounded-md text-muted transition hover:bg-blue-100 hover:text-blue"
+                              >
+                                <Icon name="edit" className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDeleteTarget(row)}
+                                aria-label="Delete student"
+                                className="grid h-8 w-8 place-items-center rounded-md text-muted transition hover:bg-[#FFF1F4] hover:text-[#A32D4B]"
+                              >
+                                <Icon name="trash" className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white px-4 py-3 mt-4">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1 || loading}
+                className="inline-flex h-9 items-center rounded-lg border border-line bg-white px-3.5 text-[11.5px] font-extrabold text-navy transition hover:bg-cream disabled:opacity-40"
+              >
+                Previous
+              </button>
+              <span className="text-[11.5px] font-bold text-muted">
+                {page} / {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages || loading}
+                className="inline-flex h-9 items-center rounded-lg border border-line bg-white px-3.5 text-[11.5px] font-extrabold text-navy transition hover:bg-cream disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* create / edit */}
       <Modal
