@@ -132,6 +132,17 @@ export function SiteFooter({
 
           <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-[11.5px] font-semibold text-white/45 sm:flex-row">
             <p>© {new Date().getFullYear()} {footer.copyright}</p>
+            <p className="text-white/30">
+              Designed & developed by{" "}
+              <a
+                href="https://armaan-portfolio-seven.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-green-accent transition-colors"
+              >
+                Armaan Adeel
+              </a>
+            </p>
             <div className="flex items-center gap-5">
               {footer.legal.map((link) => (
                 <Link key={link.href} href={link.href} className="transition-colors text-white hover:text-green-accent">
