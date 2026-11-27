@@ -2,11 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/layout/logo";
 import { Icon, type IconName } from "@/components/ui/icon";
-import { DURATION, EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 type StaffNavItem = {
@@ -28,7 +26,6 @@ export function StaffShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const reduce = useReducedMotion();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -149,33 +146,6 @@ export function StaffShell({
   return (
     <div className="min-h-svh bg-paper-2">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] bg-navy-900 lg:block">{sidebar}</aside>
-
-      <AnimatePresence>
-        {mobileOpen && (
-          <>
-            <motion.div
-              key="scrim"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: DURATION.sm }}
-              className="fixed inset-0 z-40 bg-navy-900/50 backdrop-blur-sm lg:hidden"
-              onClick={() => setMobileOpen(false)}
-            />
-            <motion.aside
-              key="drawer"
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ duration: reduce ? 0.01 : DURATION.sm, ease: EASE.out }}
-              className="fixed inset-y-0 left-0 z-50 w-[272px] bg-navy-900 lg:hidden"
-              aria-label="Staff menu"
-            >
-              {sidebar}
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
 
       <div className="lg:pl-[248px]">
         <header className="sticky top-0 z-30 flex h-[62px] items-center gap-3 border-b border-line bg-paper/90 px-4 backdrop-blur-xl sm:px-6">
