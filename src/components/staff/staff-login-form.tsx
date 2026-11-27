@@ -33,7 +33,7 @@ export function LoginForm({ next }: { next?: string }) {
         setLoading(false);
         return;
       }
-      router.replace(data.redirect ?? "/dashboard");
+      router.replace(data.redirect ?? "/staff/dashboard");
       router.refresh();
     } catch {
       setError("Network error. Please try again.");
