@@ -41,9 +41,11 @@ async function testFullFlow() {
   if (!valid) return;
   
   // 3. Create session (simulate createStaffSession)
+  const STAFF_sha256 = (v) => crypto.createHash("sha256").update(v).digest("hex");
+  
+  // 3. Create session (simulate createStaffSession)
   const token = crypto.randomBytes(32).toString("base64url");
   const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-  const STAFF_sha256 = (v) => crypto.createHash("sha256").update(v).digest("hex");
   
   const { data: sessionData, error: sessionError } = await db
     .from('staff_sessions')
@@ -64,7 +66,6 @@ async function testFullFlow() {
   console.log('3. Session created, token:', token.slice(0, 20) + '...');
   
   // 4. Test getStaffSessionByToken (what the server component calls)
-  const STAFF_sha256 = (v) => crypto.createHash("sha256").update(v).digest("hex");
   const { data: row, error: rowError } = await db
     .from('staff_sessions')
     .select(`
