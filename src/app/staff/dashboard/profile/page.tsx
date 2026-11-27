@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getStaffSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { getDirectDb } from "@/lib/db";
+import { useRouter } from "next/navigation";
 import { StaffShell } from "@/components/staff/staff-shell";
 import { Icon } from "@/components/ui/icon";
 import { UploadInput } from "@/components/admin/upload-input";
@@ -11,28 +11,69 @@ import { formatDateTime } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { updateProfile } from "./actions";
 
-export const dynamic = "force-dynamic";
+interface ProfileData {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  designation: string | null;
+  qualification: string | null;
+  bio: string | null;
+  photo: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
-export const metadata: Metadata = { title: "My Profile" };
+interface FacultyData {
+  id: number;
+  name: string;
+  email: string;
+  designation: string | null;
+  qualification: string | null;
+  bio: string | null;
+  photo: string | null;
+  subjects: string | null;
+  status: string;
+  order_index: number;
+  featured: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
-export default async function ProfilePage() {
-  const session = await getStaffSession();
-  if (!session) redirect("/staff-login");
+export default function ProfilePage() {
+  const router = useRouter();
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [faculty, setFaculty] = useState<FacultyData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const db = getDirectDb();
-  const profile = await db.selectOne('staff', '*', { id: session.user.id }) as
-    | { id: number; name: string; email: string; phone: string | null; designation: string | null; qualification: string | null; bio: string | null; photo: string | null; created_at: string; updated_at: string }
-    | undefined;
+  useEffect(() => {
+    fetch("/api/staff/profile")
+      .then((res) => {
+        if (!res.ok) throw new Error("Not authenticated");
+        return res.json();
+      })
+      .then((data) => {
+        setProfile(data.profile);
+        setFaculty(data.faculty);
+      })
+      .catch(() => router.push("/staff-login"))
+      .finally(() => setLoading(false));
+  }, [router]);
 
-  if (!profile) redirect("/staff-login");
+  if (loading) {
+    return (
+      <StaffShell user={{ name: "", email: "" }}>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-navy border-t-transparent" />
+        </div>
+      </StaffShell>
+    );
+  }
 
-  // Also fetch the linked faculty profile
-  const faculty = await db.selectOne('faculty', '*', { email: profile.email }) as
-    | { id: number; name: string; email: string; designation: string | null; qualification: string | null; bio: string | null; photo: string | null; subjects: string | null; status: string; order_index: number; featured: boolean; created_at: string; updated_at: string }
-    | undefined;
+  if (!profile) return null;
 
   return (
-    <StaffShell user={{ name: session.user.name, email: session.user.email }}>
+    <StaffShell user={{ name: profile.name, email: profile.email }}>
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4">
           <div>

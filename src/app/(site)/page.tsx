@@ -54,12 +54,12 @@ const FALLBACK_CTA: CtaContent = {
 };
 
 const FALLBACK_PRINCIPAL: PrincipalContent = {
-  heading: "A message from the school",
+  heading: "A Message from the Managing Director",
   body:
-    "Every child who walks through our gates carries a spark of potential. Our promise is to nurture that spark with warmth, discipline and joyful learning.",
-  authorName: "— To be confirmed by the school",
-  authorRole: "Principal, Kids Island Senior Secondary School",
-  photo: null,
+    "It gives me immense pleasure to welcome you to Kids Island Senior Secondary School, an institution built on the foundation of knowledge, values, discipline and excellence.\n\nAs we proudly celebrate 25 glorious years of our journey, we look back with gratitude and forward with renewed commitment.\n\nOur vision has always been to nurture young minds, inspire curiosity and shape confident, responsible and compassionate individuals.\n\nWe believe that education is not merely about academic achievements but also about building character and preparing children for life.\n\nAt Kids Island, every child is valued, encouraged and given the opportunity to discover their true potential.\n\nOur dedicated team of educators strives to create a positive, safe and inspiring learning environment.\n\nThe trust and support of our parents have been the greatest strength behind our success.\n\nTogether, let us continue this journey of learning, growth and excellence.",
+  authorName: "Warm regards,\nMs. Tara Jabeen",
+  authorRole: "Managing Director\nKids Island Senior Secondary School",
+  photo: "/images/school/founder.jpeg",
 };
 
 export default async function HomePage() {
