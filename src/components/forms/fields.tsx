@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 
 export const inputClass =
-  "h-12 w-full rounded-xl border border-line bg-white px-3.5 text-[14px] font-semibold text-navy-900 shadow-sm outline-none transition-colors placeholder:font-medium placeholder:text-muted/50 focus:border-blue focus:ring-4 focus:ring-blue/10";
+  "min-h-[48px] w-full rounded-xl border border-line bg-white px-4 text-[16px] font-semibold text-navy-900 shadow-sm outline-none transition-colors placeholder:font-medium placeholder:text-muted/50 focus:border-blue focus:ring-4 focus:ring-blue/10";
 
 export const textareaClass =
-  "min-h-[130px] w-full resize-y rounded-xl border border-line bg-white px-3.5 py-3 text-[14px] font-semibold text-navy-900 shadow-sm outline-none transition-colors placeholder:font-medium placeholder:text-muted/50 focus:border-blue focus:ring-4 focus:ring-blue/10";
+  "min-h-[140px] w-full resize-y rounded-xl border border-line bg-white px-4 py-4 text-[16px] font-semibold text-navy-900 shadow-sm outline-none transition-colors placeholder:font-medium placeholder:text-muted/50 focus:border-blue focus:ring-4 focus:ring-blue/10";
 
 export function Field({
   label,

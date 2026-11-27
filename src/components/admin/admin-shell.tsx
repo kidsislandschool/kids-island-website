@@ -93,9 +93,9 @@ export function AdminShell({
           type="button"
           onClick={() => setMobileOpen(false)}
           aria-label="Close menu"
-          className="grid h-9 w-9 place-items-center rounded-lg text-white/60 transition hover:bg-white/10 hover:text-white lg:hidden"
+          className="grid h-10 w-10 place-items-center rounded-lg text-white/60 transition hover:bg-white/10 hover:text-white lg:hidden min-h-[44px] min-w-[44px]"
         >
-          <Icon name="close" className="h-4 w-4" />
+          <Icon name="close" className="h-5 w-5" />
         </button>
       </div>
 
@@ -114,7 +114,7 @@ export function AdminShell({
                       href={item.href}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "group flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-[12.5px] font-bold transition-colors",
+                        "group flex items-center justify-between gap-2 rounded-lg px-3 py-3 text-[12.5px] font-bold transition-colors min-h-[48px]",
                         active
                           ? "bg-white/10 text-white"
                           : "text-white/55 hover:bg-white/5 hover:text-white/90"
@@ -151,7 +151,7 @@ export function AdminShell({
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[11.5px] font-bold text-white/45 transition hover:bg-white/5 hover:text-white"
+          className="flex items-center gap-2.5 rounded-lg px-3 py-3 text-[11.5px] font-bold text-white/45 transition hover:bg-white/5 hover:text-white min-h-[48px] min-w-[48px]"
         >
           <Icon name="arrow-up-right" className="h-4 w-4 text-white/30" />
           View public website
@@ -195,14 +195,14 @@ export function AdminShell({
 
       <div className="lg:pl-[248px]">
         {/* top bar */}
-        <header className="sticky top-0 z-30 flex h-[62px] items-center gap-3 border-b border-line bg-paper/90 px-4 backdrop-blur-xl sm:px-6">
+        <header className="sticky top-0 z-30 flex h-[64px] items-center gap-3 border-b border-line bg-paper/90 px-4 backdrop-blur-xl sm:px-6">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
             aria-label="Open admin menu"
-            className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-white text-navy shadow-sm transition hover:bg-cream lg:hidden"
+            className="grid h-12 w-12 place-items-center rounded-xl border border-line bg-white text-navy shadow-sm transition hover:bg-cream lg:hidden min-h-[48px] min-w-[48px]"
           >
-            <Icon name="menu" />
+            <Icon name="menu" className="h-5 w-5" />
           </button>
 
           <div className="min-w-0">

@@ -78,29 +78,29 @@ export function SiteHeader({
     <>
       {/* slim top contact strip */}
       <div className="relative z-40 bg-green-900 text-white/75">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-2 text-[11.5px] font-semibold sm:px-8">
-          <div className="flex min-w-0 items-center gap-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 text-[12px] font-semibold sm:px-6 sm:py-2 sm:text-[12px] lg:px-8">
+          <div className="flex min-w-0 flex-wrap items-center gap-3 lg:gap-4">
             <span className="hidden items-center gap-1.5 sm:flex">
-              <Icon name="pin" className="h-3.5 w-3.5 text-yellow" />
+              <Icon name="pin" className="h-4 w-4 text-yellow" />
               <span className="truncate">{site.location}</span>
             </span>
-            <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5 transition-colors hover:text-white">
-              <Icon name="phone" className="h-3.5 w-3.5 text-yellow" />
+            <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl transition-colors hover:text-white hover:bg-white/5">
+              <Icon name="phone" className="h-4 w-4 text-yellow" />
               <span>{site.phone}</span>
             </a>
-            <a href={`mailto:${site.email}`} className="hidden items-center gap-1.5 transition-colors hover:text-white md:flex">
-              <Icon name="mail" className="h-3.5 w-3.5 text-yellow" />
+            <a href={`mailto:${site.email}`} className="hidden items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl transition-colors hover:text-white hover:bg-white/5 md:flex">
+              <Icon name="mail" className="h-4 w-4 text-yellow" />
               <span>{site.email}</span>
             </a>
           </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <Link href="/admin-login" className="flex items-center gap-1 rounded-full px-2.5 py-1 transition-colors hover:bg-white/10 hover:text-white">
-              <Icon name="lock" className="h-3 w-3" />
+          <div className="flex shrink-0 items-center gap-1.5 lg:gap-2">
+            <Link href="/admin-login" className="flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl transition-colors hover:bg-white/10 hover:text-white">
+              <Icon name="lock" className="h-4 w-4" />
               Admin Login
             </Link>
-            <span className="h-3 w-px bg-white/15" />
-            <Link href="/staff-login" className="flex items-center gap-1 rounded-full px-2.5 py-1 transition-colors hover:bg-white/10 hover:text-white">
-              <Icon name="lock" className="h-3 w-3" />
+            <span className="h-4 w-px bg-white/15" />
+            <Link href="/staff-login" className="flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl transition-colors hover:bg-white/10 hover:text-white">
+              <Icon name="lock" className="h-4 w-4" />
               Staff Login
             </Link>
           </div>
@@ -158,9 +158,9 @@ export function SiteHeader({
               aria-expanded={open}
               aria-controls="mobile-nav"
               aria-label={open ? "Close menu" : "Open menu"}
-              className="grid h-11 w-11 place-items-center rounded-2xl border border-navy/10 bg-white text-navy shadow-sm transition hover:bg-cream xl:hidden"
+              className="flex h-12 w-12 place-items-center rounded-2xl border border-navy/10 bg-white text-navy shadow-sm transition hover:bg-cream xl:hidden min-h-[48px] min-w-[48px]"
             >
-              {open ? <Icon name="close" /> : <Icon name="menu" />}
+              {open ? <Icon name="close" className="h-6 w-6" /> : <Icon name="menu" className="h-6 w-6" />}
             </button>
           </div>
         </div>
@@ -198,14 +198,14 @@ export function SiteHeader({
                         href={link.href}
                         aria-current={isActive(link.href) ? "page" : undefined}
                         className={cn(
-                          "flex items-center justify-between rounded-2xl px-4 py-3 text-[15px] font-extrabold transition-colors",
+                          "flex items-center justify-between rounded-2xl px-5 py-4 text-[16px] font-extrabold transition-colors min-h-[56px]",
                           isActive(link.href)
                             ? "bg-navy text-white"
                             : "text-navy/80 hover:bg-navy/5"
                         )}
                       >
                         {link.label}
-                        <Icon name="chevron-right" className="h-4 w-4 opacity-40" />
+                        <Icon name="chevron-right" className="h-5 w-5 opacity-40" />
                       </Link>
                     </motion.li>
                   ))}
@@ -225,15 +225,15 @@ export function SiteHeader({
                           aria-expanded={moreOpen}
                           aria-label={moreOpen ? "Close more options" : "More options"}
                           className={cn(
-                            "flex items-center justify-between rounded-2xl px-4 py-3 text-[15px] font-extrabold transition-colors",
+                            "flex items-center justify-between rounded-2xl px-5 py-4 text-[16px] font-extrabold transition-colors min-h-[56px]",
                             moreOpen ? "bg-navy text-white" : "text-navy/80 hover:bg-navy/5"
                           )}
                         >
                           <span className="flex items-center gap-2">
-                            <Icon name="more-horizontal" className="h-4 w-4" />
+                            <Icon name="more-horizontal" className="h-5 w-5" />
                             More
                           </span>
-                          <Icon name={moreOpen ? "chevron-up" : "chevron-down"} className="h-4 w-4 opacity-40 transition-transform" />
+                          <Icon name={moreOpen ? "chevron-up" : "chevron-down"} className="h-5 w-5 opacity-40 transition-transform" />
                         </button>
                         {moreOpen && (
                           <AnimatePresence initial={false}>
@@ -266,14 +266,14 @@ export function SiteHeader({
                                       aria-current={isActive(link.href) ? "page" : undefined}
                                       onClick={() => setMoreOpen(false)}
                                       className={cn(
-                                        "flex items-center justify-between rounded-xl px-4 py-2.5 text-[14px] font-extrabold transition-colors",
+                                        "flex items-center justify-between rounded-xl px-5 py-4 text-[15px] font-extrabold transition-colors min-h-[56px]",
                                         isActive(link.href)
                                           ? "bg-navy/10 text-navy"
                                           : "text-navy/80 hover:bg-navy/5"
                                       )}
                                     >
                                       {link.label}
-                                      <Icon name="chevron-right" className="h-3.5 w-3.5 opacity-40" />
+                                      <Icon name="chevron-right" className="h-5 w-5 opacity-40" />
                                     </Link>
                                   </motion.li>
                                 ))}
@@ -286,28 +286,28 @@ export function SiteHeader({
                   )}
                 </motion.ul>
 
-                <div className="mt-4 grid gap-2.5 border-t border-line pt-4 sm:grid-cols-2">
-                  <Button href={cta.href} full className="group/btn">
+                <div className="mt-4 grid gap-3 border-t border-line pt-4 sm:grid-cols-2">
+                  <Button href={cta.href} full size="lg" className="group/btn">
                     {cta.label}
                     <ButtonArrow />
                   </Button>
-                  <Button href="/contact" variant="outline" full>
+                  <Button href="/contact" variant="outline" full size="lg">
                     Contact the school
                   </Button>
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] font-bold text-muted">
-                  <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5">
-                    <Icon name="phone" className="h-3.5 w-3.5 text-yellow" /> {site.phone}
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3 text-[13px] font-bold text-muted">
+                  <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl bg-paper-2 transition-colors hover:bg-navy/5">
+                    <Icon name="phone" className="h-4 w-4 text-yellow" /> {site.phone}
                   </a>
-                  <a href={`mailto:${site.email}`} className="flex items-center gap-1.5">
-                    <Icon name="mail" className="h-3.5 w-3.5 text-yellow" /> {site.email}
+                  <a href={`mailto:${site.email}`} className="flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl bg-paper-2 transition-colors hover:bg-navy/5">
+                    <Icon name="mail" className="h-4 w-4 text-yellow" /> {site.email}
                   </a>
-                  <Link href="/admin-login" className="flex items-center gap-1.5">
-                    <Icon name="lock" className="h-3.5 w-3.5 text-white" /> Admin Login
+                  <Link href="/admin-login" className="flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl bg-paper-2 transition-colors hover:bg-navy/5">
+                    <Icon name="lock" className="h-4 w-4 text-white" /> Admin Login
                   </Link>
-                  <Link href="/staff-login" className="flex items-center gap-1.5">
-                    <Icon name="lock" className="h-3.5 w-3.5 text-white" /> Staff Login
+                  <Link href="/staff-login" className="flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl bg-paper-2 transition-colors hover:bg-navy/5">
+                    <Icon name="lock" className="h-4 w-4 text-white" /> Staff Login
                   </Link>
                 </div>
               </div>

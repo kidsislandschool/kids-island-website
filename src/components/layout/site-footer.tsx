@@ -34,7 +34,7 @@ export function SiteFooter({
                 <Logo light />
               </Link>
               <p className="mt-5 max-w-sm text-[14px] leading-relaxed text-white/60">{footer.blurb}</p>
-              <div className="mt-6 flex items-center gap-2.5">
+              <div className="mt-6 flex flex-wrap items-center gap-3">
                 {socials.map((social) => (
                   <a
                     key={social.label}
@@ -42,7 +42,7 @@ export function SiteFooter({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
+                    className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
                   >
                     <Icon
                       name={
@@ -56,7 +56,7 @@ export function SiteFooter({
                           ? "whatsapp"
                           : "link"
                       }
-                      className="h-4 w-4"
+                      className="h-5 w-5"
                     />
                   </a>
                 ))}
@@ -65,23 +65,23 @@ export function SiteFooter({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="WhatsApp"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
+                  className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
                 >
-                  <Icon name="whatsapp" className="h-4 w-4" />
+                  <Icon name="whatsapp" className="h-5 w-5" />
                 </a>
                 <a
                   href={`mailto:${site.email}`}
                   aria-label="Email the school"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
+                  className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
                 >
-                  <Icon name="mail" className="h-4 w-4" />
+                  <Icon name="mail" className="h-5 w-5" />
                 </a>
                 <a
                   href={`tel:${site.phone.replace(/\s/g, "")}`}
                   aria-label="Call the school"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
+                  className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
                 >
-                  <Icon name="phone" className="h-4 w-4" />
+                  <Icon name="phone" className="h-5 w-5" />
                 </a>
               </div>
             </div>
@@ -91,7 +91,7 @@ export function SiteFooter({
               <ul className="mt-5 space-y-2.5">
                 {footer.quickLinks.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors text-white hover:text-green-accent">
+                    <Link href={link.href} className="group inline-flex items-center gap-2 min-h-[44px] px-3 py-2 text-[13.5px] font-semibold transition-colors text-white hover:text-green-accent rounded-xl">
                       <span className="h-1 w-1 rounded-full bg-green-accent transition-transform group-hover:scale-150" />
                       {link.label}
                     </Link>
@@ -105,7 +105,7 @@ export function SiteFooter({
               <ul className="mt-5 space-y-2.5">
                 {footer.resources.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors text-white hover:text-green-accent">
+                    <Link href={link.href} className="group inline-flex items-center gap-2 min-h-[44px] px-3 py-2 text-[13.5px] font-semibold transition-colors text-white hover:text-green-accent rounded-xl">
                       <span className="h-1 w-1 rounded-full bg-green-accent transition-transform group-hover:scale-150" />
                       {link.label}
                     </Link>
@@ -116,24 +116,24 @@ export function SiteFooter({
 
             <div>
               <h3 className="font-display text-[15px] font-semibold uppercase tracking-[0.14em] text-white">Reach us</h3>
-              <ul className="mt-5 space-y-3.5 text-[13.5px] font-semibold text-white">
-                <li className="flex gap-2.5">
+              <ul className="mt-5 space-y-3 text-[13.5px] font-semibold text-white">
+                <li className="flex gap-2.5 min-h-[44px] px-3 py-2 rounded-xl transition-colors hover:bg-white/5">
                   <Icon name="pin" className="mt-0.5 h-4 w-4 shrink-0 text-yellow" />
                   <span>{site.location}</span>
                 </li>
-                <li className="flex gap-2.5">
+                <li className="flex gap-2.5 min-h-[44px] px-3 py-2 rounded-xl transition-colors hover:bg-white/5">
                   <Icon name="phone" className="mt-0.5 h-4 w-4 shrink-0 text-yellow" />
                   <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="transition-colors hover:text-white">
                     {site.phone}
                   </a>
                 </li>
-                <li className="flex gap-2.5">
+                <li className="flex gap-2.5 min-h-[44px] px-3 py-2 rounded-xl transition-colors hover:bg-white/5">
                   <Icon name="mail" className="mt-0.5 h-4 w-4 shrink-0 text-green-accent" />
                   <a href={`mailto:${site.email}`} className="break-all transition-colors text-white hover:text-green-accent">
                     {site.email}
                   </a>
                 </li>
-                <li className="flex gap-2.5">
+                <li className="flex gap-2.5 min-h-[44px] px-3 py-2 rounded-xl transition-colors hover:bg-white/5">
                   <Icon name="clock" className="mt-0.5 h-4 w-4 shrink-0 text-yellow" />
                   <span>{site.hoursOffice}</span>
                 </li>
@@ -141,9 +141,9 @@ export function SiteFooter({
             </div>
           </div>
 
-          <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-[11.5px] font-semibold text-white/45 sm:flex-row">
-            <p>© {new Date().getFullYear()} {footer.copyright}</p>
-            <p className="text-white/30">
+          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-[12px] font-semibold text-white/45 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-center sm:text-left">© {new Date().getFullYear()} {footer.copyright}</p>
+            <p className="text-center text-white/30 sm:text-left">
               Designed & developed by{" "}
               <a
                 href="https://armaan-portfolio-seven.vercel.app/"
@@ -154,14 +154,14 @@ export function SiteFooter({
                 Armaan Adeel
               </a>
             </p>
-            <div className="flex items-center gap-5">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:justify-end sm:gap-6">
               {footer.legal.map((link) => (
-                <Link key={link.href} href={link.href} className="transition-colors text-white hover:text-green-accent">
+                <Link key={link.href} href={link.href} className="min-h-[44px] px-3 py-2 transition-colors text-white hover:text-green-accent rounded-xl">
                   {link.label}
                 </Link>
               ))}
-              <Link href="/staff-login" className="flex items-center gap-1.5 transition-colors text-white hover:text-green-accent">
-                <Icon name="lock" className="h-3 w-3" /> Staff
+              <Link href="/staff-login" className="flex items-center gap-1.5 min-h-[44px] px-3 py-2 transition-colors text-white hover:text-green-accent rounded-xl">
+                <Icon name="lock" className="h-4 w-4" /> Staff
               </Link>
             </div>
           </div>

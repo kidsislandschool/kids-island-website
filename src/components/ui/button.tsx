@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 type Variant = "primary" | "navy" | "outline" | "white" | "ghost" | "sky";
-type Size = "sm" | "md" | "lg";
+type Size = "sm" | "md" | "lg" | "xl";
 
 const VARIANTS: Record<Variant, string> = {
   primary:
@@ -20,9 +20,10 @@ const VARIANTS: Record<Variant, string> = {
 };
 
 const SIZES: Record<Size, string> = {
-  sm: "h-10 px-4 text-sm gap-2 rounded-xl",
-  md: "h-12 px-6 text-[15px] gap-2.5 rounded-2xl",
-  lg: "h-14 px-7 text-base gap-3 rounded-2xl",
+  sm: "h-11 px-3 text-sm gap-1.5 rounded-xl min-w-[44px]", // 44px min height
+  md: "h-12 px-5 text-[15px] gap-2 rounded-2xl min-h-[48px]", // 48px min height
+  lg: "h-14 px-6 text-base gap-2.5 rounded-2xl min-h-[52px]",
+  xl: "h-16 px-8 text-lg gap-3 rounded-2xl min-h-[56px]",
 };
 
 type CommonProps = {
@@ -48,6 +49,8 @@ export function Button({
   )) {
   const classes = cn(
     "inline-flex items-center justify-center font-bold tracking-tight transition-[transform,background-color,box-shadow,border-color] duration-200 ease-out active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60",
+    "min-h-[44px] min-w-[44px]", // Minimum touch target
+    "flex items-center justify-center",
     VARIANTS[variant],
     SIZES[size],
     full && "w-full",
