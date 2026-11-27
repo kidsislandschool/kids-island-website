@@ -9,7 +9,6 @@ import { UploadInput } from "@/components/admin/upload-input";
 import { AdminField, adminInput, adminTextarea } from "@/components/admin/ui";
 import { formatDateTime } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { updateProfile } from "./actions";
 
 interface ProfileData {
   id: number;
@@ -45,6 +44,9 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [faculty, setFaculty] = useState<FacultyData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetch("/api/staff/profile")
@@ -59,6 +61,40 @@ export default function ProfilePage() {
       .catch(() => router.push("/staff-login"))
       .finally(() => setLoading(false));
   }, [router]);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setSubmitting(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const res = await fetch("/api/staff/profile/update", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error ?? "Failed to update profile. Please try again.");
+        return;
+      }
+
+      if (data.redirect) {
+        router.refresh();
+        router.push(data.redirect);
+      } else {
+        setSuccess(true);
+        setTimeout(() => router.refresh(), 1000);
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -85,7 +121,19 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <form action={updateProfile} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {success && (
+            <div className="flex items-center gap-2 rounded-xl border border-[#CBE7D7] bg-[#F4FCF7] px-4 py-3 text-[12px] font-semibold text-[#167A4A]">
+              <Icon name="check" className="h-4 w-4 shrink-0" />
+              Profile updated successfully. Redirecting…
+            </div>
+          )}
+          {error && (
+            <div className="flex items-center gap-2 rounded-xl border border-[#F3C6D1] bg-[#FFF1F4] px-4 py-3 text-[12px] font-bold text-[#A32D4A]" role="alert">
+              <Icon name="alert-circle" className="h-4 w-4 shrink-0" />
+              {error}
+            </div>
+          )}
           <StaffCard title="Profile Photo">
             <AdminField label="Current Photo" htmlFor="photo_upload">
               {profile.photo ? (
@@ -290,10 +338,20 @@ export default function ProfilePage() {
             </Link>
             <button
               type="submit"
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-navy px-5 text-[11.5px] font-extrabold text-white transition hover:bg-navy-700"
+              disabled={submitting}
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-navy px-5 text-[11.5px] font-extrabold text-white transition hover:bg-navy-700 disabled:opacity-50"
             >
-              <Icon name="check" className="h-4 w-4" strokeWidth={2.6} />
-              Save Changes
+              {submitting ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  Saving…
+                </>
+              ) : (
+                <>
+                  <Icon name="check" className="h-4 w-4" strokeWidth={2.6} />
+                  Save Changes
+                </>
+              )}
             </button>
           </div>
         </form>
