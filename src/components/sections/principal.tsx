@@ -12,6 +12,7 @@ export type PrincipalContent = {
   authorRole: string;
   photo: string | null;
   note?: string;
+  eyebrow?: string;
 };
 
 export function PrincipalMessage({ content }: { content: PrincipalContent }) {
@@ -45,7 +46,7 @@ export function PrincipalMessage({ content }: { content: PrincipalContent }) {
             <Reveal>
               <SectionHeading
                 align="left"
-                eyebrow="A message from the school"
+                eyebrow={content.eyebrow ?? "A message from the school"}
                 eyebrowTone="pink"
                 title={content.heading}
                 className="[&_h2]:max-w-xl"
