@@ -1,21 +1,21 @@
 import type { MetadataRoute } from "next";
-import { getLatestNotices } from "@/lib/data";
+import { getLatestNotices, getPublishedFaculty, getPublishedAlbums, getPublishedTestimonials } from "@/lib/data";
 import { siteOrigin } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
 const BASE = siteOrigin();
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const staticRoutes: { path: string; priority: number; freq: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [
     { path: "/", priority: 1, freq: "weekly" },
     { path: "/about", priority: 0.8, freq: "monthly" },
     { path: "/academics", priority: 0.8, freq: "monthly" },
     { path: "/admissions", priority: 0.9, freq: "weekly" },
-    { path: "/faculty", priority: 0.6, freq: "monthly" },
+    { path: "/faculty", priority: 0.7, freq: "monthly" },
     { path: "/study-materials", priority: 0.7, freq: "weekly" },
-    { path: "/gallery", priority: 0.6, freq: "monthly" },
+    { path: "/gallery", priority: 0.7, freq: "monthly" },
     { path: "/notices", priority: 0.8, freq: "daily" },
     { path: "/contact", priority: 0.7, freq: "monthly" },
     { path: "/privacy", priority: 0.2, freq: "yearly" },
@@ -23,15 +23,47 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   let noticeRoutes: MetadataRoute.Sitemap = [];
+  let facultyRoutes: MetadataRoute.Sitemap = [];
+  let albumRoutes: MetadataRoute.Sitemap = [];
+  let testimonialRoutes: MetadataRoute.Sitemap = [];
+
   try {
-    noticeRoutes = getLatestNotices(200).map((notice) => ({
+    const [notices, faculty, albums, testimonials] = await Promise.all([
+      getLatestNotices(200),
+      getPublishedFaculty(),
+      getPublishedAlbums(),
+      getPublishedTestimonials(),
+    ]);
+
+    noticeRoutes = notices.map((notice) => ({
       url: `${BASE}/notices/${notice.id}`,
       lastModified: new Date(notice.published_at ?? notice.created_at),
       changeFrequency: "monthly" as const,
       priority: 0.5,
     }));
+
+    facultyRoutes = faculty.map((member) => ({
+      url: `${BASE}/faculty#${member.id}`,
+      lastModified: new Date(member.updated_at ?? now),
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    }));
+
+    albumRoutes = albums.map((album) => ({
+      url: `${BASE}/gallery#${album.id}`,
+      lastModified: new Date(album.updated_at ?? now),
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    }));
+
+    testimonialRoutes = testimonials.map((t) => ({
+      url: `${BASE}/#testimonial-${t.id}`,
+      lastModified: new Date(t.updated_at ?? now),
+      changeFrequency: "monthly" as const,
+      priority: 0.4,
+    }));
   } catch {
-    noticeRoutes = [];
+    /* fallback to empty arrays */
   }
 
   return [
@@ -42,5 +74,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: route.priority,
     })),
     ...noticeRoutes,
+    ...facultyRoutes,
+    ...albumRoutes,
+    ...testimonialRoutes,
   ];
 }

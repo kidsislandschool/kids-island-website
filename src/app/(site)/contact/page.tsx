@@ -11,6 +11,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
+import { FAQSchema } from "@/components/seo/schemas";
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -298,6 +299,7 @@ export default async function ContactPage() {
               <FaqAccordion faqs={faqs} />
             </Reveal>
           </div>
+          <FAQSchema faqs={faqs.map((f) => ({ question: f.question, answer: f.answer }))} />
         </section>
       )}
     </>
