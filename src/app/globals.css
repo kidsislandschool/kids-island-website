@@ -115,11 +115,11 @@ footer h1, footer h2, footer h3, footer h4, footer h5 {
 }
 
 @utility wave-underline {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='8' viewBox='0 0 80 8'%3E%3Cpath d='M0 5 Q10 0 20 5 T40 5 T60 5 T80 5' fill='none' stroke='%23ffc53d' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='12' viewBox='0 0 80 12'%3E%3Cpath d='M0 7 Q10 0 20 7 T40 7 T60 7 T80 7' fill='none' stroke='%23ffc53d' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: repeat-x;
   background-position: 0 100%;
-  background-size: 44px 7px;
-  padding-bottom: 0.22em;
+  background-size: 60px 10px;
+  padding-bottom: 0.28em;
 }
 
 /* Marquee ticker for the notice strip. */
