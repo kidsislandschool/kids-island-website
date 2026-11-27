@@ -38,80 +38,46 @@ export default async function StaffDashboardPage() {
 
         <CloudDivider />
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <section className="rounded-2xl border border-line bg-white p-5 shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)]">
-            <div className="flex items-center justify-between gap-3 mb-4">
-              <h2 className="font-display text-[17px] font-semibold text-navy-900">My Recent Materials</h2>
-              <Link href="/staff/dashboard/materials" className="text-[11.5px] font-extrabold text-blue hover:underline">View all →</Link>
+        <section className="rounded-2xl border border-line bg-white p-5 shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)]">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h2 className="font-display text-[17px] font-semibold text-navy-900">My Materials</h2>
+            <Link href="/staff/dashboard/materials" className="text-[11.5px] font-extrabold text-blue hover:underline">View all →</Link>
+          </div>
+          {myMaterials.materials.length === 0 ? (
+            <div className="text-center py-8">
+              <Icon name="book" className="h-12 w-12 mx-auto text-muted/30" />
+              <p className="mt-3 text-[13px] text-muted">No materials uploaded yet.</p>
+              <Link
+                href="/staff/dashboard/materials/new"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-navy px-4 text-[12px] font-extrabold text-white transition hover:bg-navy-700"
+              >
+                <Icon name="plus" className="h-4 w-4" /> Upload your first material
+              </Link>
             </div>
-            {myMaterials.materials.length === 0 ? (
-              <div className="text-center py-8">
-                <Icon name="book" className="h-12 w-12 mx-auto text-muted/30" />
-                <p className="mt-3 text-[13px] text-muted">No materials uploaded yet.</p>
-                <Link
-                  href="/staff/dashboard/materials/new"
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-navy px-4 text-[12px] font-extrabold text-white transition hover:bg-navy-700"
-                >
-                  <Icon name="plus" className="h-4 w-4" /> Upload your first material
-                </Link>
-              </div>
-            ) : (
-              <ul className="space-y-3">
-                {myMaterials.materials.map((material) => (
-                  <li key={material.id} className="flex items-start gap-3 p-3 rounded-xl border border-line bg-paper-2/50">
-                    <div className="grid h-10 w-10 place-items-center rounded-lg bg-green-100 text-green shrink-0">
-                      <Icon name="book" className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <Link href={`/study-materials`} target="_blank" rel="noopener noreferrer" className="block">
-                        <p className="font-bold text-navy-900 line-clamp-1">{material.title}</p>
-                      </Link>
-                      <p className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted">
-                        <span>{material.class_level}</span>
-                        <span>·</span>
-                        <span>{material.subject}</span>
-                        <span>·</span>
-                        <span>{formatDate(material.created_at)}</span>
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          <section className="rounded-2xl border border-line bg-white p-5 shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)]">
-            <div className="flex items-center justify-between gap-3 mb-4">
-              <h2 className="font-display text-[17px] font-semibold text-navy-900">All School Materials</h2>
-              <Link href="/staff/dashboard/materials" className="text-[11.5px] font-extrabold text-blue hover:underline">View all →</Link>
-            </div>
-            {allMaterials.length === 0 ? (
-              <p className="text-[13px] text-muted text-center py-4">No materials published yet.</p>
-            ) : (
-              <ul className="space-y-3">
-                {allMaterials.map((material) => (
-                  <li key={material.id} className="flex items-start gap-3 p-3 rounded-xl border border-line bg-paper-2/50">
-                    <div className="grid h-10 w-10 place-items-center rounded-lg bg-green-200 text-blue shrink-0">
-                      <Icon name="book" className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <Link href={`/study-materials`} target="_blank" rel="noopener noreferrer" className="block">
-                        <p className="font-bold text-navy-900 line-clamp-1">{material.title}</p>
-                      </Link>
-                      <p className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted">
-                        <span>{material.class_level}</span>
-                        <span>·</span>
-                        <span>{material.subject}</span>
-                        <span>·</span>
-                        <span>{formatDate(material.created_at)}</span>
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </div>
+          ) : (
+            <ul className="space-y-3">
+              {myMaterials.materials.map((material) => (
+                <li key={material.id} className="flex items-start gap-3 p-3 rounded-xl border border-line bg-paper-2/50">
+                  <div className="grid h-10 w-10 place-items-center rounded-lg bg-green-100 text-green shrink-0">
+                    <Icon name="book" className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <Link href={`/study-materials`} target="_blank" rel="noopener noreferrer" className="block">
+                      <p className="font-bold text-navy-900 line-clamp-1">{material.title}</p>
+                    </Link>
+                    <p className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted">
+                      <span>{material.class_level}</span>
+                      <span>·</span>
+                      <span>{material.subject}</span>
+                      <span>·</span>
+                      <span>{formatDate(material.created_at)}</span>
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
         <CloudDivider />
 
