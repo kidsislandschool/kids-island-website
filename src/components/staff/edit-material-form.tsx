@@ -50,10 +50,60 @@ interface EditMaterialFormProps {
   };
 }
 
+function DeleteConfirmationDialog({
+  open,
+  onClose,
+  onConfirm,
+  loading,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  loading: boolean;
+}) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/50">
+      <div className="w-full max-w-md bg-white rounded-2xl p-6 shadow-2xl">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="grid h-10 w-10 place-items-center rounded-full bg-[#FFF1F4]">
+            <Icon name="alert-triangle" className="h-5 w-5 text-[#A32D4B]" />
+          </div>
+          <h3 className="font-display text-[17px] font-semibold text-navy-900">Delete this material?</h3>
+        </div>
+        <p className="text-[13px] text-muted mb-6">
+          This action cannot be undone. The material will be permanently deleted.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-10 items-center rounded-full border border-line bg-white px-3 py-2 text-[10.5px] font-extrabold text-navy transition hover:bg-cream"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={true}
+            className="inline-flex h-10 items-center gap-1 rounded-lg bg-[#A32D4B] px-3 py-2 text-[10.5px] font-extrabold text-white transition hover:bg-[#8B244B] disabled:opacity-50"
+          >
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            Deleting…
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function EditMaterialForm({ material }: EditMaterialFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -75,6 +125,21 @@ export function EditMaterialForm({ material }: EditMaterialFormProps) {
       redirect("/staff/dashboard/materials");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update material");
+    }
+  }
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/staff/materials/${material.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Failed to delete material");
+      redirect("/staff/dashboard/materials");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete material");
+      setDeleting(false);
     }
   }
 
@@ -212,6 +277,13 @@ export function EditMaterialForm({ material }: EditMaterialFormProps) {
         </div>
       )}
 
+      <DeleteConfirmationDialog
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        loading={deleting}
+      />
+
       <div className="flex items-center justify-end gap-3">
         <Link
           href="/staff/dashboard/materials"
@@ -235,6 +307,15 @@ export function EditMaterialForm({ material }: EditMaterialFormProps) {
               Save Changes
             </>
           )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowDeleteConfirm(true)}
+          disabled={submitting || deleting}
+          className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#FFF1F4] px-5 text-[11.5px] font-extrabold text-[#A32D4B] transition hover:bg-[#FFE4E8] disabled:opacity-50"
+        >
+          <Icon name="trash" className="h-4 w-4" />
+          Delete
         </button>
       </div>
     </form>
