@@ -81,7 +81,7 @@
 ### 5. ADMIN PANEL
 - [x] **5.1** Standardize "Enquiry" → "Inquiry" in labels, headings, buttons, nav, filters ✅ DONE
 - [ ] **5.2** Responsiveness and slow/stuck loading - audit desktop/tablet/mobile
-- [ ] **5.3** Incorrect student counts (Class 9 shows 1) - fix source of counts
+- [ ] **5.3** Incorrect student counts (Class 9 shows 1) - **APPEARS FIXED** (Class 9 shows 111 students)
 - [ ] **5.4** Student list and class Sections - cross-check records, add/repair Sections A/B
 - [ ] **5.5** Visitor count/active users analytics - add/repair Admin analytics
 
