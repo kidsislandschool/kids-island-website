@@ -33,7 +33,7 @@ export default async function StaffDashboardPage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="My Materials" value={myMaterials.rows.length} icon="book" href="/staff/dashboard/materials" />
+          <StatCard label="My Materials" value={myMaterials.materials.length} icon="book" href="/staff/dashboard/materials" />
           <StatCard label="Total Materials" value={allMaterials.length} icon="folder" href="/staff/dashboard/materials" />
         </div>
 

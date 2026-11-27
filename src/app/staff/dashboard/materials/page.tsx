@@ -52,15 +52,15 @@ export default async function StaffMaterialsPage({ searchParams }: { searchParam
               }`}
             >
               {s.label}
-              {result.rows.filter(r => r.status === s.value).length > 0 && (
-                <span className="ml-1.5 rounded-full bg-white/20 px-1.5 text-[9px]">{result.rows.filter(r => r.status === s.value).length}</span>
+              {result.materials.filter(r => r.status === s.value).length > 0 && (
+                <span className="ml-1.5 rounded-full bg-white/20 px-1.5 text-[9px]">{result.materials.filter(r => r.status === s.value).length}</span>
               )}
             </Link>
           ))}
         </div>
 
         <AdminCard className="overflow-hidden">
-          {result.rows.length === 0 ? (
+          {result.materials.length === 0 ? (
             <EmptyState
               icon="book"
               title={status ? `No ${status} materials` : "No study materials yet"}
@@ -86,7 +86,7 @@ export default async function StaffMaterialsPage({ searchParams }: { searchParam
                   </tr>
                 </thead>
                 <tbody>
-                  {result.rows.map((material) => (
+                  {result.materials.map((material) => (
                     <tr key={material.id} className="border-b border-line/70 last:border-0 hover:bg-paper-2/40">
                       <td className="px-4 py-3.5">
                         <Link href={`/study-materials`} target="_blank" rel="noopener noreferrer" className="block">
@@ -113,7 +113,7 @@ export default async function StaffMaterialsPage({ searchParams }: { searchParam
           )}
         </AdminCard>
 
-        <Pagination page={result.page} pages={result.pages} basePath="/staff/dashboard/materials" searchParams={{ status }} />
+        <Pagination page={result.page} pages={result.totalPages} basePath="/staff/dashboard/materials" searchParams={{ status }} />
       </div>
     </StaffShell>
   );
