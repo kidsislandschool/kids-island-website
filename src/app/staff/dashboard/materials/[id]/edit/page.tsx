@@ -10,6 +10,7 @@ import { Icon } from "@/components/ui/icon";
 import { UploadInput } from "@/components/admin/upload-input";
 import { AdminField, adminInput, adminSelect, adminTextarea } from "@/components/admin/ui";
 import { cn, formatDateTime } from "@/lib/utils";
+import { updateMaterial } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -67,38 +68,7 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ i
           </div>
         </div>
 
-        <form action={async (formData: FormData) => {
-          "use server";
-          const db = (await import("@/lib/db")).getDirectDb();
-          const { getStaffSession } = await import("@/lib/auth");
-          const session = await getStaffSession();
-          if (!session) throw new Error("Not authenticated");
-          
-          const title = formData.get("title") as string;
-          const class_level = formData.get("class_level") as string;
-          const subject = formData.get("subject") as string;
-          const description = formData.get("description") as string;
-          const file_url = formData.get("file_url") as string;
-          const tags = formData.get("tags") as string;
-          const status = formData.get("status") as string;
-          const published_at = formData.get("published_at") as string || null;
-
-          if (!title || !class_level || !subject) {
-            throw new Error("Please fill in all required fields (Title, Class, Subject).");
-          }
-
-          await db.update('materials', {
-            title,
-            class_level,
-            subject,
-            description: description || null,
-            file_url: file_url || null,
-            tags: tags || null,
-            status,
-            published_at,
-            updated_at: new Date().toISOString(),
-          }, { id: materialId, created_by: session.user.id });
-        }} className="space-y-6">
+        <form action={(formData) => updateMaterial(materialId, formData)} className="space-y-6">
           <StaffCard title="Basic Information">
             <AdminField label="Material Title *" htmlFor="title" required>
               <input
