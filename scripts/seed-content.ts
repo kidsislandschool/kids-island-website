@@ -147,7 +147,7 @@ async function main() {
         ],
         facilities: [
           "Well-equipped classrooms",
-          "Library",
+          "Projector Hall",
           "Science laboratories",
           "Computer lab",
           "Small caged turf for multiple sports",
