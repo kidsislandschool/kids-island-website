@@ -13,7 +13,14 @@ const nextConfig: NextConfig = {
   },
   images: {
     // CMS-managed uploads live in /public/uploads and are served as-is.
-    remotePatterns: [],
+    // Supabase Storage for uploaded images
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "oipxarmkmzryrluflcfh.supabase.co",
+        pathname: "/storage/v1/object/public/media/**",
+      },
+    ],
     formats: ["image/webp", "image/avif"],
   },
   // Skip TypeScript errors during build for deployment

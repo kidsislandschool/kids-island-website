@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { WhatsAppFloat } from "@/components/layout/whatsapp-float";
 import { getFooter, getNav, getSiteSettings } from "@/lib/content";
 import { OrganizationSchema, WebSiteSchema } from "@/components/seo/schemas";
 
@@ -49,6 +50,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         {children}
       </main>
       <SiteFooter site={site} footer={footer} socials={site.socials} />
+      <WhatsAppFloat phone={site.whatsapp} />
     </>
   );
 }

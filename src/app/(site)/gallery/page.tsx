@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getContent } from "@/lib/content";
+import { getContent, getSiteSettings } from "@/lib/content";
 import { buildPageMetadata } from "@/lib/seo";
 import { getPublishedAlbums } from "@/lib/data";
 import { PageHero } from "@/components/sections/page-hero";
@@ -22,16 +22,19 @@ export async function generateMetadata(): Promise<Metadata> {
 type GalleryPage = { title: string; intro: string; emptyState: string };
 
 export default async function GalleryPage() {
-  const [content, albumsData] = await Promise.all([
+  const [content, albumsData, site] = await Promise.all([
     getContent<GalleryPage>("gallery.page", {
       title: "Campus Gallery",
       intro: "A glimpse into the vibrant academic and extracurricular life at Kids Island.",
       emptyState: "Gallery coming soon. Photos from campus life will appear here once published.",
     }),
     getPublishedAlbums(),
+    getSiteSettings(),
   ]);
   const albums = albumsData.filter((album) => album.photos.length > 0);
   const totalPhotos = albums.reduce((sum, album) => sum + album.photos.length, 0);
+
+  const youtubeUrl = site.socials.find((s) => s.label.toLowerCase().includes("you"))?.url ?? "https://youtube.com/@kidsislandaligarh";
 
   return (
     <>
@@ -49,6 +52,26 @@ export default async function GalleryPage() {
           </span>
         )}
       </PageHero>
+
+      {/* YouTube CTA */}
+      <Reveal delay={0.15} className="mx-auto max-w-7xl px-5 sm:px-8 pb-8">
+        <a
+          href={youtubeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex items-center gap-3 rounded-2xl border border-line bg-white/80 px-5 py-4 shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)] backdrop-blur transition hover:border-blue/25 hover:shadow-soft hover:bg-blue-50"
+          aria-label="Visit our YouTube channel for more videos"
+        >
+          <span className="grid h-11 w-11 place-items-center rounded-xl bg-red-600 text-white transition group-hover:scale-105">
+            <Icon name="youtube" className="h-5 w-5" />
+          </span>
+          <div className="text-left">
+            <p className="text-[12px] font-extrabold uppercase tracking-[0.1em] text-navy/50">Watch more</p>
+            <p className="text-[16px] font-display font-semibold text-navy-900">For more, go to our YouTube</p>
+          </div>
+          <Icon name="arrow-up-right" className="h-5 w-5 text-navy/30 group-hover:text-blue transition-colors" />
+        </a>
+      </Reveal>
 
       <section className="relative bg-paper py-16 sm:py-20" aria-label="Photo galleries">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">

@@ -100,7 +100,7 @@ export default async function AboutPage() {
               <CmsImage src={content.storyInset} alt="A classroom at Kids Island" variant="classroom" className="aspect-square w-full" />
             </div>
             <div className="absolute -left-3 -top-4 rounded-2xl bg-yellow px-4 py-3 shadow-[0_16px_32px_-16px_rgba(255,159,28,0.8)]">
-              <p className="font-display text-[15px] font-semibold leading-none text-navy-900">Nursery – Class 12</p>
+              <p className="font-display text-[15px] font-semibold leading-none text-navy-900">Nursery to Class 12</p>
               <p className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-navy/60">One campus, every stage</p>
             </div>
             <div aria-hidden className="absolute -bottom-3 -left-3 -z-10 h-full w-full rounded-[2rem] bg-mint" />
@@ -147,6 +147,71 @@ export default async function AboutPage() {
       </section>
 
       <StatsBand stats={stats} />
+
+      {/* founder & manager */}
+      <section className="relative overflow-hidden bg-paper py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <Reveal>
+            <SectionHeading
+              align="center"
+              eyebrow="Leadership"
+              title="A message from the <span className='wave-underline'>Managing Director</span>"
+            />
+          </Reveal>
+          <Reveal delay={0.1} direction="left">
+            <div className="mt-10 grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="relative overflow-hidden rounded-[2rem] border-[6px] border-white bg-white shadow-lift">
+                <CmsImage
+                  src="https://oipxarmkmzryrluflcfh.supabase.co/storage/v1/object/public/media/founder-1795765610384.jpeg"
+                  alt="Managing Director, Kids Island Senior Secondary School"
+                  variant="school"
+                  className="aspect-[3/4] w-full"
+                />
+              </div>
+              <div className="space-y-5 text-[15px] leading-relaxed text-muted">
+                <p className="font-display text-[22px] font-semibold text-navy-900">
+                  A Message from the Managing Director
+                </p>
+                <p>
+                  It gives me immense pleasure to welcome you to Kids Island Senior Secondary School, an institution
+                  built on the foundation of knowledge, values, discipline and excellence.
+                </p>
+                <p>
+                  As we proudly celebrate 25 glorious years of our journey, we look back with gratitude and forward
+                  with renewed commitment.
+                </p>
+                <p>
+                  Our vision has always been to nurture young minds, inspire curiosity and shape confident,
+                  responsible and compassionate individuals.
+                </p>
+                <p>
+                  We believe that education is not merely about academic achievements but also about building
+                  character and preparing children for life.
+                </p>
+                <p>
+                  At Kids Island, every child is valued, encouraged and given the opportunity to discover their
+                  true potential.
+                </p>
+                <p>
+                  Our dedicated team of educators strives to create a positive, safe and inspiring learning
+                  environment.
+                </p>
+                <p>
+                  The trust and support of our parents have been the greatest strength behind our success.
+                </p>
+                <p>
+                  Together, let us continue this journey of learning, growth and excellence.
+                </p>
+                <p className="font-semibold text-navy-900 pt-2 border-t border-line">
+                  With warm regards,<br />
+                  Managing Director<br />
+                  Kids Island Senior Secondary School
+                </p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
       {/* mission & vision */}
       <section className="relative overflow-hidden bg-paper py-20 sm:py-24">
@@ -264,7 +329,7 @@ export default async function AboutPage() {
               Come and see what a <span className="text-yellow">joyful school day</span> looks like.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-[14.5px] text-white/60">
-              Book a campus visit or send us an inquiry — we would love to meet your family.
+              Book a campus visit or send us an inquiry - we would love to meet your family.
             </p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Button href="/admissions#inquiry">Apply for admission</Button>

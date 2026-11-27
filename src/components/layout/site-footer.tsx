@@ -52,12 +52,23 @@ export function SiteFooter({
                           ? "instagram"
                           : social.label.toLowerCase().includes("you")
                           ? "youtube"
+                          : social.label.toLowerCase().includes("whats")
+                          ? "whatsapp"
                           : "link"
                       }
                       className="h-4 w-4"
                     />
                   </a>
                 ))}
+                <a
+                  href={`https://wa.me/${site.whatsapp.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-green-accent/40 hover:bg-green-accent hover:text-white"
+                >
+                  <Icon name="whatsapp" className="h-4 w-4" />
+                </a>
                 <a
                   href={`mailto:${site.email}`}
                   aria-label="Email the school"

@@ -7,12 +7,13 @@ export type PublicTestimonial = {
   quote: string;
   author_name: string;
   author_role: string | null;
+  image: string | null;
 };
 
 export async function getPublishedTestimonials(): Promise<PublicTestimonial[]> {
   const { data, error } = await supabaseAdmin
     .from('testimonials')
-    .select('id, quote, author_name, author_role')
+    .select('id, quote, author_name, author_role, image')
     .eq('status', 'published')
     .order('order_index', { ascending: true })
     .order('id', { ascending: true });

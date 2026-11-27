@@ -11,6 +11,7 @@ export type Testimonial = {
   quote: string;
   author_name: string;
   author_role?: string | null;
+  image?: string | null;
 };
 
 /**
@@ -78,13 +79,21 @@ export function TestimonialCarousel({
                 </blockquote>
               </div>
               <figcaption className="flex items-center gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-full bg-navy text-[13px] font-extrabold text-white">
-                  {t.author_name
-                    .split(" ")
-                    .slice(0, 2)
-                    .map((w) => w[0])
-                    .join("")}
-                </span>
+                {t.image ? (
+                  <img
+                    src={t.image}
+                    alt={t.author_name}
+                    className="h-11 w-11 rounded-full object-cover border border-navy/10"
+                  />
+                ) : (
+                  <span className="grid h-11 w-11 place-items-center rounded-full bg-navy text-[13px] font-extrabold text-white">
+                    {t.author_name
+                      .split(" ")
+                      .slice(0, 2)
+                      .map((w) => w[0])
+                      .join("")}
+                  </span>
+                )}
                 <span className="leading-tight">
                   <span className="block text-[14.5px] font-extrabold text-navy-900">{t.author_name}</span>
                   {t.author_role && (
