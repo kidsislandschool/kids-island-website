@@ -166,6 +166,7 @@ export function StudentsManager({
   const [total, setTotal] = useState(initialTotal);
   const [search, setSearch] = useState("");
   const [selectedClass, setSelectedClass] = useState<string>("all"); // "all" or "class" or "class|section"
+  const [selectedSection, setSelectedSection] = useState<string>(""); // "A", "B", or ""
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
@@ -204,16 +205,23 @@ export function StudentsManager({
       try {
         const params = new URLSearchParams({ page: String(page), perPage: String(PER_PAGE) });
         if (search.trim()) params.set("search", search.trim());
-        if (selectedClass !== "all") {
-          // Handle section filtering: format is "class|section"
-          if (selectedClass.includes("|")) {
-            const [cls, section] = selectedClass.split("|");
-            params.set("class", cls);
-            params.set("section", section);
-          } else {
-            params.set("class", selectedClass);
-          }
+        
+        // Handle class + section filtering
+        if (selectedClass !== "all" && selectedClass.includes("|")) {
+          // Sidebar selection with class|section format
+          const [cls, section] = selectedClass.split("|");
+          params.set("class", cls);
+          params.set("section", section);
+        } else if (selectedClass !== "all") {
+          // Class only from sidebar
+          params.set("class", selectedClass);
         }
+        
+        // Section filter from dropdown (independent of class)
+        if (selectedSection && selectedClass === "all") {
+          params.set("section", selectedSection);
+        }
+        
         const res = await fetch(`/api/admin/collections/students?${params.toString()}`, { signal });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error ?? "Could not load students");
@@ -226,7 +234,7 @@ export function StudentsManager({
         setLoading(false);
       }
     },
-    [flash, page, search, selectedClass]
+    [flash, page, search, selectedClass, selectedSection]
   );
 
   useEffect(() => {
@@ -421,23 +429,45 @@ export function StudentsManager({
             className={cn(adminInput, "pl-9")}
           />
         </label>
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-bold text-muted">
-            {selectedClass === "all" ? "All Students" : 
-              selectedClass.includes("|") 
-                ? `${classLabel(selectedClass.split("|")[0])} · Section ${selectedClass.split("|")[1]}`
-                : classLabel(selectedClass)
-            }
-          </span>
-          {selectedClass !== "all" && (
-            <button
-              type="button"
-              onClick={() => { setSelectedClass("all"); setPage(1); }}
-              className="inline-flex h-8 items-center gap-1 rounded-md bg-paper-2 px-2.5 text-[10.5px] font-extrabold text-navy/60 transition hover:bg-paper-3"
-            >
-              <Icon name="x" className="h-3 w-3" /> Clear filter
-            </button>
-          )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Section Filter Dropdown */}
+          <select
+            value={selectedSection}
+            onChange={(e) => {
+              setSelectedSection(e.target.value);
+              setPage(1);
+              // If section is selected but no class, default to "all" class
+              if (e.target.value && selectedClass === "all") {
+                setSelectedClass("all");
+              }
+            }}
+            className={cn(adminSelect, "w-auto min-w-[150px]")}
+            aria-label="Filter by section"
+          >
+            <option value="">All Sections</option>
+            <option value="A">Section A</option>
+            <option value="B">Section B</option>
+          </select>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-muted">
+              {selectedClass === "all" && !selectedSection ? "All Students" : 
+                selectedClass.includes("|") 
+                  ? `${classLabel(selectedClass.split("|")[0])} · Section ${selectedClass.split("|")[1]}`
+                  : selectedSection
+                    ? `Section ${selectedSection}`
+                    : classLabel(selectedClass)
+              }
+            </span>
+            {(selectedClass !== "all" || selectedSection) && (
+              <button
+                type="button"
+                onClick={() => { setSelectedClass("all"); setSelectedSection(""); setPage(1); }}
+                className="inline-flex h-8 items-center gap-1 rounded-md bg-paper-2 px-2.5 text-[10.5px] font-extrabold text-navy/60 transition hover:bg-paper-3"
+              >
+                <Icon name="x" className="h-3 w-3" /> Clear filter
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
