@@ -79,7 +79,7 @@
 - [x] **FIXED**: Fixed gallery images - uploaded local images to Supabase Storage, updated database URLs
 
 ### 5. ADMIN PANEL
-- [ ] **5.1** Standardize "Enquiry" → "Inquiry" in labels, headings, buttons, nav, filters
+- [x] **5.1** Standardize "Enquiry" → "Inquiry" in labels, headings, buttons, nav, filters ✅ DONE
 - [ ] **5.2** Responsiveness and slow/stuck loading - audit desktop/tablet/mobile
 - [ ] **5.3** Incorrect student counts (Class 9 shows 1) - fix source of counts
 - [ ] **5.4** Student list and class Sections - cross-check records, add/repair Sections A/B
