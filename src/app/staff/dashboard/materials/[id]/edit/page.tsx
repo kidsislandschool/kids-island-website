@@ -183,10 +183,14 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ i
               <UploadInput
                 id="file_upload"
                 value={material.file_url ?? ""}
-                onChange={(url) => {}}
+                onChange={(url) => {
+                  const fileInput = document.getElementById('file_hidden');
+                  if (fileInput) fileInput.value = url ?? '';
+                }}
                 kind="file"
                 uploadEndpoint="/api/staff/uploads"
               />
+              <input type="hidden" id="file_hidden" name="file_url" value={material.file_url ?? ""} />
             </AdminField>
           </StaffCard>
 
