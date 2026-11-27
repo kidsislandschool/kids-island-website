@@ -42,7 +42,7 @@ export function UploadInput({
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch(uploadEndpoint, { method: "POST", body: fd });
+      const res = await fetch(uploadEndpoint, { method: "POST", body: fd, credentials: "include" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error ?? "Upload failed. Try a different file.");
