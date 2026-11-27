@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 /** Cloud-shaped section boundary. Place between sections with matching fills. */
 export function CloudDivider({
-  fill = "#0d2e1e",
+  fill = "#ffffff",
   flip = false,
   className,
 }: {
