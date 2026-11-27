@@ -10,7 +10,7 @@ import { cn, formatDateTime } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Enquiry" };
+export const metadata: Metadata = { title: "Inquiry" };
 
 export default async function InquiryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -31,7 +31,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
 
       <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[10.5px] font-bold text-muted">
         <Link href="/admin/inquiries" className="transition hover:text-blue">
-          Enquiries
+          Inquiries
         </Link>
         <Icon name="chevron-right" className="h-3 w-3" />
         <span className="text-navy-900">{inquiry.name}</span>
@@ -47,7 +47,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
           className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-line bg-white px-3.5 text-[11.5px] font-extrabold text-navy transition hover:bg-cream"
         >
           <Icon name="chevron-left" className="h-3.5 w-3.5" />
-          All enquiries
+          All inquiries
         </Link>
         {mailto && (
           <a
@@ -64,7 +64,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
         <div className="flex flex-col gap-4">
           <AdminCard>
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
-              <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Enquiry details</h2>
+              <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Inquiry details</h2>
               <span
                 className={cn(
                   "inline-flex rounded-full px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.08em]",

@@ -41,9 +41,9 @@ export default async function AdminAdmissionsPage() {
       </AdminPageHeader>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <AdminStat label="New admission enquiries" value={counts.new} icon="mail" href="/admin/inquiries?type=admission&status=new" tone="yellow" />
+        <AdminStat label="New admission inquiries" value={counts.new} icon="mail" href="/admin/inquiries?type=admission&status=new" tone="yellow" />
         <AdminStat label="Replied" value={counts.replied} icon="check-circle" href="/admin/inquiries?type=admission&status=replied" tone="mint" />
-        <AdminStat label="Admission enquiries" value={counts.admission} icon="graduation" href="/admin/inquiries?type=admission" tone="blue" />
+        <AdminStat label="Admission inquiries" value={counts.admission} icon="graduation" href="/admin/inquiries?type=admission" tone="blue" />
         <AdminStat label="Contact messages" value={counts.contact} icon="mail" href="/admin/inquiries?type=contact" tone="pink" />
       </div>
 
@@ -109,7 +109,7 @@ export default async function AdminAdmissionsPage() {
         <div className="flex flex-col gap-4">
           <AdminCard>
             <div className="border-b border-line px-5 py-4">
-              <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Enquiry shortcuts</h2>
+              <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Inquiry shortcuts</h2>
               <p className="mt-0.5 text-[11.5px] font-semibold text-muted">Jump straight to the messages you need.</p>
             </div>
             <ul className="divide-y divide-line/70">

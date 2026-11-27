@@ -20,7 +20,7 @@ const sections = [
   },
   {
     title: "How we use it",
-    body: "Enquiry details are used only to respond to your question, arrange a campus visit, and guide you through the admission process. We do not sell or rent your information. Messages are visible only to authorised school staff in the admin workspace.",
+    body: "Inquiry details are used only to respond to your question, arrange a campus visit, and guide you through the admission process. We do not sell or rent your information. Messages are visible only to authorised school staff in the admin workspace.",
   },
   {
     title: "Cookies and sessions",

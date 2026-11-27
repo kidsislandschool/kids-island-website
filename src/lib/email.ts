@@ -71,7 +71,7 @@ export async function sendInquiryNotification(inquiry: {
   classApplying?: string;
   message: string;
 }): Promise<boolean> {
-  const typeLabel = inquiry.type === "admission" ? "Admission Enquiry" : "Contact Form";
+  const typeLabel = inquiry.type === "admission" ? "Admission Inquiry" : "Contact Form";
   const reference = `KI-${String(inquiry.id).padStart(5, "0")}`;
   
   const html = `
