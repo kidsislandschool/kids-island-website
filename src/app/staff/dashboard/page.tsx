@@ -45,7 +45,7 @@ export default async function StaffDashboardPage() {
               <h2 className="font-display text-[17px] font-semibold text-navy-900">My Recent Materials</h2>
               <Link href="/staff/dashboard/materials" className="text-[11.5px] font-extrabold text-blue hover:underline">View all →</Link>
             </div>
-            {myMaterials.rows.length === 0 ? (
+            {myMaterials.materials.length === 0 ? (
               <div className="text-center py-8">
                 <Icon name="book" className="h-12 w-12 mx-auto text-muted/30" />
                 <p className="mt-3 text-[13px] text-muted">No materials uploaded yet.</p>
@@ -58,7 +58,7 @@ export default async function StaffDashboardPage() {
               </div>
             ) : (
               <ul className="space-y-3">
-                {myMaterials.rows.map((material) => (
+                {myMaterials.materials.map((material) => (
                   <li key={material.id} className="flex items-start gap-3 p-3 rounded-xl border border-line bg-paper-2/50">
                     <div className="grid h-10 w-10 place-items-center rounded-lg bg-green-100 text-green shrink-0">
                       <Icon name="book" className="h-5 w-5" />
