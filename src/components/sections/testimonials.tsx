@@ -18,14 +18,14 @@ export function TestimonialsSection({ testimonials }: { testimonials: Testimonia
         <Reveal>
           <SectionHeading
             align="left"
-            eyebrow="Parent voices"
+            eyebrow="Parent & Student Voices"
             eyebrowTone="pink"
             title={
               <>
-                Families who <span className="wave-underline">belong here</span>
+                Feedback from <span className="wave-underline">parents and successful students</span>
               </>
             }
-            text="Words from parents in our community — published only after the school confirms authenticity and permission."
+            text="Words from parents and students in our community — published only after the school confirms authenticity and permission."
             className="[&_h2]:max-w-md"
           />
           <div className="mt-6 flex items-center gap-2 rounded-2xl border border-white bg-white/70 px-4 py-3 text-[12px] font-bold text-muted backdrop-blur w-fit">
