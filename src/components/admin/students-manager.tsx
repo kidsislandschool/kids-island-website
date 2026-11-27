@@ -96,6 +96,8 @@ function buildSidebarItems(
 
   // Always show these early years classes for sorting, even if 0 students
   const alwaysShowClasses = ["Play Group", "LKG", "UKG"];
+  // Classes that should NOT show sections in sidebar (sections only via dropdown)
+  const noSectionClasses = ["Play Group", "LKG", "UKG"];
 
   for (const cls of CLASS_ORDER) {
     const classCount = classCounts.get(cls) ?? 0;
@@ -108,9 +110,9 @@ function buildSidebarItems(
       isSection: false,
     });
 
-    // Add sections for this class
+    // Add sections for this class - EXCEPT for early years classes (PG, LKG, UKG)
     const sections = sectionCounts.get(cls);
-    if (sections) {
+    if (sections && !noSectionClasses.includes(cls)) {
       for (const [section, count] of sections) {
         if (count > 0) {
           items.push({
