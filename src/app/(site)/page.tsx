@@ -125,7 +125,11 @@ export default async function HomePage() {
             <SectionHeading
               align="center"
               eyebrow="Leadership"
-              title="A message from the <span className='wave-underline'>Managing Director</span>"
+              title={
+                <>
+                  A message from the <span className="wave-underline">Managing Director</span>
+                </>
+              }
             />
           </Reveal>
           <Reveal delay={0.1} direction="left">
