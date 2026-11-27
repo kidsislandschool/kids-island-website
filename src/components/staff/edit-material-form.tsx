@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import { UploadInput } from "@/components/admin/upload-input";
+import { FileUploadField } from "@/components/staff/file-upload-field";
 import { AdminField, adminInput, adminSelect, adminTextarea } from "@/components/admin/ui";
 import { cn, formatDateTime } from "@/lib/utils";
 
