@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "./supabase";
-import { COLLECTIONS, allowedColumns, type CollectionDef } from "./collections";
+import { COLLECTIONS, pickWritableColumns, type CollectionDef } from "./collections";
 
 export type AdminRow = Record<string, unknown> & { id: number };
 
@@ -10,12 +10,26 @@ export function getCollectionDef(key: string): CollectionDef | undefined {
 
 export async function getCollectionRows(
   key: string,
-  opts: { search?: string; status?: string; page?: number; perPage?: number } = {}
+  opts: {
+    search?: string;
+    status?: string;
+    page?: number;
+    perPage?: number;
+    /** Exact-match filters keyed by column name (e.g. class / section). */
+    filters?: Record<string, string | undefined>;
+  } = {}
 ) {
   const def = getCollectionDef(key);
   if (!def) throw new Error("Unknown collection");
   
   let query = supabaseAdmin.from(def.table).select('*', { count: 'exact' });
+
+  for (const [column, value] of Object.entries(opts.filters ?? {})) {
+    if (!value || value === "all") continue;
+    // Only filter on columns the collection actually exposes.
+    if (!def.fields.some((f) => f.name === column)) continue;
+    query = query.eq(column, value);
+  }
   
   if (opts.status && opts.status !== "all") {
     if (opts.status === "needs_review" || opts.status === "published" || opts.status === "draft") {
@@ -25,11 +39,24 @@ export async function getCollectionRows(
   
   const searchFields = def.fields.filter((f) => f.searchable).map((f) => f.name);
   if (opts.search && searchFields.length) {
-    const orFilters = searchFields.map((f) => `${f}.ilike.%${opts.search}%`).join(',');
-    query = query.or(orFilters);
+    // PostgREST `or` values must not contain commas/parentheses from user input.
+    const safe = opts.search.replace(/[%,()]/g, " ").trim();
+    if (safe) {
+      const orFilters = searchFields.map((f) => `${f}.ilike.%${safe}%`).join(",");
+      query = query.or(orFilters);
+    }
   }
-  
-  query = query.order('created_at', { ascending: false, nullsFirst: false });
+
+  if (def.sort?.length) {
+    for (const s of def.sort) {
+      query = query.order(s.column, {
+        ascending: s.ascending ?? true,
+        nullsFirst: s.nullsFirst ?? false,
+      });
+    }
+  } else {
+    query = query.order("created_at", { ascending: false, nullsFirst: false });
+  }
   
   const page = opts.page ?? 1;
   const perPage = opts.perPage ?? 20;
@@ -69,7 +96,7 @@ export async function createCollectionRow(
   const def = getCollectionDef(key);
   if (!def) throw new Error("Unknown collection");
   
-  const allowed = allowedColumns(def, input);
+  const allowed = pickWritableColumns(def, input);
   const { data, error } = await supabaseAdmin
     .from(def.table)
     .insert(allowed)
@@ -88,7 +115,7 @@ export async function updateCollectionRow(
   const def = getCollectionDef(key);
   if (!def) throw new Error("Unknown collection");
   
-  const allowed = allowedColumns(def, input);
+  const allowed = pickWritableColumns(def, input);
   const { data, error } = await supabaseAdmin
     .from(def.table)
     .update({ ...allowed, updated_at: new Date().toISOString() })
@@ -146,6 +173,7 @@ export async function adminCounts() {
     { count: albums },
     { count: photos },
     { count: redFlagsActive },
+    { count: redFlagsResolved },
   ] = await Promise.all([
     supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }).eq('status', 'new'),
     supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }),
@@ -158,8 +186,9 @@ export async function adminCounts() {
     supabaseAdmin.from('faculty').select('*', { count: 'exact', head: true }).eq('status', 'published'),
     supabaseAdmin.from('materials').select('*', { count: 'exact', head: true }).eq('status', 'published'),
     supabaseAdmin.from('gallery_albums').select('*', { count: 'exact', head: true }),
-    supabaseAdmin.from('red_flags').select('*', { count: 'exact', head: true }).eq('resolved', false),
     supabaseAdmin.from('gallery_photos').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('red_flags').select('*', { count: 'exact', head: true }).eq('resolved', false),
+    supabaseAdmin.from('red_flags').select('*', { count: 'exact', head: true }).eq('resolved', true),
   ]);
   
   return {
@@ -177,8 +206,8 @@ export async function adminCounts() {
     photos: photos ?? 0,
     redFlags: {
       active: redFlagsActive ?? 0,
-      resolved: 0,
-      total: redFlagsActive ?? 0,
+      resolved: redFlagsResolved ?? 0,
+      total: (redFlagsActive ?? 0) + (redFlagsResolved ?? 0),
     },
   };
 }

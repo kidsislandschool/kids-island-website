@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { supabaseAdmin } from "@/lib/supabase";
 import { buildPageMetadata } from "@/lib/seo";
+import { getNotices, getNoticeCategories } from "@/lib/data";
 import { PageHero } from "@/components/sections/page-hero";
-import { siteOrigin } from "@/lib/site-url";
 import { NoticeList } from "./NoticeList";
 
 export const revalidate = 60;
@@ -14,37 +15,49 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const SITE_URL = siteOrigin();
-
-async function getNoticeCategories(): Promise<string[]> {
-  try {
-    const res = await fetch(`${SITE_URL}/api/filters/notices`, { next: { revalidate: 300 } });
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.error("Failed to fetch notice categories:", e);
-  }
-  return [];
-}
-
 async function getInitialNotices(sp: { q?: string; category?: string; page?: string }): Promise<{
   rows: any[];
   page: number;
   pages: number;
   total: number;
 }> {
-  const params = new URLSearchParams();
-  if (sp.q) params.set("q", sp.q);
-  if (sp.category) params.set("category", sp.category);
-  params.set("page", sp.page || "1");
-  params.set("perPage", "9");
-
-  try {
-    const res = await fetch(`${SITE_URL}/api/notices?${params.toString()}`, { next: { revalidate: 60 } });
-    if (res.ok) return await res.json();
-  } catch (e) {
-    console.error("Failed to fetch notices:", e);
+  const { q: search, category, page = "1", perPage = 9 } = sp;
+  const pageNum = parseInt(page, 10) || 1;
+  
+  let query = supabaseAdmin
+    .from('notices')
+    .select('*', { count: 'exact' })
+    .eq('status', 'published');
+  
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,summary.ilike.%${search}%,body.ilike.%${search}%`);
   }
-  return { rows: [], page: 1, pages: 0, total: 0 };
+  if (category) {
+    query = query.eq('category', category);
+  }
+  
+  query = query
+    .order('pinned', { ascending: false })
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .range((pageNum - 1) * perPage, pageNum * perPage - 1);
+  
+  const { data, error, count } = await query;
+  
+  if (error) {
+    console.error('getNotices error:', error);
+    return { rows: [], page: pageNum, pages: 0, total: 0 };
+  }
+  if (!Array.isArray(data)) {
+    return { rows: [], page: pageNum, pages: 0, total: 0 };
+  }
+  
+  return {
+    rows: data,
+    page: pageNum,
+    pages: Math.ceil((count ?? 0) / perPage),
+    total: count ?? 0,
+  };
 }
 
 /** Streams the list so the hero paints immediately. */
@@ -57,12 +70,11 @@ async function NoticeContent({
   category?: string;
   page?: string;
 }) {
-  const sp = { q, category, page };
   const [initialResult, categories] = await Promise.all([
-    getInitialNotices(sp),
+    getInitialNotices({ q, category, page }),
     getNoticeCategories(),
   ]);
-
+  
   return (
     <NoticeList
       initialNotices={initialResult.rows}

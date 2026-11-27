@@ -44,8 +44,8 @@ const sections = [
   },
 ];
 
-export default function TermsPage() {
-  const site = getSiteSettings();
+export default async function TermsPage() {
+  const site = await getSiteSettings();
   return (
     <>
       <PageHero

@@ -38,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       label: "Students",
       items: [
         { label: "Students", href: "/admin/students", icon: "users", badge: studentCount },
-        { label: "Red Flags", href: "/admin/red-flags", icon: "alert-triangle", badge: counts.redFlags?.active },
+        { label: "Red Flags", href: "/admin/red-flags", icon: "alert-triangle", badge: counts.redFlags.active },
       ],
     },
     {

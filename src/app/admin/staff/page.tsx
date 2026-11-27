@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { listStaff, countStaffByStatus, updateStaffStatus } from "@/lib/staff";
+import { listStaff, countStaffByStatus } from "@/lib/staff";
 import { AdminPageHeader, AdminCard, AdminStat, EmptyState, StatusBadge } from "@/components/admin/ui";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { cn, formatDateTime } from "@/lib/utils";
@@ -33,8 +33,15 @@ export default async function AdminStaffPage() {
     <div className="flex flex-col gap-6">
       <AdminPageHeader
         title="Staff Accounts"
-        description="Manage teacher portal access requests. Approve or reject pending sign-ups."
+        description="Teacher portal accounts. Approve or reject new sign-ups from the Faculty screen so access is granted and the public profile is published together."
       >
+        <Link
+          href="/admin/faculty"
+          className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-navy px-4 text-[11.5px] font-extrabold text-white transition hover:bg-navy-700"
+        >
+          <Icon name="user-check" className="h-3.5 w-3.5" />
+          Review staff requests
+        </Link>
         <Link
           href="/staff-signup"
           target="_blank"
@@ -131,40 +138,17 @@ export default async function AdminStaffPage() {
                       {formatDateTime(staff.created_at)}
                     </td>
                     <td className="px-5 py-3">
-                      <div className="flex items-center gap-2">
-                        {staff.status === "pending" && (
-                          <>
-                            <form action={async (formData: FormData) => {
-                              "use server";
-                              await updateStaffStatus(Number(formData.get("id")), "approved", user.id);
-                            }} className="inline">
-                              <input type="hidden" name="id" value={String(staff.id)} />
-                              <button
-                                type="submit"
-                                className="inline-flex h-8 items-center gap-1 rounded-md bg-[#EAF9F1] px-2.5 text-[10.5px] font-extrabold text-[#167A4A] transition hover:bg-[#D8F3E4]"
-                                title="Approve"
-                              >
-                                <Icon name="check" className="h-3 w-3" strokeWidth={2.8} />
-                                Approve
-                              </button>
-                            </form>
-                            <form action={async (formData: FormData) => {
-                              "use server";
-                              await updateStaffStatus(Number(formData.get("id")), "rejected", user.id);
-                            }} className="inline">
-                              <input type="hidden" name="id" value={String(staff.id)} />
-                              <button
-                                type="submit"
-                                className="inline-flex h-8 items-center gap-1 rounded-md bg-[#FFF1F4] px-2.5 text-[10.5px] font-extrabold text-[#A32D4B] transition hover:bg-[#FFE4E8]"
-                                title="Reject"
-                              >
-                                <Icon name="x" className="h-3 w-3" strokeWidth={2.8} />
-                                Reject
-                              </button>
-                            </form>
-                          </>
-                        )}
-                        {staff.status !== "pending" && (
+                      <div className="flex items-center justify-end gap-2">
+                        {staff.status === "pending" ? (
+                          <Link
+                            href="/admin/faculty"
+                            className="inline-flex h-8 items-center gap-1 rounded-md bg-[#FFF6E3] px-2.5 text-[10.5px] font-extrabold text-[#9A5B00] transition hover:bg-[#FFECCC]"
+                            title="Approve from the Faculty screen"
+                          >
+                            <Icon name="alert-triangle" className="h-3 w-3" />
+                            Review in Faculty
+                          </Link>
+                        ) : (
                           <span className="text-[10.5px] font-bold text-muted">
                             {staff.status === "approved" ? "Active" : "Declined"}
                           </span>

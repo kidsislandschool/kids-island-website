@@ -49,7 +49,10 @@ export type CollectionDef = {
   /** Statuses allowed for this collection. */
   statuses: ("published" | "draft" | "needs_review")[];
   defaultStatus: "published" | "draft" | "needs_review";
+  /** Human-readable description of the default ordering (kept for reference). */
   orderBy: string;
+  /** Structured ordering used by the admin list query. */
+  sort?: { column: string; ascending?: boolean; nullsFirst?: boolean }[];
   fields: FieldDef[];
   /** Extra public query helper name (used by pages). */
   emptyMessage?: string;
@@ -169,6 +172,12 @@ export const COLLECTIONS: Record<string, CollectionDef> = {
       { name: "quote", label: "Quote", type: "textarea", required: true, title: true, searchable: true },
       { name: "author_name", label: "Name", type: "text", required: true, column: true, searchable: true },
       { name: "author_role", label: "Role", type: "text", column: true, placeholder: "e.g. Parent of Class 10 Student" },
+      { name: "kind", label: "Type", type: "select", column: true, options: [
+        { value: "parent", label: "Parent testimonial" },
+        { value: "student", label: "Student testimonial" },
+      ]},
+      { name: "image", label: "Photo (optional)", type: "image", optional: true, help: "Portrait or school photo shown with the testimonial. Leave blank for a text-only card." },
+      { name: "rating", label: "Rating (1–5)", type: "number", optional: true, min: 1, max: 5 },
       { name: "order_index", label: "Sort order", type: "order", optional: true },
       ...STATUS_FIELDS,
     ],
@@ -242,24 +251,56 @@ export const COLLECTIONS: Record<string, CollectionDef> = {
     singular: "Student",
     statuses: ["published", "draft", "needs_review"],
     defaultStatus: "published",
-    orderBy: "admission_number ASC",
+    orderBy: "class_order ASC, section ASC, first_name ASC",
+    sort: [
+      { column: "class_order", ascending: true },
+      { column: "section", ascending: true },
+      { column: "first_name", ascending: true },
+    ],
     emptyMessage: "No students yet.",
     fields: [
       { name: "admission_number", label: "Admission Number", type: "text", required: true, column: true, title: true, searchable: true },
       { name: "first_name", label: "First Name", type: "text", required: true, column: true, searchable: true },
       { name: "last_name", label: "Last Name", type: "text", required: true, column: true, searchable: true },
-      { name: "class", label: "Class", type: "text", column: true, searchable: true },
-      { name: "section", label: "Section", type: "text", column: true },
+      { name: "class", label: "Class", type: "select", column: true, searchable: true, options: [
+        { value: "Play Group", label: "Play Group" },
+        { value: "LKG", label: "LKG" },
+        { value: "UKG", label: "UKG" },
+        ...Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: `Class ${i + 1}` })),
+      ]},
+      { name: "section", label: "Section", type: "select", column: true, options: [
+        { value: "A", label: "A" },
+        { value: "B", label: "B" },
+        { value: "", label: "—" },
+      ]},
+      { name: "class_order", label: "Class order", type: "order", optional: true, help: "Used for sorting: Play Group=0, LKG=1, UKG=2, Class 1=3 … Class 12=14." },
+      { name: "serial_no", label: "Roll / serial no.", type: "order", optional: true },
+      { name: "enrollment_status", label: "Enrollment status", type: "select", column: true, options: [
+        { value: "active", label: "Active" },
+        { value: "left", label: "Left" },
+        { value: "graduated", label: "Graduated" },
+        { value: "transferred", label: "Transferred" },
+      ]},
       { name: "date_of_birth", label: "Date of Birth", type: "date", optional: true },
       { name: "gender", label: "Gender", type: "select", optional: true, column: true, options: [
         { value: "Male", label: "Male" },
         { value: "Female", label: "Female" },
         { value: "Other", label: "Other" },
       ]},
-      { name: "parent_name", label: "Parent Name", type: "text", optional: true, column: true, searchable: true },
-      { name: "parent_phone", label: "Parent Phone", type: "text", optional: true, searchable: true },
-      { name: "parent_email", label: "Parent Email", type: "email", optional: true, searchable: true },
+      { name: "father_name", label: "Father's Name", type: "text", optional: true, column: true, searchable: true },
+      { name: "mother_name", label: "Mother's Name", type: "text", optional: true, searchable: true },
+      { name: "phone", label: "Mobile Number", type: "text", optional: true, searchable: true },
+      { name: "alternate_phone", label: "Alternate Number", type: "text", optional: true },
+      { name: "email", label: "Email", type: "text", optional: true, searchable: true },
       { name: "address", label: "Address", type: "textarea", optional: true },
+      { name: "aadhaar_number", label: "Aadhaar Number", type: "text", optional: true, help: "Sensitive — visible to admins only." },
+      { name: "apaar_id", label: "APAAR ID", type: "text", optional: true },
+      { name: "pen_number", label: "PEN Number", type: "text", optional: true },
+      { name: "caste", label: "Caste / Category", type: "text", optional: true },
+      { name: "stream", label: "Stream (PCB / PCM)", type: "text", optional: true },
+      { name: "remark", label: "Remark / TC issue", type: "text", optional: true },
+      { name: "class_teacher", label: "Class Teacher", type: "text", optional: true },
+      { name: "photo", label: "Photo", type: "image", optional: true },
       ...STATUS_FIELDS,
     ],
   },
@@ -268,4 +309,22 @@ export const COLLECTIONS: Record<string, CollectionDef> = {
 /** Columns that a collection is allowed to write (generated from its fields). */
 export function allowedColumns(def: CollectionDef): Set<string> {
   return new Set(def.fields.map((f) => f.name));
+}
+
+/**
+ * Build a safe insert/update payload containing only declared fields that the
+ * caller actually supplied. Unknown keys are dropped so arbitrary SQL columns
+ * can never be written.
+ */
+export function pickWritableColumns(
+  def: CollectionDef,
+  input: Record<string, unknown>
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const field of def.fields) {
+    if (Object.prototype.hasOwnProperty.call(input, field.name)) {
+      out[field.name] = input[field.name];
+    }
+  }
+  return out;
 }

@@ -1,6 +1,7 @@
 import { getDirectDb } from "@/lib/db";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { requireAdminApi } from "@/lib/auth";
+import { revalidatePublicSite } from "@/lib/revalidate";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,16 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
 
   const db = getDirectDb();
   const existing = await db.selectOne('staff', '*', { id: staffId }) as
-    | { id: number; status: string; name: string; email: string }
+    | {
+        id: number;
+        status: string;
+        name: string;
+        email: string;
+        designation: string | null;
+        qualification: string | null;
+        bio: string | null;
+        photo: string | null;
+      }
     | undefined;
   if (!existing) return jsonError("Staff not found", 404);
 
@@ -51,7 +61,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
         email: existing.email,
         designation: existing.designation || 'Faculty Member',
         qualification: existing.qualification || '',
-        subjects: existing.subjects || '',
+        subjects: '',
         bio: existing.bio || '',
         photo: existing.photo || null,
         status: 'published',
@@ -71,6 +81,8 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     detail: { name: existing.name, email: existing.email, previousStatus: existing.status },
     ip: clientIp(req),
   });
+
+  if (status === "approved") revalidatePublicSite();
 
   return Response.json({ ok: true, status });
 }

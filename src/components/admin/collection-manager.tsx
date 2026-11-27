@@ -541,7 +541,7 @@ function toDateInput(value: unknown) {
   return value.slice(0, 10);
 }
 
-function CollectionField({
+export function CollectionField({
   collectionKey,
   field,
   value,
@@ -647,7 +647,7 @@ function CollectionField({
   );
 }
 
-function Modal({
+export function Modal({
   open,
   onClose,
   title,

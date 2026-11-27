@@ -122,7 +122,7 @@ export type CollectionWrite = {
 function coerceField(field: FieldDef, value: unknown): unknown {
   switch (field.type) {
     case "checkbox":
-      return value === 1 || value === true || value === "1" || value === "on" ? 1 : 0;
+      return value === 1 || value === true || value === "1" || value === "on" || value === "true";
     case "number":
     case "order": {
       if (value === "" || value === null || value === undefined) return field.required ? NaN : 0;

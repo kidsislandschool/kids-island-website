@@ -316,35 +316,14 @@ export type PublicFAQ = {
 
 export async function getPublishedFaqs(): Promise<PublicFAQ[]> {
   try {
-    // Try with sort_order first, fall back to id if column doesn't exist
     const { data, error } = await supabaseAdmin
       .from('faqs')
       .select('*')
       .eq('status', 'published')
-      .order('sort_order', { ascending: true })
+      .order('order_index', { ascending: true, nullsFirst: false })
       .order('id', { ascending: true });
-    
+
     if (error) {
-      // If sort_order column doesn't exist, try without it
-      if (error.code === '42703' && error.message.includes('sort_order')) {
-        console.warn('getPublishedFaqs: sort_order column not found, falling back to id');
-        const { data: data2, error: error2 } = await supabaseAdmin
-          .from('faqs')
-          .select('*')
-          .eq('status', 'published')
-          .order('id', { ascending: true });
-        
-        if (error2) {
-          console.error('getPublishedFaqs fallback error:', error2);
-          return [];
-        }
-        if (!Array.isArray(data2)) {
-          console.error('getPublishedFaqs fallback: data is not an array:', data2);
-          return [];
-        }
-        return data2 as PublicFAQ[];
-      }
-      
       console.error('getPublishedFaqs error:', error);
       return [];
     }
@@ -514,76 +493,52 @@ export async function getAlbum(albumId: number): Promise<PublicAlbum | undefined
 export type PublicFaculty = {
   id: number;
   name: string;
-  role: string;
+  designation: string | null;
+  subjects: string | null;
+  qualification: string | null;
   bio: string | null;
-  image_url: string | null;
-  department: string;
-  sort_order: number;
+  photo: string | null;
+  email: string | null;
+  order_index: number | null;
+  featured: boolean | null;
   status: string;
 };
 
 export async function getPublishedFaculty(): Promise<PublicFaculty[]> {
-  try {
-    // Try with sort_order first, fall back to id if column doesn't exist
-    const { data, error } = await supabaseAdmin
-      .from('faculty')
-      .select('*')
-      .eq('status', 'published')
-      .order('sort_order', { ascending: true })
-      .order('id', { ascending: true });
-    
-    if (error) {
-      // If sort_order column doesn't exist, try without it
-      if (error.code === '42703' && (error.message.includes('sort_order') || error.message.includes('column') || error.message.includes('does not exist'))) {
-        console.warn('getPublishedFaculty: sort_order column not found, falling back to id');
-        const { data: data2, error: error2 } = await supabaseAdmin
-          .from('faculty')
-          .select('*')
-          .eq('status', 'published')
-          .order('id', { ascending: true });
-        
-        if (error2) {
-          console.error('getPublishedFaculty fallback error:', error2);
-          return [];
-        }
-        if (!Array.isArray(data2)) {
-          console.error('getPublishedFaculty fallback: data is not an array:', data2);
-          return [];
-        }
-        return data2 as PublicFaculty[];
-      }
-      
-      console.error('getPublishedFaculty error:', error);
-      return [];
-    }
-    if (!Array.isArray(data)) {
-      console.error('getPublishedFaculty: data is not an array:', data);
-      return [];
-    }
-    return data as PublicFaculty[];
-  } catch (err) {
-    console.error('getPublishedFaculty exception:', err);
+  const { data, error } = await supabaseAdmin
+    .from('faculty')
+    .select('*')
+    .eq('status', 'published')
+    .order('order_index', { ascending: true, nullsFirst: false })
+    .order('id', { ascending: true });
+
+  if (error) {
+    console.error('getPublishedFaculty error:', error);
     return [];
   }
+  if (!Array.isArray(data)) {
+    console.error('getPublishedFaculty: data is not an array:', data);
+    return [];
+  }
+  return data as PublicFaculty[];
 }
 
 export async function getFacultyDepartments(): Promise<string[]> {
   const { data, error } = await supabaseAdmin
     .from('faculty')
-    .select('department')
+    .select('designation')
     .eq('status', 'published');
   
   if (error) {
     console.error('getFacultyDepartments error:', error);
     return [];
   }
-  if (!Array.isArray(data)) {
-    console.error('getFacultyDepartments: data is not an array:', data);
-    return [];
-  }
+  if (!Array.isArray(data)) return [];
   
   const departments = new Set<string>();
-  data.forEach((f: { department: string }) => departments.add(f.department));
+  data.forEach((f: { designation: string | null }) => {
+    if (f.designation) departments.add(f.designation);
+  });
   return Array.from(departments).sort();
 }
 

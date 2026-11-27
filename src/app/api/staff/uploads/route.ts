@@ -1,11 +1,9 @@
-import fs from "node:fs";
-import path from "node:path";
 import crypto from "node:crypto";
 import sharp from "sharp";
 import { supabaseAdmin } from "@/lib/supabase";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { requireStaffApi } from "@/lib/auth";
-import { getUploadRoot, getUploadUrlPrefix } from "@/lib/uploads";
+import { uploadToStorage } from "@/lib/storage";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -65,26 +63,22 @@ export async function POST(req: Request) {
     } else {
       return jsonError("Upload a JPG, PNG, WebP, AVIF image or a PDF document.", 415);
     }
-  } catch {
-    return jsonError("That file could not be processed. Try a different image.", 422);
-  }
-
-  let uploadRoot: string;
-  let urlPrefix: string;
-  try {
-    uploadRoot = getUploadRoot();
-    urlPrefix = getUploadUrlPrefix();
   } catch (error) {
-    console.error(error);
-    return jsonError("Upload storage is not configured correctly.", 500);
+    console.error("staff upload processing error:", error);
+    return jsonError("That file could not be processed. Try a different file.", 422);
   }
 
-  const dir = path.join(uploadRoot, subdir);
-  fs.mkdirSync(dir, { recursive: true });
-  const diskPath = path.join(dir, storedName);
-  fs.writeFileSync(diskPath, output);
+  const storagePath = `${subdir}/${storedName}`;
+  let url: string;
+  try {
+    url = await uploadToStorage(storagePath, output, storedMime);
+  } catch (error) {
+    console.error("staff storage upload error:", error);
+    return jsonError("Could not store the file. Please try again.", 500);
+  }
 
-  const url = `${urlPrefix}/${subdir.replace(/\\/g, "/")}/${storedName}`;
+  // uploads.created_by references users(id), and staff ids are a separate
+  // sequence, so staff uploads are recorded without that pointer.
   const { data: info, error: insertError } = await supabaseAdmin
     .from("uploads")
     .insert({
@@ -95,22 +89,22 @@ export async function POST(req: Request) {
       size: output.length,
       kind,
       alt,
-      created_by: user.id,
+      created_by: null,
     })
     .select("id")
     .single();
 
   if (insertError || !info) {
-    console.error("upload insert error:", insertError);
-    return jsonError("The file was saved but could not be recorded. Please try again.", 500);
+    console.error("staff upload insert error:", insertError);
+    return jsonError("The file was stored but could not be recorded. Please try again.", 500);
   }
 
   await logAudit({
-    userId: user.id,
+    userId: null,
     action: "upload_created",
     entity: "upload",
     entityId: info.id,
-    detail: { name: file.name, kind, size: output.length },
+    detail: { name: file.name, kind, size: output.length, staffId: user.id },
     ip: clientIp(req),
   }).catch(() => {});
 

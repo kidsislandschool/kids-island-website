@@ -8,6 +8,7 @@ import { validateCollectionInput } from "@/lib/admin-validation";
 import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
 import { requireAdminApi } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { revalidateCollection } from "@/lib/revalidate";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +58,7 @@ export async function PATCH(
   }
 
   const row = await updateCollectionRow(key, rowId, data);
+  revalidateCollection(key);
   logAudit({
     userId: user.id,
     action:
@@ -90,6 +92,7 @@ export async function DELETE(
   if (!existing) return jsonError("Record not found", 404);
 
   await deleteCollectionRow(key, rowId);
+  revalidateCollection(key);
 
   logAudit({
     userId: user.id,

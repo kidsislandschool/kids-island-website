@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { AdminPageHeader, AdminCard, AdminField, adminInput, adminSelect, adminTextarea } from "@/components/admin/ui";
+import { AdminPageHeader, AdminCard, AdminCardHeader, AdminField, adminInput, adminSelect, adminTextarea } from "@/components/admin/ui";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { supabaseAdmin } from "@/lib/supabase";
-import { getDirectDb } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
-import { clientIp } from "@/lib/audit";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -21,8 +19,19 @@ export default async function NewRedFlagPage() {
   const user = session?.user;
   if (!user || user.role !== "master_admin") redirect("/staff-login");
 
-  const db = getDirectDb();
-  const students = await db.select('students', '*', { status: 'active' }).order('first_name', { ascending: true });
+  const { data: studentData, error: studentError } = await supabaseAdmin
+    .from("students")
+    .select("id, first_name, last_name, class, section, admission_number")
+    .eq("status", "published")
+    .order("class_order", { ascending: true, nullsFirst: false })
+    .order("first_name", { ascending: true })
+    .limit(2000);
+
+  if (studentError) {
+    console.error("Failed to load students:", studentError);
+  }
+
+  const students = studentData ?? [];
 
   return (
     <div className="flex flex-col gap-5 max-w-3xl mx-auto w-full">
@@ -42,10 +51,9 @@ export default async function NewRedFlagPage() {
 
       <form action={async (formData: FormData) => {
         "use server";
-        const db = (await import("@/lib/db")).getDirectDb();
         const { getSession } = await import("@/lib/auth");
         const { logAudit } = await import("@/lib/audit");
-        const { clientIp } = await import("@/lib/audit");
+        const { supabaseAdmin: db } = await import("@/lib/supabase");
         const session = await getSession();
         if (!session) throw new Error("Not authenticated");
 
@@ -57,7 +65,7 @@ export default async function NewRedFlagPage() {
           throw new Error("Student and reason are required");
         }
 
-        const { data: redFlag, error } = await (await import("@/lib/supabase")).supabaseAdmin
+        const { data: redFlag, error } = await db
           .from("red_flags")
           .insert({
             student_id: studentId,
@@ -81,7 +89,8 @@ export default async function NewRedFlagPage() {
 
         redirect(`/admin/red-flags`);
       }} className="space-y-6">
-        <AdminCard title="Student Details">
+        <AdminCard>
+          <AdminCardHeader title="Student Details" />
           <AdminField label="Student *" htmlFor="student_id" required>
             <select id="student_id" name="student_id" required className="adminSelect">
               <option value="">Select a student…</option>
@@ -94,7 +103,8 @@ export default async function NewRedFlagPage() {
           </AdminField>
         </AdminCard>
 
-        <AdminCard title="Flag Details">
+        <AdminCard>
+          <AdminCardHeader title="Flag Details" />
           <AdminField label="Reason *" htmlFor="reason" required>
             <textarea
               id="reason"

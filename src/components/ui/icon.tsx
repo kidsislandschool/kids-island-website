@@ -58,6 +58,7 @@ const STROKE: Record<string, React.ReactNode> = {
   star: <path d="M11.5 2.8a.6.6 0 0 1 1 0l2.6 5.3 5.9.8a.6.6 0 0 1 .3 1l-4.3 4.1 1 5.8a.6.6 0 0 1-.8.6L12 17.7l-5.2 2.7a.6.6 0 0 1-.8-.6l1-5.8-4.3-4.1a.6.6 0 0 1 .3-1l5.9-.8Z" />,
   quote: <><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h4" /><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h4" /></>,
   "arrow-down": <><path d="M12 5v14" /><path d="m5 12 7 7 7-7" /></>,
+  refresh: <><path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 3v6h-6" /></>,
 };
 
 const FILLED = new Set(["whatsapp", "facebook"]);

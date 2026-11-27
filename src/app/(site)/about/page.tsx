@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getContent } from "@/lib/content";
-import type { Stat } from "@/components/sections/stats";
 import { buildPageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/sections/page-hero";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
