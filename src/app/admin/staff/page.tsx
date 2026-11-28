@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { listStaff, countStaffByStatus } from "@/lib/staff";
 import { AdminPageHeader, AdminCard, AdminStat, EmptyState, StatusBadge } from "@/components/admin/ui";
+import { DeleteStaffButton } from "@/components/admin/staff-actions";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { cn, formatDateTime } from "@/lib/utils";
 import Link from "next/link";
@@ -153,6 +154,12 @@ export default async function AdminStaffPage() {
                             {staff.status === "approved" ? "Active" : "Declined"}
                           </span>
                         )}
+                        <DeleteStaffButton
+                          id={staff.id}
+                          name={staff.name}
+                          email={staff.email}
+                          status={staff.status}
+                        />
                       </div>
                     </td>
                   </tr>
