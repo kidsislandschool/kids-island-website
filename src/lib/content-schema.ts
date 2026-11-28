@@ -510,6 +510,8 @@ export const CONTENT_SCHEMAS: Record<string, ContentSchema> = {
       { name: "whatsappNote", label: "WhatsApp note", kind: "text", help: statusNote("Availability claims must be verified before publishing.") },
       { name: "hoursPhone", label: "Phone hours", kind: "text" },
       { name: "hoursOffice", label: "Office hours", kind: "text" },
+      { name: "hoursMonSat", label: "Monday – Saturday hours", kind: "text", help: "Shown as a row in the contact page office hours card." },
+      { name: "hoursFriday", label: "Friday hours", kind: "text", help: "Friday closes earlier — set the exact time, e.g. 8:00 AM – 12:00 PM (noon)." },
       { name: "logoText", label: "Logo wordmark", kind: "text" },
       {
         name: "socials",

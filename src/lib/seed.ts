@@ -31,8 +31,10 @@ const CONTENT: ContentSeed[] = [
       whatsapp: "+91 9997973574",
       // Unverified availability claim — hidden until approved.
       whatsappNote: "Available 24/7",
-      hoursPhone: "Mon–Sat 8:00 AM – 4:00 PM · Sunday closed",
-      hoursOffice: "Mon–Fri 8:00 AM – 4:00 PM · Sat 8:00 AM – 1:00 PM · Sun closed",
+      hoursPhone: "Mon–Sat 8:00 AM – 2:00 PM · Sunday closed",
+      hoursOffice: "Mon–Sat 8:00 AM – 2:00 PM · Fri 8:00 AM – 12:00 PM",
+      hoursMonSat: "8:00 AM – 2:00 PM",
+      hoursFriday: "8:00 AM – 12:00 PM (noon)",
       logoText: "Kids Island",
       socials: [] as { label: string; url: string }[],
       affiliation: "",
@@ -508,8 +510,8 @@ const CONTENT: ContentSeed[] = [
       phone: "+91 9012655655",
       email: "contact@kidsaligarh.com",
       whatsapp: "+91 9997973574",
-      hoursPhone: "Mon–Sat 8:00 AM – 4:00 PM · Sunday closed",
-      hoursOffice: "Mon–Fri 8:00 AM – 4:00 PM · Sat 8:00 AM – 1:00 PM · Sunday closed",
+      hoursPhone: "Mon–Sat 8:00 AM – 2:00 PM · Sunday closed",
+      hoursOffice: "Mon–Sat 8:00 AM – 2:00 PM · Fri 8:00 AM – 12:00 PM",
       visitHeading: "Visit our campus",
       visitText:
         "Centrally located in Aligarh and accessible from major areas of the city — we'd love to show you around.",

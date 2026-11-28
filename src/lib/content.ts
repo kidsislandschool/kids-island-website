@@ -173,31 +173,40 @@ export type SiteSettings = {
   whatsappNote: string;
   hoursPhone: string;
   hoursOffice: string;
+  hoursMonSat: string;
+  hoursFriday: string;
   logoText: string;
   socials: { label: string; url: string }[];
   affiliation: string;
 };
 
+const SITE_DEFAULTS: SiteSettings = {
+  name: "Kids Island Senior Secondary School",
+  shortName: "Kids Island",
+  tagline: "Shaping bright futures through quality education",
+  location: "Aligarh, Uttar Pradesh, India — 202001",
+  phone: "+91 9012655655",
+  email: "contact@kidsaligarh.com",
+  whatsapp: "+91 9997973574",
+  whatsappNote: "",
+  hoursPhone: "Mon–Sat: 8:00 AM – 2:00 PM",
+  hoursOffice: "Mon–Sat: 8:00 AM – 2:00 PM · Fri: 8:00 AM – 12:00 PM",
+  hoursMonSat: "8:00 AM – 2:00 PM",
+  hoursFriday: "8:00 AM – 12:00 PM (noon)",
+  logoText: "Kids Island",
+  socials: [
+    { label: "Facebook", url: "https://facebook.com/kidsislandaligarh" },
+    { label: "Instagram", url: "https://instagram.com/kidsislandaligarh" },
+    { label: "YouTube", url: "https://youtube.com/@kidsislandaligarh" },
+  ],
+  affiliation: "",
+};
+
 export async function getSiteSettings(): Promise<SiteSettings> {
-  return getContent<SiteSettings>("settings.site", {
-    name: "Kids Island Senior Secondary School",
-    shortName: "Kids Island",
-    tagline: "Shaping bright futures through quality education",
-    location: "Aligarh, Uttar Pradesh, India — 202001",
-    phone: "+91 9012655655",
-    email: "contact@kidsaligarh.com",
-    whatsapp: "+91 9997973574",
-    whatsappNote: "",
-    hoursPhone: "Mon–Sat: 8:00 AM – 4:00 PM",
-    hoursOffice: "Mon–Fri: 9:00 AM – 3:00 PM",
-    logoText: "Kids Island",
-    socials: [
-      { label: "Facebook", url: "https://facebook.com/kidsislandaligarh" },
-      { label: "Instagram", url: "https://instagram.com/kidsislandaligarh" },
-      { label: "YouTube", url: "https://youtube.com/@kidsislandaligarh" },
-    ],
-    affiliation: "",
-  });
+  const stored = await getContent<Partial<SiteSettings>>("settings.site", {});
+  const merged = { ...SITE_DEFAULTS, ...stored };
+  if (!Array.isArray(merged.socials)) merged.socials = SITE_DEFAULTS.socials;
+  return merged;
 }
 
 export async function getAffiliation(): Promise<string> {

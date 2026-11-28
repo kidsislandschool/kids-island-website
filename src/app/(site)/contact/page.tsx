@@ -191,12 +191,12 @@ export default async function ContactPage() {
                   </div>
                   <dl className="mt-5 space-y-3 text-[12.5px]">
                     <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-3">
-                      <dt className="font-extrabold text-white/85">Phone</dt>
-                      <dd className="text-right font-semibold text-white/55">{content.hoursPhone}</dd>
+                      <dt className="font-extrabold text-white/85">Monday – Saturday</dt>
+                      <dd className="text-right font-semibold text-white/55">{site.hoursMonSat}</dd>
                     </div>
                     <div className="flex items-start justify-between gap-4">
-                      <dt className="font-extrabold text-white/85">School office</dt>
-                      <dd className="text-right font-semibold text-white/55">{content.hoursOffice}</dd>
+                      <dt className="font-extrabold text-white/85">Friday</dt>
+                      <dd className="text-right font-semibold text-white/55">{site.hoursFriday}</dd>
                     </div>
                   </dl>
                   <p className="mt-5 rounded-xl bg-white/5 px-3.5 py-2.5 text-[11px] font-semibold leading-relaxed text-white/45">
