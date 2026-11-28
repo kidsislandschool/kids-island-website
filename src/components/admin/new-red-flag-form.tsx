@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { redirect } from "next/navigation";
-import { AdminCard, AdminCardHeader, AdminField, adminInput, adminSelect, adminTextarea } from "@/components/admin/ui";
+import {
+  AdminCard,
+  AdminCardHeader,
+  AdminField,
+  adminSelect,
+  adminTextarea,
+} from "@/components/admin/ui";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -11,11 +16,11 @@ import Link from "next/link";
 interface NewRedFlagFormProps {
   students: Array<{
     id: number;
-    first_name: string;
-    last_name: string;
-    class: string;
-    section: string;
-    admission_number: string;
+    first_name: string | null;
+    last_name: string | null;
+    class: string | null;
+    section: string | null;
+    admission_number: string | null;
   }>;
 }
 
@@ -26,24 +31,34 @@ export function NewRedFlagForm({ students }: NewRedFlagFormProps) {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting) return;
     setSubmitting(true);
     setError("");
 
     const form = event.currentTarget;
     const formData = new FormData(form);
+    const payload = {
+      studentId: Number(formData.get("student_id")),
+      reason: String(formData.get("reason") ?? ""),
+      severity: String(formData.get("severity") ?? "medium"),
+    };
 
     try {
       const res = await fetch("/api/admin/red-flags", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Failed to create red flag");
 
-      redirect("/admin/red-flags");
+      router.push("/admin/red-flags");
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create red flag");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -52,11 +67,13 @@ export function NewRedFlagForm({ students }: NewRedFlagFormProps) {
       <AdminCard>
         <AdminCardHeader title="Student Details" />
         <AdminField label="Student *" htmlFor="student_id" required>
-          <select id="student_id" name="student_id" required className="adminSelect">
+          <select id="student_id" name="student_id" required className={adminSelect} defaultValue="">
             <option value="">Select a student…</option>
-            {students.map((s: any) => (
+            {students.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.first_name} {s.last_name} — {s.class} {s.section} ({s.admission_number})
+                {[s.first_name, s.last_name].filter(Boolean).join(" ") || "Unnamed student"} —{" "}
+                {[s.class, s.section].filter(Boolean).join(" ")}
+                {s.admission_number ? ` (${s.admission_number})` : ""}
               </option>
             ))}
           </select>
@@ -71,13 +88,13 @@ export function NewRedFlagForm({ students }: NewRedFlagFormProps) {
             name="reason"
             required
             rows={4}
-            className="adminTextarea"
+            className={adminTextarea}
             placeholder="Describe the reason for this red flag…"
           />
         </AdminField>
 
         <AdminField label="Severity *" htmlFor="severity" required>
-          <select id="severity" name="severity" required className="adminSelect" defaultValue="medium">
+          <select id="severity" name="severity" required className={adminSelect} defaultValue="medium">
             <option value="low">Low — Minor infraction</option>
             <option value="medium">Medium — Repeated or moderate issue</option>
             <option value="high">High — Serious behavioral concern</option>
@@ -87,7 +104,10 @@ export function NewRedFlagForm({ students }: NewRedFlagFormProps) {
       </AdminCard>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-xl border border-[#F3C6D1] bg-[#FFF1F4] px-4 py-3 text-[12px] font-bold text-[#A32D4A]" role="alert">
+        <div
+          className="flex items-center gap-2 rounded-xl border border-[#F3C6D1] bg-[#FFF1F4] px-4 py-3 text-[12px] font-bold text-[#A32D4A]"
+          role="alert"
+        >
           <Icon name="alert-circle" className="h-4 w-4 shrink-0" />
           {error}
         </div>
@@ -103,12 +123,17 @@ export function NewRedFlagForm({ students }: NewRedFlagFormProps) {
         <Button type="submit" disabled={submitting} className="ml-auto">
           {submitting ? (
             <>
-              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="none" stroke="currentColor" strokeWidth="4" d="M4 12a8 8 0 018-8V0" /></svg>
+              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="none" stroke="currentColor" strokeWidth="4" d="M4 12a8 8 0 018-8V0" />
+              </svg>
               Creating…
             </>
           ) : (
             <>
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
               Create Red Flag
             </>
           )}

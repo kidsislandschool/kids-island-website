@@ -1,7 +1,6 @@
-import { assertSameOrigin, clientIp, jsonError, logAudit } from "@/lib/audit";
+import { assertSameOrigin, clientIp, logAudit } from "@/lib/audit";
 import { requireAdminApi } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
-import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -24,45 +23,48 @@ export async function PATCH(
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { resolved, resolutionNote } = body as {
-    resolved: boolean;
-    resolutionNote?: string;
+  const { resolved, resolutionNote } = (body ?? {}) as {
+    resolved?: boolean;
+    resolutionNote?: string | null;
   };
 
+  if (typeof resolved !== "boolean") {
+    return Response.json({ error: "resolved must be true or false" }, { status: 422 });
+  }
+
   try {
-    const existing = await supabaseAdmin
+    const { data: existing, error: findError } = await supabaseAdmin
       .from("red_flags")
-      .select("*")
+      .select("id, student_id")
       .eq("id", flagId)
-      .single();
+      .maybeSingle();
 
+    if (findError) throw findError;
     if (!existing) return Response.json({ error: "Red flag not found" }, { status: 404 });
-
-    const updateData: Record<string, unknown> = {
-      resolved,
-      resolved_by: resolved ? user.id : null,
-      resolved_at: resolved ? new Date().toISOString() : null,
-      resolution_note: resolutionNote ?? null,
-      updated_at: new Date().toISOString(),
-    };
 
     const { data: updated, error } = await supabaseAdmin
       .from("red_flags")
-      .update(updateData)
+      .update({
+        resolved,
+        resolved_by: resolved ? user.id : null,
+        resolved_at: resolved ? new Date().toISOString() : null,
+        resolution_note: resolutionNote?.trim() || null,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", flagId)
       .select()
       .single();
 
     if (error) throw error;
 
-    logAudit({
+    await logAudit({
       userId: user.id,
       action: resolved ? "red_flag_resolved" : "red_flag_reopened",
       entity: "red_flags",
       entityId: flagId,
-      detail: { studentId: existing.student_id, resolutionNote },
-      ip: clientIp(new Request("http://localhost")) as string,
-    });
+      detail: { studentId: existing.student_id, resolutionNote: resolutionNote ?? null },
+      ip: clientIp(req),
+    }).catch(() => {});
 
     return Response.json({ ok: true, row: updated });
   } catch (error) {
@@ -84,20 +86,26 @@ export async function DELETE(
   if (!Number.isInteger(flagId)) return Response.json({ error: "Invalid flag ID" }, { status: 400 });
 
   try {
-    const { error } = await supabaseAdmin
+    const { data: existing, error: findError } = await supabaseAdmin
       .from("red_flags")
-      .delete()
-      .eq("id", flagId);
+      .select("id, student_id")
+      .eq("id", flagId)
+      .maybeSingle();
 
+    if (findError) throw findError;
+    if (!existing) return Response.json({ error: "Red flag not found" }, { status: 404 });
+
+    const { error } = await supabaseAdmin.from("red_flags").delete().eq("id", flagId);
     if (error) throw error;
 
-    logAudit({
+    await logAudit({
       userId: user.id,
       action: "red_flag_deleted",
       entity: "red_flags",
       entityId: flagId,
-      ip: clientIp(new Request("http://localhost")) as string,
-    });
+      detail: { studentId: existing.student_id },
+      ip: clientIp(req),
+    }).catch(() => {});
 
     return Response.json({ ok: true });
   } catch (error) {
