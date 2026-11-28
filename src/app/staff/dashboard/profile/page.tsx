@@ -43,6 +43,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [faculty, setFaculty] = useState<FacultyData | null>(null);
+  const [photo, setPhoto] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -57,6 +58,7 @@ export default function ProfilePage() {
       .then((data) => {
         setProfile(data.profile);
         setFaculty(data.faculty);
+        setPhoto(data.profile?.photo ?? "");
       })
       .catch(() => router.push("/staff-login"))
       .finally(() => setLoading(false));
@@ -82,13 +84,15 @@ export default function ProfilePage() {
         return;
       }
 
-      if (data.redirect) {
-        router.refresh();
-        router.push(data.redirect);
-      } else {
-        setSuccess(true);
-        setTimeout(() => router.refresh(), 1000);
+      if (data.profile) {
+        setProfile(data.profile as ProfileData);
+        setPhoto((data.profile as ProfileData).photo ?? "");
       }
+      if ("faculty" in data) setFaculty((data.faculty as FacultyData | null) ?? null);
+
+      setSuccess(true);
+      router.refresh();
+      window.setTimeout(() => setSuccess(false), 5000);
     } catch {
       setError("Network error. Please check your connection and try again.");
     } finally {
@@ -125,7 +129,7 @@ export default function ProfilePage() {
           {success && (
             <div className="flex items-center gap-2 rounded-xl border border-[#CBE7D7] bg-[#F4FCF7] px-4 py-3 text-[12px] font-semibold text-[#167A4A]">
               <Icon name="check" className="h-4 w-4 shrink-0" />
-              Profile updated successfully. Redirecting…
+              Profile updated successfully. Your photo and details are saved.
             </div>
           )}
           {error && (
@@ -136,12 +140,12 @@ export default function ProfilePage() {
           )}
           <StaffCard title="Profile Photo">
             <AdminField label="Current Photo" htmlFor="photo_upload">
-              {profile.photo ? (
+              {photo ? (
                 <div className="flex items-center gap-3">
                   <div className="relative h-20 w-20 rounded-full overflow-hidden border border-line bg-paper-2">
-                    <img src={profile.photo} alt="" className="h-full w-full object-cover" />
+                    <img src={photo} alt="" className="h-full w-full object-cover" />
                   </div>
-                  <Link href={profile.photo} target="_blank" rel="noopener noreferrer" className="text-blue hover:underline text-sm">
+                  <Link href={photo} target="_blank" rel="noopener noreferrer" className="text-blue hover:underline text-sm">
                     View full size
                   </Link>
                 </div>
@@ -156,14 +160,11 @@ export default function ProfilePage() {
               <UploadInput
                 id="photo_upload"
                 kind="image"
-                value={profile.photo ?? ""}
-                onChange={(url) => {
-                  const photoInput = document.getElementById('photo_hidden');
-                  if (photoInput) photoInput.value = url ?? '';
-                }}
+                value={photo}
+                onChange={(url) => setPhoto(url ?? "")}
                 uploadEndpoint="/api/staff/uploads"
               />
-              <input type="hidden" id="photo_hidden" name="photo" value={profile.photo ?? ""} />
+              <input type="hidden" id="photo_hidden" name="photo" value={photo} readOnly />
             </AdminField>
           </StaffCard>
 
@@ -263,70 +264,62 @@ export default function ProfilePage() {
             <p className="mt-4 text-[11px] font-semibold text-muted">
               To change your password, contact the administrator.
             </p>
-            {faculty && (
-              <p className="mt-2 text-[11px] font-semibold text-green-700">
-                ✓ Public faculty profile is linked and will be updated.
-              </p>
-            )}
-            {!faculty && (
-              <p className="mt-2 text-[11px] font-semibold text-amber-700">
-                ⚠ No public faculty profile found. One will be created on next save.
-              </p>
-            )}
-            {faculty && (
-              <div className="mt-4 rounded-xl border border-line bg-paper-2/50 p-4">
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 grid h-5 w-5 place-items-center shrink-0 rounded bg-blue-100">
-                    <Icon name="info" className="h-2.5 w-2.5 text-blue" />
-                  </div>
-                  <div>
-                    <h3 className="font-extrabold text-navy-900">Public Faculty Profile</h3>
-                    <p className="mt-1 text-[11.5px] font-semibold text-muted">
-                      {faculty.status === 'published' && (
-                        <>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#EAF9F1] px-2 py-0.5 text-[9.5px] font-extrabold text-[#167A4A]">
-                            <Icon name="check-circle" className="h-2.5 w-2.5" /> Published
-                          </span>
-                          <span className="ml-2">Your faculty profile is publicly visible on the website.</span>
-                        </>
-                      )}
-                      {faculty.status === 'draft' && (
-                        <>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF6E3] px-2 py-0.5 text-[9.5px] font-extrabold text-[#9A5B00]">
-                            <Icon name="edit" className="h-2.5 w-2.5" /> Draft
-                          </span>
-                          <span className="ml-2">Your faculty profile is saved as a draft and not publicly visible.</span>
-                        </>
-                      )}
-                      {faculty.status === 'needs_review' && (
-                        <>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF6E3] px-2 py-0.5 text-[9.5px] font-extrabold text-[#9A5B00]">
-                            <Icon name="clock" className="h-2.5 w-2.5" /> Pending Review
-                          </span>
-                          <span className="ml-2">Your faculty profile is pending admin approval to be published.</span>
-                        </>
-                      )}
-                    </p>
-                    {faculty.status !== 'published' && (
-                      <div className="mt-3">
-                        <label className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-[11px] font-bold text-navy transition hover:bg-cream cursor-pointer">
-                          <input
-                            type="checkbox"
-                            name="request_faculty_display"
-                            defaultChecked={false}
-                            className="h-4 w-4 rounded border-navy/30 text-navy focus:ring-navy"
-                          />
-                          Request public faculty profile display
-                        </label>
-                        <p className="mt-2 text-[10.5px] font-semibold text-muted">
-                          Check this box to request admin approval for publishing your faculty profile on the public website.
-                        </p>
-                      </div>
+            <div className="mt-4 rounded-xl border border-line bg-paper-2/50 p-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 grid h-5 w-5 place-items-center shrink-0 rounded bg-blue-100">
+                  <Icon name="info" className="h-2.5 w-2.5 text-blue" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-navy-900">Public Faculty Profile</h3>
+                  <p className="mt-1 text-[11.5px] font-semibold text-muted">
+                    {(!faculty || faculty.status === "draft") && (
+                      <>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF6E3] px-2 py-0.5 text-[9.5px] font-extrabold text-[#9A5B00]">
+                          <Icon name="edit" className="h-2.5 w-2.5" /> Draft
+                        </span>
+                        <span className="ml-2">
+                          {faculty
+                            ? "Your faculty profile is saved but not publicly visible."
+                            : "Your faculty profile will be created when you save."}
+                        </span>
+                      </>
                     )}
-                  </div>
+                    {faculty?.status === "published" && (
+                      <>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#EAF9F1] px-2 py-0.5 text-[9.5px] font-extrabold text-[#167A4A]">
+                          <Icon name="check-circle" className="h-2.5 w-2.5" /> Published
+                        </span>
+                        <span className="ml-2">Your faculty profile is publicly visible on the website.</span>
+                      </>
+                    )}
+                    {faculty?.status === "needs_review" && (
+                      <>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF6E3] px-2 py-0.5 text-[9.5px] font-extrabold text-[#9A5B00]">
+                          <Icon name="clock" className="h-2.5 w-2.5" /> Pending Review
+                        </span>
+                        <span className="ml-2">Your faculty profile is pending admin approval to be published.</span>
+                      </>
+                    )}
+                  </p>
+                  {faculty?.status !== "published" && (
+                    <div className="mt-3">
+                      <label className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-[11px] font-bold text-navy transition hover:bg-cream cursor-pointer">
+                        <input
+                          type="checkbox"
+                          name="request_faculty_display"
+                          defaultChecked={faculty?.status === "needs_review"}
+                          className="h-4 w-4 rounded border-navy/30 text-navy focus:ring-navy"
+                        />
+                        Request public faculty profile display
+                      </label>
+                      <p className="mt-2 text-[10.5px] font-semibold text-muted">
+                        Check this box to request admin approval for publishing your faculty profile on the public website.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+            </div>
           </StaffCard>
 
           <div className="flex items-center justify-end gap-3">

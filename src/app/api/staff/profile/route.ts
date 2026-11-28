@@ -1,23 +1,39 @@
-import { getDirectDb } from "@/lib/db";
 import { getStaffSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
+
+const STAFF_COLUMNS =
+  "id, name, email, phone, designation, qualification, bio, photo, created_at, updated_at";
+const FACULTY_COLUMNS =
+  "id, name, email, designation, qualification, bio, photo, subjects, status, order_index, featured, created_at, updated_at";
 
 export async function GET() {
   const session = await getStaffSession();
   if (!session) return Response.json({ error: "Not authenticated" }, { status: 401 });
 
-  const db = getDirectDb();
-  const profile = await db.selectOne('staff', '*', { id: session.user.id }) as
-    | { id: number; name: string; email: string; phone: string | null; designation: string | null; qualification: string | null; bio: string | null; photo: string | null; created_at: string; updated_at: string }
-    | undefined;
+  const { data: profile, error } = await supabaseAdmin
+    .from("staff")
+    .select(STAFF_COLUMNS)
+    .eq("id", session.user.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("GET /api/staff/profile error:", error);
+    return Response.json({ error: "Could not load your profile." }, { status: 500 });
+  }
 
   if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
 
-  const faculty = await db.selectOne('faculty', '*', { email: profile.email }) as
-    | { id: number; name: string; email: string; designation: string | null; qualification: string | null; bio: string | null; photo: string | null; subjects: string | null; status: string; order_index: number; featured: boolean; created_at: string; updated_at: string }
-    | undefined;
+  const { data: faculty, error: facultyError } = await supabaseAdmin
+    .from("faculty")
+    .select(FACULTY_COLUMNS)
+    .eq("email", profile.email)
+    .maybeSingle();
 
-  return Response.json({ profile, faculty });
+  if (facultyError) {
+    console.error("GET /api/staff/profile faculty error:", facultyError);
+  }
+
+  return Response.json({ profile, faculty: faculty ?? null });
 }
