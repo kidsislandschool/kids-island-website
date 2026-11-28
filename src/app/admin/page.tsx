@@ -60,7 +60,7 @@ export default async function AdminDashboardPage() {
           className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-navy px-4 text-[11.5px] font-extrabold text-white transition hover:bg-navy-700"
         >
           <Icon name="mail" className="h-3.5 w-3.5" />
-          New enquiries
+          New inquiries
           {counts.inquiriesNew > 0 && (
             <span className="ml-0.5 rounded-full bg-yellow px-1.5 py-0.5 text-[9.5px] font-extrabold text-navy-900">
               {counts.inquiriesNew}
@@ -71,7 +71,7 @@ export default async function AdminDashboardPage() {
 
       {/* stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <AdminStat label="New enquiries" value={inquiryStats.new} icon="mail" href="/admin/inquiries?status=new" tone="blue" hint={`${inquiryStats.total} in total`} />
+        <AdminStat label="New inquiries" value={inquiryStats.new} icon="mail" href="/admin/inquiries?status=new" tone="blue" hint={`${inquiryStats.total} in total`} />
         <AdminStat label="Published notices" value={counts.noticesPublished} icon="megaphone" href="/admin/notices" tone="pink" />
         <AdminStat label="Faculty profiles" value={counts.facultyPublished} icon="user-group" href="/admin/faculty" tone="mint" />
         <AdminStat label="Study materials" value={counts.materialsPublished} icon="book" href="/admin/materials" tone="blue" />
@@ -80,11 +80,11 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
-        {/* latest enquiries */}
+        {/* latest inquiries */}
         <AdminCard>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
             <div>
-              <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Latest enquiries</h2>
+              <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Latest inquiries</h2>
               <p className="mt-0.5 text-[11.5px] font-semibold text-muted">
                 Admission and contact submissions from the public forms.
               </p>
@@ -97,7 +97,7 @@ export default async function AdminDashboardPage() {
           {recentInquiries.length === 0 ? (
             <EmptyState
               icon="mail"
-              title="No enquiries yet"
+              title="No inquiries yet"
               text="Admission and contact form submissions will appear here as soon as they arrive."
             />
           ) : (

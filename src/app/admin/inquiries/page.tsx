@@ -9,7 +9,7 @@ import { cn, formatDateTime, truncate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Enquiries" };
+export const metadata: Metadata = { title: "Inquiries" };
 
 type Search = {
   type?: string;
@@ -35,8 +35,8 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
     <div className="flex flex-col gap-5">
       <AdminPageHeader
         eyebrow="Admissions"
-        title="Enquiries"
-        description="Admission enquiries and contact messages submitted from the public site. Update statuses as your team follows up."
+        title="Inquiries"
+        description="Admission inquiries and contact messages submitted from the public site. Update statuses as your team follows up."
       >
         <Link
           href="/admin/admissions"
@@ -56,7 +56,7 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "All enquiries", value: counts.total, href: "/admin/inquiries", active: !type },
+          { label: "All inquiries", value: counts.total, href: "/admin/inquiries", active: !type },
           { label: "Admission", value: counts.admission, href: "/admin/inquiries?type=admission", active: type === "admission" },
           { label: "Contact", value: counts.contact, href: "/admin/inquiries?type=contact", active: type === "contact" },
           { label: "Unread / new", value: counts.new, href: "/admin/inquiries?status=new", active: status === "new" && !type },
@@ -83,7 +83,7 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
 
       <form method="get" className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-3.5 shadow-[0_10px_30px_-24px_rgba(18,50,92,0.35)] sm:flex-row sm:items-center">
         <label className="relative flex-1">
-          <span className="sr-only">Search enquiries</span>
+          <span className="sr-only">Search inquiries</span>
           <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <input
             name="q"
@@ -130,7 +130,7 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
       </form>
 
       <p className="text-[11px] font-bold text-muted" aria-live="polite">
-        {result.total} enquir{result.total === 1 ? "y" : "ies"}
+        {result.total} inquir{result.total === 1 ? "y" : "ies"}
         {q ? ` matching “${q}”` : ""} · page {result.page} of {result.pages}
       </p>
 
@@ -138,7 +138,7 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
         {result.rows.length === 0 ? (
           <EmptyState
             icon="mail"
-            title="No enquiries found"
+            title="No inquiries found"
             text={q || type || status ? "Try clearing the filters or using a different search term." : "Submissions from the admission and contact forms will appear here."}
           >
             {(q || type || status) && (
@@ -155,7 +155,7 @@ export default async function AdminInquiriesPage({ searchParams }: { searchParam
             <table className="w-full min-w-[880px] text-left">
               <thead>
                 <tr className="border-b border-line bg-paper-2/60">
-                  {["Enquirer", "Type", "Message", "Status", "Received", ""].map((heading, index) => (
+                  {["Inquirer", "Type", "Message", "Status", "Received", ""].map((heading, index) => (
                     <th
                       key={heading || index}
                       className={cn(

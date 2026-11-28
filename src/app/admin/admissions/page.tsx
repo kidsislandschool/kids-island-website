@@ -20,7 +20,7 @@ export default async function AdminAdmissionsPage() {
       <AdminPageHeader
         eyebrow="Admissions"
         title="Admissions desk"
-        description="Review admission enquiries, follow up with families and keep track of the admission pipeline."
+        description="Review admission inquiries, follow up with families and keep track of the admission pipeline."
       >
         <Link
           href="/admissions"
@@ -51,7 +51,7 @@ export default async function AdminAdmissionsPage() {
         <AdminCard>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
             <div>
-              <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Latest admission enquiries</h2>
+              <h2 className="font-display text-[16.5px] font-semibold text-navy-900">Latest admission inquiries</h2>
               <p className="mt-0.5 text-[11.5px] font-semibold text-muted">
                 Submitted from the form on the admissions page.
               </p>
@@ -63,7 +63,7 @@ export default async function AdminAdmissionsPage() {
           {latest.rows.length === 0 ? (
             <EmptyState
               icon="graduation"
-              title="No admission enquiries yet"
+              title="No admission inquiries yet"
               text="When a family submits the admission form, their details will appear here and in the inquiry inbox."
             />
           ) : (
@@ -114,7 +114,7 @@ export default async function AdminAdmissionsPage() {
             </div>
             <ul className="divide-y divide-line/70">
               {[
-                { label: "All admission enquiries", value: counts.admission, href: "/admin/inquiries?type=admission", icon: "graduation" as const },
+                { label: "All admission inquiries", value: counts.admission, href: "/admin/inquiries?type=admission", icon: "graduation" as const },
                 { label: "New, not yet read", value: counts.new, href: "/admin/inquiries?type=admission&status=new", icon: "mail" as const },
                 { label: "Replied", value: counts.replied, href: "/admin/inquiries?type=admission&status=replied", icon: "check-circle" as const },
                 { label: "Contact messages", value: counts.contact, href: "/admin/inquiries?type=contact", icon: "info" as const },

@@ -75,7 +75,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
               </span>
             </div>
             <dl className="grid gap-x-6 gap-y-4 px-5 py-5 sm:grid-cols-2">
-              <Detail label="Student / enquirer" value={inquiry.name} />
+              <Detail label="Student / inquirer" value={inquiry.name} />
               <Detail label="Parent / guardian" value={inquiry.parent_name} />
               <Detail
                 label="Email"
@@ -152,7 +152,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
           <AdminCard className="p-5">
             <h2 className="font-display text-[15.5px] font-semibold text-navy-900">Status</h2>
             <p className="mt-1 text-[11px] font-semibold leading-relaxed text-muted">
-              Mark the enquiry as you work through it. The latest status is visible in the inbox.
+              Mark the inquiry as you work through it. The latest status is visible in the inbox.
             </p>
             <div className="mt-3">
               <InquiryStatusSelect id={inquiry.id} status={inquiry.status} className="w-full" />

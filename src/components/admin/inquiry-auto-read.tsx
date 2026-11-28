@@ -19,7 +19,7 @@ export function InquiryAutoRead({ id, status }: { id: number; status: string }) 
         const res = await fetch(`/api/admin/inquiries/${id}/view`, { method: "POST" });
         if (res.ok && !cancelled) router.refresh();
       } catch {
-        // Viewing the enquiry still works; the status can be changed manually.
+        // Viewing the inquiry still works; the status can be changed manually.
       }
     })();
     return () => {
